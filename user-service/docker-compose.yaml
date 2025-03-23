@@ -1,0 +1,32 @@
+services:
+  user-service:
+    container_name: mu-user-service
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: pg:${PG_PORT}
+      PG_HOST: pg
+      PG_PORT: ${PG_PORT} 
+      ENV: prod
+    depends_on:
+      - pg
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+
+  pg:
+    image: postgres:14.13-alpine3.20
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_NAME}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "${PG_PORT}"
+
+volumes:
+  pg_data:
+    name: mu-user-service-pg

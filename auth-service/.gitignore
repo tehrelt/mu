@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+
+bin/
+*.exe
+
+.env
+
+cover.html/
