@@ -18,12 +18,11 @@ enum Role {
 }
 
 message AuthorizeRequest {
-    string id = 1;
+    string token = 1;
     repeated Role roles = 2;
 }
 
 message AuthorizeResponse {
-    bool approved = 1; 
 }
 
 message User {
@@ -70,8 +69,11 @@ message ProfileRequest {
 
 message ProfileResponse {
     string id = 1;
-    User user = 2;
-    repeated Role roles = 3;
+    string last_name = 2;
+    string first_name = 3;
+    string middle_name = 4;
+    string email = 5;
+    repeated Role roles = 6;
 }
 
 message LogoutRequest {

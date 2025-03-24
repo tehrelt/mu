@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/user-service/internal/config"
 	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
@@ -55,9 +54,9 @@ func (s *Server) Run(ctx context.Context) error {
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
-	log.Info("start grpc server", slog.String("addr", addr))
+	slog.Info("start grpc server", slog.String("addr", addr))
 
-	log.Info("enabling reflection")
+	slog.Info("enabling reflection")
 	reflection.Register(server)
 
 	userspb.RegisterUserServiceServer(server, s)
@@ -82,7 +81,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}()
 
 	<-ctx.Done()
-	log.Info("grpc server stopped")
+	slog.Info("grpc server stopped")
 	server.GracefulStop()
 	return nil
 }

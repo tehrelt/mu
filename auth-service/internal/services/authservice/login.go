@@ -5,45 +5,52 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/entity"
+
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func (a *AuthService) Login(ctx context.Context, req *dto.Login) (*dto.Tokens, error) {
+func (s *AuthService) Login(ctx context.Context, req *dto.LoginUser) (*dto.TokenPair, error) {
 
-	fn := "authservice.Login"
-	log := a.logger.With(sl.Method(fn))
+	log := slog.With(sl.Method("authservice.Login"))
 
-	log.Debug("logging in", slog.Any("req", req))
-
-	user, err := a.userProvider.Find(ctx, req.Email)
+	candidate, err := s.userProvider.UserByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
-			log.Debug("user not found", sl.Err(err))
-			return nil, fmt.Errorf("%s: %w", fn, domain.ErrUserNotFound)
+			return nil, services.ErrInvalidCredentials
 		}
 
-		log.Error("unexpected error on found user", sl.Err(err))
-		return nil, fmt.Errorf("%s: %w", fn, err)
+		log.Error("failed provide user", slog.String("email", req.Email), sl.Err(err))
+		return nil, fmt.Errorf("failed to provide user: %w", err)
 	}
 
-	if err := a.comparePassword(user.HashedPassword, req.Password); err != nil {
-		log.Error("password not match", sl.Err(err))
-		return nil, fmt.Errorf("%s: %w", fn, domain.ErrIncorrectPassword)
-	}
-
-	tokens, err := a.generateJwtPair(&entity.UserClaims{Id: user.Id, Email: user.Email})
+	creds, err := s.credentialsProvider.Credentials(ctx, candidate.Id)
 	if err != nil {
-		log.Error("cannot generate jwt", sl.Err(err))
-		return nil, err
+		log.Error("failed to get credentials", slog.String("user_id", candidate.Id.String()), sl.Err(err))
+		return nil, fmt.Errorf("failed to get credentials: %w", err)
 	}
 
-	if err := a.sessions.Save(ctx, user.Id, tokens.RefreshToken); err != nil {
-		log.Error("cannot save session", sl.Err(err))
-		return nil, err
+	if err := s.comparePassword(creds.HashedPassword, req.Password); err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return nil, services.ErrInvalidCredentials
+		}
+
+		log.Error("failed to compare password", slog.String("user_id", candidate.Id.String()), sl.Err(err))
+		return nil, fmt.Errorf("failed to compare password: %w", err)
+	}
+
+	tokens, err := s.createTokens(&dto.UserClaims{Id: candidate.Id.String()})
+	if err != nil {
+		log.Error("failed to create tokens", slog.String("user_id", candidate.Id.String()), sl.Err(err))
+		return nil, fmt.Errorf("failed to create tokens: %w", err)
+	}
+
+	if err := s.sessions.Save(ctx, candidate.Id, tokens.RefreshToken); err != nil {
+		log.Error("failed to save session", slog.String("user_id", candidate.Id.String()), slog.String("refresh_token", tokens.RefreshToken), sl.Err(err))
+		return nil, fmt.Errorf("failed to save session: %w", err)
 	}
 
 	return tokens, nil

@@ -3,50 +3,65 @@ package authservice
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/entity"
+
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
 )
 
-func (a *AuthService) Register(ctx context.Context, req *dto.CreateUser) (tokens *dto.Tokens, err error) {
+func (s *AuthService) Register(ctx context.Context, req *dto.RegisterUser) (*dto.TokenPair, error) {
 
-	log := a.logger.With("method", "AuthService.Register")
+	log := slog.With(sl.Method("authservice.Register"))
 
-	log.Debug("registering", slog.Any("req", req))
+	candidate, err := s.userProvider.UserByEmail(ctx, req.Email)
+	if err != nil && !errors.Is(err, storage.ErrUserNotFound) {
+		log.Error("get user by email error", sl.Err(err))
+		return nil, err
+	}
+	if candidate != nil {
+		log.Error("user already exists")
+		return nil, fmt.Errorf("user already exists")
+	}
 
-	log.Debug("hashing password", slog.String("password", req.Password))
-	req.Password, err = a.hash(req.Password)
+	user := &dto.CreateUser{
+		Fio:          req.Fio,
+		PersonalData: req.PersonalData,
+		Email:        req.Email,
+	}
+
+	hashedPassword, err := s.hash(req.Password)
 	if err != nil {
-		log.Error("hash password error", sl.Err(err))
+		log.Error("hash error", sl.Err(err))
 		return nil, err
 	}
 
-	log.Debug("creating user")
-
-	user, err := a.userSaver.Save(ctx, req)
+	userId, err := s.userSaver.Create(ctx, user)
 	if err != nil {
 		log.Error("create user error", sl.Err(err))
-		if errors.Is(err, storage.ErrUserAlreadyExists) {
-			return nil, domain.ErrEmailTaken
-		}
-
 		return nil, err
 	}
 
-	log.Debug("generating jwt pair")
-	tokens, err = a.generateJwtPair(&entity.UserClaims{
-		Id:    user.Id,
-		Email: user.Email,
-	})
+	creds := &models.Credentials{
+		UserId:         userId,
+		HashedPassword: hashedPassword,
+		Roles:          req.Roles,
+	}
+
+	if err := s.credentialSaver.Save(ctx, creds); err != nil {
+		log.Error("save credentials error", sl.Err(err))
+		return nil, err
+	}
+
+	tokens, err := s.createTokens(&dto.UserClaims{Id: userId.String()})
 	if err != nil {
-		log.Error("generate jwt pair error", sl.Err(err))
+		log.Error("create tokens error", sl.Err(err))
 		return nil, err
 	}
 
-	if err := a.sessions.Save(ctx, user.Id, tokens.RefreshToken); err != nil {
+	if err := s.sessions.Save(ctx, userId, tokens.RefreshToken); err != nil {
 		log.Error("save session error", sl.Err(err))
 		return nil, err
 	}

@@ -2,14 +2,13 @@ package authservice
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
 )
 
@@ -41,81 +40,86 @@ type SessionsStorage interface {
 
 //go:generate go run github.com/vektra/mockery/v2@v2.46.0 --name=RoleStorage
 type RoleStorage interface {
-	Add(ctx context.Context, dto *dto.AddRoles) error
-	Remove(ctx context.Context, dto *dto.RemoveRoles) error
+	Add(ctx context.Context, dto *dto.UserRoles) error
+	Roles(ctx context.Context, userId uuid.UUID) ([]models.Role, error)
 }
 
 type AuthService struct {
+	cfg                 *config.Config
+	logger              *slog.Logger
 	userSaver           UserCreator
 	userProvider        UserProvider
 	credentialSaver     CredentialsSaver
 	credentialsProvider CredentialsProvider
 	roles               RoleStorage
 	sessions            SessionsStorage
-	cfg                 *config.Config
-	logger              *slog.Logger
+	jwtClient           *jwt.JwtClient
 }
 
-func New(usaver UserCreator, uprovider UserProvider, r RoleStorage, s SessionsStorage, cfg *config.Config) *AuthService {
+func New(
+	usaver UserCreator,
+	uprovider UserProvider,
+	r RoleStorage,
+	s SessionsStorage,
+	cfg *config.Config,
+	jc *jwt.JwtClient,
+) *AuthService {
 	svc := &AuthService{
 		cfg:          cfg,
+		logger:       slog.With(sl.Module("authservice.AuthService")),
 		userSaver:    usaver,
 		userProvider: uprovider,
 		roles:        r,
 		sessions:     s,
-		logger:       slog.With(sl.Module("authservice.AuthService")),
-	}
-
-	if err := svc.setup(context.Background()); err != nil {
-		panic(err)
+		jwtClient:    jc,
 	}
 
 	return svc
 }
 
-func (s *AuthService) setup(ctx context.Context) error {
-	fn := "authservice.setup"
-	log := s.logger.With(sl.Method(fn))
+// func (s *AuthService) setup(ctx context.Context) error {
+// 	fn := "authservice.setup"
+// 	log := s.logger.With(sl.Method(fn))
 
-	log.Info("setup")
+// 	log.Info("setup")
 
-	email := s.cfg.DefaultAdmin.Email
-	password := s.cfg.DefaultAdmin.Password
+// 	email := s.cfg.DefaultAdmin.Email
+// 	password := s.cfg.DefaultAdmin.Password
 
-	_, err := s.userProvider.UserByEmail(ctx, email)
-	if err == nil {
-		return nil
-	}
+// 	_, err := s.userProvider.UserByEmail(ctx, email)
+// 	if err == nil {
+// 		return nil
+// 	}
 
-	if !errors.Is(err, storage.ErrUserNotFound) {
-		return err
-	}
+// 	if !errors.Is(err, storage.ErrUserNotFound) {
+// 		return err
+// 	}
 
-	log.Info("root user not found")
+// 	log.Info("root user not found")
 
-	if _, err := s.Register(ctx, &dto.CreateUser{
-		Email:    email,
-		Password: password,
-	}); err != nil {
-		return err
-	}
+// 	if _, err := s.Register(ctx, &dto.CreateUser{
+// 		Email:    email,
+// 		Password: password,
+// 	}); err != nil {
+// 		return err
+// 	}
 
-	user, err := s.userProvider.UserByEmail(ctx, email)
-	if err != nil {
-		return err
-	}
+// 	user, err := s.userProvider.UserByEmail(ctx, email)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	if err := s.roles.Add(
-		ctx,
-		&dto.AddRoles{
-			UserId: user.Id,
-			Roles:  []models.Role{models.Role_Admin},
-		},
-	); err != nil {
-		return err
-	}
+// 	if err := s.roles.Add(
+// 		ctx,
+// 		&dto.AddRoles{
+// 			UserId: user.Id,
+// 			Roles:  []models.Role{models.Role_Admin},
+// 		},
+// 	); err != nil {
+// 		return err
+// 	}
 
-	log.Info("root user created")
+// 	log.Info("root user created")
 
-	return nil
-}
+// 	return nil
+// }

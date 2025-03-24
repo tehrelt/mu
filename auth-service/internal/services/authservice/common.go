@@ -1,11 +1,8 @@
 package authservice
 
 import (
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/entity"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"time"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,18 +22,18 @@ func (a *AuthService) comparePassword(hash, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-func (a *AuthService) generateJwtPair(claims *entity.UserClaims) (*dto.Tokens, error) {
-	accessToken, err := jwt.Sign(claims, time.Duration(a.cfg.Jwt.AccessTTL)*time.Minute, []byte(a.cfg.Jwt.AccessSecret))
+func (a *AuthService) createTokens(claims *dto.UserClaims) (*dto.TokenPair, error) {
+	accessToken, err := a.jwtClient.Sign(claims, jwt.AccessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := jwt.Sign(claims, time.Duration(a.cfg.Jwt.RefreshTTL)*time.Minute, []byte(a.cfg.Jwt.RefreshSecret))
+	refreshToken, err := a.jwtClient.Sign(claims, jwt.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.Tokens{
+	return &dto.TokenPair{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

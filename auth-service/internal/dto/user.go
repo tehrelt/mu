@@ -1,5 +1,10 @@
 package dto
 
+import (
+	"github.com/google/uuid"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
+)
+
 type Fio struct {
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
@@ -17,8 +22,32 @@ type PersonalData struct {
 	Snils    string   `json:"snils"`
 }
 
+type RegisterUser struct {
+	Fio
+	PersonalData
+	Email    string        `json:"email"`
+	Password string        `json:"password"`
+	Roles    []models.Role `json:"roles"`
+}
+
+type LoginUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type CreateUser struct {
 	Fio
 	PersonalData
 	Email string `json:"email"`
+}
+
+type UserClaims struct {
+	Id string `json:"id"`
+}
+
+type Profile struct {
+	Id    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Fio
+	Roles []models.Role `json:"roles"`
 }

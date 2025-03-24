@@ -8,4 +8,5 @@ var (
 	ErrSessionNotFound     = errors.New("session not found")
 	ErrSessionInvalid      = errors.New("invalid session")
 	ErrRoleAlreadyAssigned = errors.New("role already assigned")
+	ErrTokenNotFound       = errors.New("token not found")
 )

@@ -1,6 +1,3 @@
-//go:build wireinject
-// +build wireinject
-
 package app
 
 import (
@@ -10,6 +7,13 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/profileservice"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/grpc/usersapi"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/credentialstorage"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/rolestorage"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/redis/sessionstorage"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
 
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
@@ -24,6 +28,22 @@ func New() (*App, func(), error) {
 		newApp,
 		_servers,
 
+		wire.NewSet(
+			wire.Bind(new(authservice.UserCreator), new(*usersapi.Api)),
+			wire.Bind(new(authservice.UserProvider), new(*usersapi.Api)),
+			wire.Bind(new(authservice.CredentialsSaver), new(*credentialstorage.CredentialStorage)),
+			wire.Bind(new(authservice.SessionsStorage), new(*sessionstorage.SessionsStorage)),
+			wire.Bind(new(authservice.RoleStorage), new(*rolestorage.RoleStorage)),
+			authservice.New,
+		),
+
+		wire.NewSet(
+			wire.Bind(new(profileservice.UserProvider), new(*usersapi.Api)),
+			wire.Bind(new(profileservice.RoleProvider), new(*rolestorage.RoleStorage)),
+			profileservice.New,
+		),
+
+		jwt.New,
 		_pg,
 		_redis,
 		config.New,
@@ -81,12 +101,8 @@ func _redis(cfg *config.Config) (*redis.Client, func(), error) {
 	return client, func() { client.Close() }, nil
 }
 
-func _servers(cfg *config.Config) []Server {
+func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservice.ProfileService) []Server {
 	servers := make([]Server, 0, 2)
-
-	if cfg.Grpc.Enabled {
-		servers = append(servers, grpc.New(cfg, as, us))
-	}
-
+	servers = append(servers, grpc.New(cfg, as, ps))
 	return servers
 }

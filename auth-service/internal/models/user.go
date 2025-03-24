@@ -32,8 +32,8 @@ type RegisterUserRequest struct {
 }
 
 type User struct {
-	Id    string `json:"id"`
-	Email string `json:"email"`
+	Id    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
 	Fio
 	PersonalData
 }
@@ -41,5 +41,5 @@ type User struct {
 type Credentials struct {
 	UserId         uuid.UUID `json:"userId"`
 	HashedPassword string    `json:"hashedPassword"`
-	Role           []Role    `json:"roles"`
+	Roles          []Role    `json:"roles"`
 }
