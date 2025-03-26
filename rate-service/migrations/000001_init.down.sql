@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS services;
+DROP EXTENSION IF EXISTS "uuid-ossp";
