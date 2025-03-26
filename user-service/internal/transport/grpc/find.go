@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
+	"github.com/tehrelt/moi-uslugi/user-service/internal/storage"
 	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
 	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
 	"google.golang.org/grpc/codes"
@@ -41,6 +43,9 @@ func (s *Server) Find(ctx context.Context, req *userspb.FindRequest) (*userspb.F
 	}
 
 	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 		log.Error("failed to find user", sl.Err(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}

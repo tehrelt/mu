@@ -27,13 +27,13 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginUser) (*dto.Token
 		return nil, fmt.Errorf("failed to provide user: %w", err)
 	}
 
-	creds, err := s.credentialsProvider.Credentials(ctx, candidate.Id)
+	pass, err := s.credentialsProvider.Password(ctx, candidate.Id)
 	if err != nil {
 		log.Error("failed to get credentials", slog.String("user_id", candidate.Id.String()), sl.Err(err))
 		return nil, fmt.Errorf("failed to get credentials: %w", err)
 	}
 
-	if err := s.comparePassword(creds.HashedPassword, req.Password); err != nil {
+	if err := s.comparePassword(pass, req.Password); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return nil, services.ErrInvalidCredentials
 		}

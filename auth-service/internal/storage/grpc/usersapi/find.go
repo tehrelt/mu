@@ -33,7 +33,11 @@ func (api *Api) UserById(ctx context.Context, userId uuid.UUID) (*models.User, e
 
 		return nil, err
 	}
-	user := userFromProto(resp.User)
+	user, err := userFromProto(resp.User)
+	if err != nil {
+		log.Error("failed convert user from proto", sl.Err(err))
+		return nil, err
+	}
 
 	return user, nil
 }
@@ -56,7 +60,11 @@ func (api *Api) UserByEmail(ctx context.Context, email string) (*models.User, er
 		}
 		return nil, err
 	}
-	user := userFromProto(resp.User)
+	user, err := userFromProto(resp.User)
+	if err != nil {
+		log.Error("failed convert user from proto", sl.Err(err))
+		return nil, err
+	}
 
 	return user, nil
 }

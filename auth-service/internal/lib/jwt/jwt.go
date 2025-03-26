@@ -10,7 +10,7 @@ const (
 )
 
 type TokenConfig struct {
-	Secret string
+	Secret []byte
 	TTL    int
 }
 
@@ -22,11 +22,11 @@ type JwtClient struct {
 func New(cfg *config.Config) *JwtClient {
 	return &JwtClient{
 		accessConfig: TokenConfig{
-			Secret: cfg.Jwt.AccessSecret,
+			Secret: []byte(cfg.Jwt.AccessSecret),
 			TTL:    cfg.Jwt.AccessTTL,
 		},
 		refreshConfig: TokenConfig{
-			Secret: cfg.Jwt.RefreshSecret,
+			Secret: []byte(cfg.Jwt.RefreshSecret),
 			TTL:    cfg.Jwt.RefreshTTL,
 		},
 	}

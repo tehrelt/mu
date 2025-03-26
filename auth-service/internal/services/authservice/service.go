@@ -28,7 +28,7 @@ type CredentialsSaver interface {
 }
 
 type CredentialsProvider interface {
-	Credentials(ctx context.Context, userId uuid.UUID) (*models.Credentials, error)
+	Password(ctx context.Context, userId uuid.UUID) (string, error)
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.46.0 --name=SessionsStorage
@@ -63,15 +63,19 @@ func New(
 	s SessionsStorage,
 	cfg *config.Config,
 	jc *jwt.JwtClient,
+	cs CredentialsSaver,
+	cp CredentialsProvider,
 ) *AuthService {
 	svc := &AuthService{
-		cfg:          cfg,
-		logger:       slog.With(sl.Module("authservice.AuthService")),
-		userSaver:    usaver,
-		userProvider: uprovider,
-		roles:        r,
-		sessions:     s,
-		jwtClient:    jc,
+		cfg:                 cfg,
+		logger:              slog.With(sl.Module("authservice.AuthService")),
+		userSaver:           usaver,
+		userProvider:        uprovider,
+		roles:               r,
+		sessions:            s,
+		jwtClient:           jc,
+		credentialSaver:     cs,
+		credentialsProvider: cp,
 	}
 
 	return svc

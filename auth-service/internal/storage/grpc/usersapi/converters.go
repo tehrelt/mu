@@ -1,13 +1,24 @@
 package usersapi
 
 import (
+	"log/slog"
+
+	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userspb"
+	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
 )
 
-func userFromProto(user *userspb.User) *models.User {
+func userFromProto(user *userspb.User) (*models.User, error) {
+
+	id, err := uuid.Parse(user.Id)
+	if err != nil {
+		slog.Error("failed to parse user id from proto", sl.Err(err))
+		return nil, err
+	}
+
 	return &models.User{
-		Id:    user.Id,
+		Id:    id,
 		Email: user.Email,
 		Fio: models.Fio{
 			LastName:   user.Fio.Lastname,
@@ -22,5 +33,5 @@ func userFromProto(user *userspb.User) *models.User {
 				Series: int(user.PersonalData.Passport.Series),
 			},
 		},
-	}
+	}, nil
 }

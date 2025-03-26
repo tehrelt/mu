@@ -39,11 +39,6 @@ type Server struct {
 	authpb.UnimplementedAuthServiceServer
 }
 
-// Register implements authpb.AuthServiceServer.
-func (s *Server) Register(context.Context, *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
-	panic("unimplemented")
-}
-
 func New(
 	cfg *config.Config,
 	as AuthService,

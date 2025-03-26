@@ -79,7 +79,7 @@ func (s *SessionsStorage) Delete(ctx context.Context, userId uuid.UUID) error {
 	return nil
 }
 
-func NewSessionsStorage(db *redis.Client, cfg *config.Config) *SessionsStorage {
+func New(db *redis.Client, cfg *config.Config) *SessionsStorage {
 	return &SessionsStorage{
 		db:     db,
 		cfg:    cfg,
