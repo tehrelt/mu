@@ -1,0 +1,48 @@
+syntax = "proto3";
+package rate;
+option go_package="github.com/tehrelt/moi-uslugi/proto/rate;ratepb";
+
+service RateService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Find(FindRequest) returns (Service);
+    rpc List(ListRequest) returns (stream Service);
+    rpc UpdateServiceRate(UpdateServiceRateRequest) returns (UpdateServiceRateResponse);
+}
+
+message Service {
+    string id = 1;
+    string name = 2;
+    string measure_unit = 3;
+    int64 rate = 4;
+}
+
+message CreateRequest {
+    string name = 1;
+    int64 initial_rate = 2;
+    string measure_unit = 3;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindResponse {
+    Service service = 1;
+}
+
+message UpdateServiceRateRequest {
+    string id = 1;
+    int64 new_rate = 2;
+}
+
+message UpdateServiceRateResponse {
+}
+
+message ListRequest {
+
+}
+
