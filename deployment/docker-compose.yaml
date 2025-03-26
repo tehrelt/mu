@@ -1,0 +1,13 @@
+include:
+  - user.yaml
+  - auth.yaml
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "80:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=root@mu.ru
+      - PGADMIN_DEFAULT_PASSWORD=rootroot
+      - PGADMIN_LISTEN_PORT=80

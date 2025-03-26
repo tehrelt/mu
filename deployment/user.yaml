@@ -1,0 +1,38 @@
+services:
+  user-service:
+    container_name: user-service
+    build:
+      context: ../user-service
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: user-pg:5432
+
+      PG_HOST: user-pg
+      PG_PORT: 5432
+      PG_NAME: ${USER_PG_NAME}
+      PG_USER: ${USER_PG_USER}
+      PG_PASS: ${USER_PG_PASS}
+
+      GRPC_PORT: 4000
+
+      ENV: prod
+    depends_on:
+      - user-pg
+    ports:
+      - "${USER_GRPC_PORT}:4000"
+
+  user-pg:
+    container_name: user-service-pg
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${USER_PG_NAME}
+      POSTGRES_USER: ${USER_PG_USER}
+      POSTGRES_PASSWORD: ${USER_PG_PASS}
+    volumes:
+      - user-pg-data:/var/lib/postgresql/data
+
+volumes:
+  user-pg-data:
+    name: mu-user-service-pg

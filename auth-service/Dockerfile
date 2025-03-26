@@ -1,4 +1,4 @@
-FROM golang:1.22.0-alpine3.19 as builder
+FROM golang:1.24.0-alpine3.20 as builder
 
 RUN apk update --no-cache
 WORKDIR /app
