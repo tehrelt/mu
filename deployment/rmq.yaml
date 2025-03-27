@@ -1,0 +1,12 @@
+services:
+  rmq:
+    container_name: mzhn-rabbitmq
+    image: rabbitmq:3-management
+    volumes:
+      - rmq-data:/data
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  rmq-data:

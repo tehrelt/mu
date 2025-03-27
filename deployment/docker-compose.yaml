@@ -1,6 +1,7 @@
 include:
   - user.yaml
   - auth.yaml
+  - rmq.yaml
 
 services:
   pgadmin:

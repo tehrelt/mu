@@ -41,6 +41,16 @@ type Config struct {
 	App      App
 	Grpc     Grpc
 	Postgres Postgres
+
+	Amqp struct {
+		Host                  string `env:"AMQP_HOST" env-required:"true"`
+		Port                  int    `env:"AMQP_PORT" env-required:"true"`
+		User                  string `env:"AMQP_USER" env-required:"true"`
+		Pass                  string `env:"AMQP_PASS" env-required:"true"`
+		RateChangedExchange   string `env:"AMQP_RATE_CHANGED_EXCHANGE" env-required:"true"`
+		RateChangedQueue      string `env:"AMQP_RATE_CHANGED_QUEUE" env-required:"true"`
+		RateChangedRoutingKey string `env:"AMQP_RATE_CHANGED_ROUTING_KEY" env-required:"true"`
+	}
 }
 
 func New() *Config {

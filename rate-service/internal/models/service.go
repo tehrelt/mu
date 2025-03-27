@@ -25,3 +25,10 @@ type UpdateServiceRate struct {
 	Id   uuid.UUID `db:"id"`
 	Rate int64     `db:"rate"`
 }
+
+type EventRateChanged struct {
+	Id        uuid.UUID `json:"id"`
+	OldRate   int64     `json:"oldRate"`
+	NewRate   int64     `json:"newRate"`
+	Timestamp time.Time `json:"timestamp"`
+}
