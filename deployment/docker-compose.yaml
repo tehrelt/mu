@@ -2,6 +2,7 @@ include:
   - user.yaml
   - auth.yaml
   - rmq.yaml
+  - rate-service.yaml
 
 services:
   pgadmin:
