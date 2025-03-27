@@ -1,0 +1,42 @@
+services:
+  housing-service:
+    container_name: housing-service
+    build:
+      context: ../housing-service
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: housing-service-pg:5432, rmq:5672
+
+      PG_HOST: housing-service-pg
+      PG_PORT: 5432
+
+      PG_NAME: ${HOUSING_PG_NAME}
+      PG_USER: ${HOUSING_PG_USER}
+      PG_PASS: ${HOUSING_PG_PASS}
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      GRPC_PORT: 4000
+
+      ENV: prod
+    depends_on:
+      - housing-service-pg
+      - rmq
+    ports:
+      - "${HOUSING_GRPC_PORT}:4000"
+
+  housing-service-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${HOUSING_PG_NAME}
+      POSTGRES_USER: ${HOUSING_PG_USER}
+      POSTGRES_PASSWORD: ${HOUSING_PG_PASS}
+    volumes:
+      - housing-service-pg-data:/var/lib/postgresql/data
+
+volumes:
+  housing-service-pg-data:
+    name: mu-housing-service-pg

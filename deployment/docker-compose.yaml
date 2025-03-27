@@ -3,6 +3,7 @@ include:
   - auth.yaml
   - rmq.yaml
   - rate-service.yaml
+  - housing-service.yaml
 
 services:
   pgadmin:
