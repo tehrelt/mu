@@ -4,6 +4,7 @@ include:
   - rmq.yaml
   - rate-service.yaml
   - housing-service.yaml
+  - billing-service.yaml
 
 services:
   pgadmin:
