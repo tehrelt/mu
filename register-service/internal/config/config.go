@@ -42,8 +42,8 @@ type Config struct {
 	Grpc Grpc
 
 	UserService struct {
-		Host string `env:"RATE_SERVICE_HOST"`
-		Port int    `env:"RATE_SERVICE_PORT"`
+		Host string `env:"USER_SERVICE_HOST"`
+		Port int    `env:"USER_SERVICE_PORT"`
 	}
 
 	AuthService struct {

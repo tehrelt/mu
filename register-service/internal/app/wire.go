@@ -1,10 +1,15 @@
+//go:build wireinject
+// +build wireinject
+
 package app
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/wire"
 	"github.com/tehrelt/mu/register-service/internal/config"
+	"github.com/tehrelt/mu/register-service/internal/lib/tracer"
 	"github.com/tehrelt/mu/register-service/internal/lib/tracer/interceptors"
 	tgrpc "github.com/tehrelt/mu/register-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
@@ -15,7 +20,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -24,6 +29,7 @@ func New() (*App, func(), error) {
 
 		_userpb,
 		_authpb,
+		tracer.SetupTracer,
 		config.New,
 	))
 }

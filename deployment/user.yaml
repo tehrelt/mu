@@ -8,6 +8,8 @@ services:
     environment:
       WAIT_HOSTS: user-pg:5432
 
+      APP_NAME: MU User Service
+
       PG_HOST: user-pg
       PG_PORT: 5432
       PG_NAME: ${USER_PG_NAME}
@@ -15,6 +17,8 @@ services:
       PG_PASS: ${USER_PG_PASS}
 
       GRPC_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
 
       ENV: prod
     depends_on:

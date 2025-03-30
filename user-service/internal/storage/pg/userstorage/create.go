@@ -6,9 +6,9 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage/pg"
+	"github.com/tehrelt/mu/user-service/pkg/sl"
 )
 
 func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id uuid.UUID, err error) {

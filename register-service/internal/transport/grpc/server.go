@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/tehrelt/mu/register-service/internal/config"
+	"github.com/tehrelt/mu/register-service/internal/lib/tracer/interceptors"
 	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
@@ -74,7 +75,11 @@ func New(cfg *config.Config, authApi authpb.AuthServiceClient, userApi userpb.Us
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
