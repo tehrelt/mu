@@ -9,14 +9,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 
 	"github.com/redis/go-redis/v9"
 )
 
 var _ authservice.SessionsStorage = (*SessionsStorage)(nil)
+
+const traceKey = "redis:session-storage"
 
 type SessionsStorage struct {
 	db     *redis.Client
@@ -25,6 +29,11 @@ type SessionsStorage struct {
 }
 
 func (s *SessionsStorage) Save(ctx context.Context, userId uuid.UUID, token string) error {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
+
 	fn := "redis.Save"
 	log := s.logger.With(slog.String("userId", userId.String()), sl.Method(fn))
 
@@ -40,6 +49,10 @@ func (s *SessionsStorage) Save(ctx context.Context, userId uuid.UUID, token stri
 }
 
 func (s *SessionsStorage) Check(ctx context.Context, userId uuid.UUID, refreshToken string) error {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
 
 	fn := "redis.Check"
 	log := s.logger.With(slog.String("userId", userId.String()), sl.Method(fn))
@@ -65,6 +78,11 @@ func (s *SessionsStorage) Check(ctx context.Context, userId uuid.UUID, refreshTo
 }
 
 func (s *SessionsStorage) Delete(ctx context.Context, userId uuid.UUID) error {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
+
 	fn := "redis.Delete"
 	log := s.logger.With(sl.Method(fn), slog.String("userId", userId.String()))
 

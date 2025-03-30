@@ -38,7 +38,8 @@ message User {
 }
 
 message RegisterRequest {
-    User user = 1;
+    string user_id = 1;
+    string password = 2;
 }
 
 message RegisterResponse {

@@ -5,11 +5,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userspb"
+	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
 )
 
-func userFromProto(user *userspb.User) (*models.User, error) {
+func userFromProto(user *userpb.User) (*models.User, error) {
 
 	id, err := uuid.Parse(user.Id)
 	if err != nil {

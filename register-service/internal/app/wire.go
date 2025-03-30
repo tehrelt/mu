@@ -1,0 +1,73 @@
+package app
+
+import (
+	"fmt"
+
+	"github.com/google/wire"
+	"github.com/tehrelt/mu/register-service/internal/config"
+	"github.com/tehrelt/mu/register-service/internal/lib/tracer/interceptors"
+	tgrpc "github.com/tehrelt/mu/register-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
+	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	_ "github.com/jackc/pgx/stdlib"
+)
+
+func New() (*App, func(), error) {
+	panic(wire.Build(
+		newApp,
+		_servers,
+
+		tgrpc.New,
+
+		_userpb,
+		_authpb,
+		config.New,
+	))
+}
+
+func _servers(g *tgrpc.Server) []Server {
+	return []Server{g}
+}
+
+func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
+
+	host := cfg.UserService.Host
+	port := cfg.UserService.Port
+
+	addr := fmt.Sprintf("%s:%d", host, port)
+
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return userpb.NewUserServiceClient(conn), nil
+}
+
+func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
+
+	host := cfg.AuthService.Host
+	port := cfg.AuthService.Port
+
+	addr := fmt.Sprintf("%s:%d", host, port)
+
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return authpb.NewAuthServiceClient(conn), nil
+}

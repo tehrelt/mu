@@ -71,6 +71,10 @@ type Config struct {
 	Redis        Redis
 	DefaultAdmin DefaultUser
 	UserService  UserService
+
+	Jaeger struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
 }
 
 func New() *Config {
