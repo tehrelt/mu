@@ -5,12 +5,19 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *CredentialStorage) Save(ctx context.Context, creds *models.Credentials) (err error) {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
+
 	log := slog.With(sl.Method("credentialstorage.Save"))
 
 	log.Debug("saving credentials")

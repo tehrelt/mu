@@ -11,6 +11,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/profileservice"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/grpc/usersapi"
@@ -18,7 +19,7 @@ import (
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/rolestorage"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/redis/sessionstorage"
 	tgrpc "github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userspb"
+	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -29,7 +30,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -54,6 +55,7 @@ func New() (*App, func(), error) {
 		jwt.New,
 		_pg,
 		_redis,
+		tracer.SetupTracer,
 		config.New,
 	))
 }
@@ -119,7 +121,7 @@ func _userpb(cfg *config.Config) (*usersapi.Api, func(), error) {
 		return nil, nil, err
 	}
 
-	client := userspb.NewUserServiceClient(conn)
+	client := userpb.NewUserServiceClient(conn)
 	return usersapi.New(client), func() { conn.Close() }, nil
 }
 

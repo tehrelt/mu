@@ -3,11 +3,13 @@ package app
 import (
 	"context"
 	"log/slog"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Server interface {
@@ -17,13 +19,23 @@ type Server interface {
 type App struct {
 	servers []Server
 	cfg     *config.Config
+	tracer  trace.Tracer
 }
 
-func newApp(cfg *config.Config, servers []Server) *App {
+func newApp(
+	cfg *config.Config,
+	servers []Server,
+	t trace.Tracer,
+) *App {
 	return &App{
 		servers: servers,
 		cfg:     cfg,
+		tracer:  t,
 	}
+}
+
+func (a *App) Cfg() *config.Config {
+	return a.cfg
 }
 
 func (a *App) Run(ctx context.Context) {

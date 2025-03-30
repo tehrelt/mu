@@ -24,9 +24,9 @@ protobuf:
 
 	protoc  \
 		--go_out=. \
-		--go_opt=M$(USER_PROTO)=$(PB)/userspb \
+		--go_opt=M$(USER_PROTO)=$(PB)/userpb \
 		--go-grpc_out=. \
-		--go-grpc_opt=M$(USER_PROTO)=$(PB)/userspb \
+		--go-grpc_opt=M$(USER_PROTO)=$(PB)/userpb \
 		$(USER_PROTO)
 
 
