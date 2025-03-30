@@ -10,9 +10,15 @@ import (
 	"github.com/tehrelt/mu/billing-service/internal/models"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg"
 	"github.com/tehrelt/mu/billing-service/pkg/sl"
+	"github.com/tehrelt/mu/billing-service/tracer"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *PaymentStorage) Update(ctx context.Context, in *dto.UpdatePayment) (*models.Payment, error) {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
 
 	log := slog.With(sl.Method("paymentstorage.Create"))
 

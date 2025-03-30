@@ -46,6 +46,10 @@ type Config struct {
 		Port int    `env:"RATE_SERVICE_PORT"`
 	}
 
+	Jaeger struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
+
 	Amqp struct {
 		Host string `env:"AMQP_HOST"`
 		Port int    `env:"AMQP_PORT"`

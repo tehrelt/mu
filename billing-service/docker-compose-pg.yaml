@@ -9,10 +9,10 @@ services:
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASS}
     volumes:
-      - billing-service-pg-data:/var/lib/postgresql/data
+      - billing-service-local-pg-data:/var/lib/postgresql/data
     ports:
       - ${PG_PORT}:5432
 
 volumes:
-  billing-service-pg-data:
-    name: mu-billing-service-pg
+  billing-service-local-pg-data:
+    name: mu-billing-service-local-pg
