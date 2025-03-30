@@ -2,11 +2,14 @@ package userstorage
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx"
 	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
 	"github.com/tehrelt/mu/user-service/internal/storage/pg"
 	"github.com/tehrelt/mu/user-service/pkg/sl"
 )
@@ -51,6 +54,16 @@ func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id u
 
 	if err := tx.QueryRowContext(ctx, sql, args...).Scan(&rawId); err != nil {
 		log.Error("failed to execute query", sl.Err(err))
+		var pgErr pgx.PgError
+		if errors.As(err, &pgErr) {
+			log.Debug("pg error occured", slog.Any("pg error", pgErr))
+			if pgErr.Code == "23505" {
+				log.Info("duplicate entry", slog.String("pgErr", pgErr.Message))
+				return uuid.Nil, storage.ErrUserAlreadyExists
+			}
+			log.Error("failed to execute query", sl.Err(err), slog.String("pgErr", pgErr.Message))
+		}
+		return uuid.Nil, err
 	}
 	log.Debug("user created, creating personal data entry", slog.String("id", rawId))
 	id, err = uuid.Parse(rawId)
@@ -74,6 +87,7 @@ func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id u
 
 	if _, err = tx.ExecContext(ctx, sql, args...); err != nil {
 		log.Error("failed to execute query", sl.Err(err))
+		return
 	}
 
 	return

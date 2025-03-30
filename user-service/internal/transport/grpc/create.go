@@ -2,9 +2,11 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
 	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
 	"github.com/tehrelt/mu/user-service/pkg/sl"
 	"google.golang.org/grpc/codes"
@@ -34,6 +36,10 @@ func (s *Server) Create(ctx context.Context, req *userpb.CreateRequest) (*userpb
 	id, err := s.users.creator.Create(ctx, candidate)
 	if err != nil {
 		log.Error("failed to create user", sl.Err(err))
+
+		if errors.Is(err, storage.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

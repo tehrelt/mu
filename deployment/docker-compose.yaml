@@ -5,6 +5,7 @@ include:
   - rate-service.yaml
   - housing-service.yaml
   - billing-service.yaml
+  - register-service.yaml
 
 services:
   pgadmin:

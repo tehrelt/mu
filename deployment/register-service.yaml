@@ -1,0 +1,21 @@
+services:
+  register-service:
+    container_name: register-service
+    build:
+      context: ../register-service
+    env_file:
+      - .env
+    environment:
+      ENV: prod
+      APP_NAME: MU Register Service
+      GRPC_PORT: 4000
+
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 4000
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+    ports:
+      - "4006:4000"
