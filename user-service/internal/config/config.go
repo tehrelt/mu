@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/prettyslog"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu/user-service/pkg/prettyslog"
+	"github.com/tehrelt/mu/user-service/pkg/sl"
 )
 
 type App struct {
@@ -41,6 +41,9 @@ type Config struct {
 	App      App
 	Grpc     Grpc
 	Postgres Postgres
+	Jaeger   struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
 }
 
 func New() *Config {

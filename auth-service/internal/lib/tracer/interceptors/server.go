@@ -2,18 +2,21 @@ package interceptors
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
-func UnaryServerInterceptor(t trace.Tracer) grpc.UnaryServerInterceptor {
+func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		startTime := time.Now()
 
@@ -22,9 +25,12 @@ func UnaryServerInterceptor(t trace.Tracer) grpc.UnaryServerInterceptor {
 			md = metadata.New(nil)
 		}
 
-		propagator := otel.GetTextMapPropagator()
+		propagator := propagation.TraceContext{}
 		ctx = propagator.Extract(ctx, &metadataSupplier{metadata: &md})
 
+		slog.Info("incoming request", slog.String("method", info.FullMethod), slog.Any("metadata", md))
+
+		t := otel.Tracer(tracer.TracerKey)
 		ctx, span := t.Start(
 			ctx,
 			info.FullMethod,
@@ -54,7 +60,7 @@ func UnaryServerInterceptor(t trace.Tracer) grpc.UnaryServerInterceptor {
 	}
 }
 
-func StreamServerInterceptor(tracer trace.Tracer) grpc.StreamServerInterceptor {
+func StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := ss.Context()
 		startTime := time.Now()
@@ -66,11 +72,11 @@ func StreamServerInterceptor(tracer trace.Tracer) grpc.StreamServerInterceptor {
 		}
 
 		// Extract the span context from the metadata
-		propagator := otel.GetTextMapPropagator()
+		propagator := propagation.TraceContext{}
 		ctx = propagator.Extract(ctx, &metadataSupplier{metadata: &md})
 
-		// Start a new span
-		ctx, span := tracer.Start(
+		t := otel.Tracer(tracer.TracerKey)
+		ctx, span := t.Start(
 			ctx,
 			info.FullMethod,
 			trace.WithSpanKind(trace.SpanKindServer),

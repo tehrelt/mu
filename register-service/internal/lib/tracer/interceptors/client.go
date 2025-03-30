@@ -8,6 +8,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -26,7 +27,7 @@ func UnaryClientInterceptor() grpc.UnaryClientInterceptor {
 			md = metadata.New(nil)
 		}
 
-		propagator := otel.GetTextMapPropagator()
+		propagator := propagation.TraceContext{}
 		propagator.Inject(ctx, &metadataSupplier{metadata: &md})
 
 		ctx = metadata.NewOutgoingContext(ctx, md)
@@ -88,79 +89,4 @@ func StreamClientInterceptor() grpc.StreamClientInterceptor {
 			span:         span,
 		}, nil
 	}
-}
-
-// tracingClientStream wraps grpc.ClientStream to properly close the span
-type tracingClientStream struct {
-	grpc.ClientStream
-	span trace.Span
-}
-
-func (s *tracingClientStream) RecvMsg(m interface{}) error {
-	err := s.ClientStream.RecvMsg(m)
-	if err != nil {
-		s.span.RecordError(err)
-		s.span.SetStatus(codes.Error, err.Error())
-	}
-	return err
-}
-
-func (s *tracingClientStream) SendMsg(m interface{}) error {
-	err := s.ClientStream.SendMsg(m)
-	if err != nil {
-		s.span.RecordError(err)
-		s.span.SetStatus(codes.Error, err.Error())
-	}
-	return err
-}
-
-func (s *tracingClientStream) CloseSend() error {
-	err := s.ClientStream.CloseSend()
-	if err != nil {
-		s.span.RecordError(err)
-		s.span.SetStatus(codes.Error, err.Error())
-	}
-	return err
-}
-
-func (s *tracingClientStream) Header() (metadata.MD, error) {
-	md, err := s.ClientStream.Header()
-	if err != nil {
-		s.span.RecordError(err)
-		s.span.SetStatus(codes.Error, err.Error())
-	}
-	return md, err
-}
-
-func (s *tracingClientStream) Trailer() metadata.MD {
-	return s.ClientStream.Trailer()
-}
-
-func (s *tracingClientStream) Context() context.Context {
-	return s.ClientStream.Context()
-}
-
-// metadataSupplier implements the TextMapCarrier interface for metadata propagation
-type metadataSupplier struct {
-	metadata *metadata.MD
-}
-
-func (s *metadataSupplier) Get(key string) string {
-	values := s.metadata.Get(key)
-	if len(values) == 0 {
-		return ""
-	}
-	return values[0]
-}
-
-func (s *metadataSupplier) Set(key, value string) {
-	s.metadata.Set(key, value)
-}
-
-func (s *metadataSupplier) Keys() []string {
-	out := make([]string, 0, len(*s.metadata))
-	for key := range *s.metadata {
-		out = append(out, key)
-	}
-	return out
 }

@@ -4,6 +4,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -16,11 +17,12 @@ import (
 	"github.com/tehrelt/mu/billing-service/internal/storage/rmq"
 	tgrpc "github.com/tehrelt/mu/billing-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/billing-service/pkg/sl"
+	"github.com/tehrelt/mu/billing-service/tracer"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -32,6 +34,7 @@ func New() (*App, func(), error) {
 
 		_amqp,
 		_pg,
+		tracer.SetupTracer,
 		config.New,
 	))
 }

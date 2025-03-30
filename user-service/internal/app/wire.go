@@ -4,20 +4,22 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/storage/pg/userstorage"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/user-service/internal/config"
+	"github.com/tehrelt/mu/user-service/internal/lib/tracer"
+	"github.com/tehrelt/mu/user-service/internal/storage/pg/userstorage"
+	"github.com/tehrelt/mu/user-service/internal/transport/grpc"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -30,6 +32,7 @@ func New() (*App, func(), error) {
 		),
 
 		_pg,
+		tracer.SetupTracer,
 		config.New,
 	))
 }

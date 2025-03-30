@@ -8,6 +8,8 @@ services:
     environment:
       WAIT_HOSTS: billing-service-pg:5432, rmq:5672
 
+      APP_NAME: MU Billing Service
+
       PG_HOST: billing-service-pg
       PG_PORT: 5432
 
@@ -19,6 +21,8 @@ services:
       AMQP_PORT: 5672
 
       GRPC_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
 
       ENV: prod
     depends_on:

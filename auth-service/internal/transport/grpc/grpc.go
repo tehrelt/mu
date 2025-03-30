@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer/interceptors"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
@@ -52,7 +53,11 @@ func New(
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)

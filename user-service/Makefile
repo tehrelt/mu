@@ -10,7 +10,7 @@ run: build
 	./bin/app -local
 
 PB=pkg/pb
-USERPB=$(PB)/userspb
+USERPB=$(PB)/userpb
 USERPROTO=proto/user.proto
 protobuf:
 	cp -r ../proto ./

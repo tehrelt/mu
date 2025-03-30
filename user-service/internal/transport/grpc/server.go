@@ -7,16 +7,17 @@ import (
 	"net"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu/user-service/internal/config"
+	"github.com/tehrelt/mu/user-service/internal/lib/tracer/interceptors"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
+	"github.com/tehrelt/mu/user-service/pkg/sl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
-var _ userspb.UserServiceServer = (*Server)(nil)
+var _ userpb.UserServiceServer = (*Server)(nil)
 
 type UserProvider interface {
 	UserById(ctx context.Context, id uuid.UUID) (*models.User, error)
@@ -36,7 +37,7 @@ type Server struct {
 	cfg   *config.Config
 	users Users
 
-	userspb.UnimplementedUserServiceServer
+	userpb.UnimplementedUserServiceServer
 }
 
 func New(cfg *config.Config, usersCreator UserCreator, usersProvider UserProvider) *Server {
@@ -50,7 +51,11 @@ func New(cfg *config.Config, usersCreator UserCreator, usersProvider UserProvide
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
@@ -59,7 +64,7 @@ func (s *Server) Run(ctx context.Context) error {
 	slog.Info("enabling reflection")
 	reflection.Register(server)
 
-	userspb.RegisterUserServiceServer(server, s)
+	userpb.RegisterUserServiceServer(server, s)
 
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {

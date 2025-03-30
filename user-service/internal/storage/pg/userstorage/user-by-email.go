@@ -8,10 +8,10 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/storage"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
+	"github.com/tehrelt/mu/user-service/internal/storage/pg"
+	"github.com/tehrelt/mu/user-service/pkg/sl"
 )
 
 func (s *UserStorage) UserByEmail(ctx context.Context, email string) (*models.User, error) {

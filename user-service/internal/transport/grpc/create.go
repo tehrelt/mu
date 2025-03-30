@@ -4,15 +4,15 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
+	"github.com/tehrelt/mu/user-service/pkg/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 // Create implements userspb.UserServiceServer.
-func (s *Server) Create(ctx context.Context, req *userspb.CreateRequest) (*userspb.CreateResponse, error) {
+func (s *Server) Create(ctx context.Context, req *userpb.CreateRequest) (*userpb.CreateResponse, error) {
 
 	log := slog.With(sl.Method("Create"))
 
@@ -37,7 +37,7 @@ func (s *Server) Create(ctx context.Context, req *userspb.CreateRequest) (*users
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &userspb.CreateResponse{
+	return &userpb.CreateResponse{
 		Id: id.String(),
 	}, nil
 }
