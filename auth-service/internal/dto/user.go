@@ -23,9 +23,7 @@ type PersonalData struct {
 }
 
 type RegisterUser struct {
-	Fio
-	PersonalData
-	Email    string        `json:"email"`
+	UserId   uuid.UUID     `json:"user_id"`
 	Password string        `json:"password"`
 	Roles    []models.Role `json:"roles"`
 }

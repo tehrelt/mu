@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
 	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
@@ -15,22 +16,14 @@ import (
 
 func (s *Server) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 
+	uid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user id")
+	}
+
 	reguser := &dto.RegisterUser{
-		Fio: dto.Fio{
-			FirstName:  req.User.FirstName,
-			LastName:   req.User.LastName,
-			MiddleName: req.User.MiddleName,
-		},
-		PersonalData: dto.PersonalData{
-			Phone: req.User.Phone,
-			Passport: dto.Passport{
-				Number: int(req.User.PassportNumber),
-				Series: int(req.User.PassportSeries),
-			},
-			Snils: req.User.Snils,
-		},
-		Email:    req.User.Email,
-		Password: req.User.Password,
+		UserId:   uid,
+		Password: req.Password,
 	}
 
 	tokens, err := s.authservice.Register(ctx, reguser)

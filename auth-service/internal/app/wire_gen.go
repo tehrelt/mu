@@ -13,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/profileservice"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/grpc/usersapi"
@@ -20,7 +21,7 @@ import (
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/rolestorage"
 	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/redis/sessionstorage"
 	grpc2 "github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userspb"
+	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
@@ -33,7 +34,7 @@ import (
 
 // Injectors from wire.go:
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	configConfig := config.New()
 	api, cleanup, err := _userpb(configConfig)
 	if err != nil {
@@ -57,7 +58,14 @@ func New() (*App, func(), error) {
 	authService := authservice.New(api, api, roleStorage, sessionsStorage, configConfig, jwtClient, credentialStorage, credentialStorage)
 	profileService := profileservice.New(configConfig, api, jwtClient, roleStorage)
 	v := _servers(configConfig, authService, profileService)
-	app := newApp(configConfig, v)
+	traceTracer, err := tracer.SetupTracer(ctx, configConfig)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	app := newApp(configConfig, v, traceTracer)
 	return app, func() {
 		cleanup3()
 		cleanup2()
@@ -127,7 +135,7 @@ func _userpb(cfg *config.Config) (*usersapi.Api, func(), error) {
 		return nil, nil, err
 	}
 
-	client := userspb.NewUserServiceClient(conn)
+	client := userpb.NewUserServiceClient(conn)
 	return usersapi.New(client), func() { conn.Close() }, nil
 }
 
