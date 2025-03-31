@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/register-service/pkg/prettyslog"
-	"github.com/tehrelt/mu/register-service/pkg/sl"
 )
 
 type App struct {

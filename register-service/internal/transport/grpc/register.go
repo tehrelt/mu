@@ -4,10 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
-	"github.com/tehrelt/mu/register-service/pkg/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

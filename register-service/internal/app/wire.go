@@ -8,12 +8,13 @@ import (
 	"fmt"
 
 	"github.com/google/wire"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/register-service/internal/config"
-	"github.com/tehrelt/mu/register-service/internal/lib/tracer"
-	"github.com/tehrelt/mu/register-service/internal/lib/tracer/interceptors"
 	tgrpc "github.com/tehrelt/mu/register-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -29,7 +30,7 @@ func New(ctx context.Context) (*App, func(), error) {
 
 		_userpb,
 		_authpb,
-		tracer.SetupTracer,
+		_tracer,
 		config.New,
 	))
 }
@@ -76,4 +77,8 @@ func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	}
 
 	return authpb.NewAuthServiceClient(conn), nil
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	return tracer.SetupTracer(ctx, cfg.Jaeger.Endpoint, cfg.App.Name)
 }

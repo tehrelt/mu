@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/tehrelt/mu/register-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
 	"go.opentelemetry.io/otel/trace"
 )
 
