@@ -55,3 +55,16 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 	<-ctx.Done()
 	return nil
 }
+
+func (c *AmqpConsumer) handleEvents(ctx context.Context) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			if err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing, c.handlePaymentStatusChangedEvent); err != nil {
+				slog.Error("failed to consume payment status changed event", sl.Err(err))
+			}
+		}
+	}
+}

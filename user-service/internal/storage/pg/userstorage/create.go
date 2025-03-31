@@ -22,7 +22,7 @@ func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id u
 	t := otel.Tracer(tracer.TracerKey)
 	ctx, span := t.Start(ctx, fn)
 	defer span.End()
-	log := slog.With(sl.Method("userstorage.Create"))
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("creating user", slog.Any("create user dto", user))
 

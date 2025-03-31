@@ -14,6 +14,7 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
@@ -147,7 +148,12 @@ func _userpb(cfg *config.Config) (
 	port := cfg.UserService.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
 
-	client, err := grpc.NewClient(addr, grpc.WithInsecure())
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -164,7 +170,12 @@ func _housepb(cfg *config.Config) (
 	port := cfg.HouseService.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
 
-	client, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -181,7 +192,12 @@ func _billingpb(cfg *config.Config) (
 	port := cfg.BillingService.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
 
-	client, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
 	if err != nil {
 		return nil, nil, err
 	}

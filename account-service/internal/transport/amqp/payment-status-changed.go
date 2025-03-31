@@ -16,20 +16,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *AmqpConsumer) handleEvents(ctx context.Context) error {
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			if err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing, c.handlePaymentStatusChangedEvent); err != nil {
-				slog.Error("failed to consume payment status changed event", sl.Err(err))
-			}
-		}
-	}
-}
-
 var errPaymentNotFound = errors.New("invalid payment id")
 
 func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg amqp091.Delivery) (err error) {

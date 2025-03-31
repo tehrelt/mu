@@ -20,7 +20,7 @@ services:
 
       JAEGER_ENDPOINT: http://jaeger:4317
 
-      ENV: prod
+      ENV: dev
     depends_on:
       - user-pg
     ports:
