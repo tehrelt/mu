@@ -10,6 +10,7 @@ import (
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/dto"
+	"github.com/tehrelt/mu/account-service/internal/models"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/account-service/pkg/pb/accountpb"
@@ -53,13 +54,76 @@ func (s *Server) Create(ctx context.Context, in *accountpb.CreateRequest) (*acco
 }
 
 // List implements accountpb.AccountServiceServer.
-func (s *Server) List(*accountpb.ListRequest, grpc.ServerStreamingServer[accountpb.Account]) error {
-	panic("unimplemented")
+func (s *Server) List(in *accountpb.ListRequest, stream grpc.ServerStreamingServer[accountpb.Account]) error {
+
+	accChan := make(chan models.Account)
+	errChan := make(chan error)
+
+	filters := dto.NewAccountFilter()
+	go func() {
+		if err := s.storage.List(stream.Context(), filters, accChan); err != nil {
+			errChan <- err
+		}
+		slog.Debug("list ended")
+	}()
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return stream.Context().Err()
+
+		case err := <-errChan:
+			return err
+
+		case acc, ok := <-accChan:
+			if !ok {
+				slog.Debug("failed to read from accounts channel")
+				return nil
+			}
+
+			data := acc.ToProto()
+			if err := stream.Send(data); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 // ListUsersAccounts implements accountpb.AccountServiceServer.
-func (s *Server) ListUsersAccounts(*accountpb.ListUsersAccountsRequest, grpc.ServerStreamingServer[accountpb.Account]) error {
-	panic("unimplemented")
+func (s *Server) ListUsersAccounts(in *accountpb.ListUsersAccountsRequest, stream grpc.ServerStreamingServer[accountpb.Account]) error {
+
+	accChan := make(chan models.Account)
+	errChan := make(chan error)
+
+	filters := dto.NewAccountFilter().SetUserId(in.UserId)
+
+	go func() {
+		if err := s.storage.List(stream.Context(), filters, accChan); err != nil {
+			errChan <- err
+		}
+		slog.Debug("list ended")
+	}()
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return stream.Context().Err()
+
+		case err := <-errChan:
+			return err
+
+		case acc, ok := <-accChan:
+			if !ok {
+				slog.Debug("failed to read from accounts channel")
+				return nil
+			}
+
+			data := acc.ToProto()
+			if err := stream.Send(data); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func New(cfg *config.Config, s *accountstorage.AccountStorage, b *rmq.Broker) *Server {

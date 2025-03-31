@@ -31,6 +31,10 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, 
 		Select("id, user_id, house_id, balance, created_at, updated_at").
 		From(pg.ACCOUNTS_TABLE)
 
+	if filters.UserId != "" {
+		builder = builder.Where(sq.Eq{"user_id": filters.UserId})
+	}
+
 	query, args, err := builder.
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -62,6 +66,7 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, 
 			return err
 		}
 
+		log.Debug("account sent to channel", slog.String("account_id", acc.Id))
 		out <- acc
 	}
 

@@ -10,8 +10,14 @@ func (r *Range) Nil() bool {
 }
 
 type AccountFilters struct {
+	UserId string
 }
 
 func NewAccountFilter() *AccountFilters {
 	return &AccountFilters{}
+}
+
+func (f *AccountFilters) SetUserId(userId string) *AccountFilters {
+	f.UserId = userId
+	return f
 }
