@@ -10,40 +10,24 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/pkg/pb/billingpb"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+
+	"github.com/tehrelt/mu-lib/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (c *AmqpConsumer) handleEvents(ctx context.Context) error {
 
-	statusChangedMessages, err := c.channel.ConsumeWithContext(ctx, c.cfg.PaymentStatusChanged.Routing, "", false, false, false, false, nil)
-	if err != nil {
-		slog.Error("failed to consume", sl.Err(err))
-		return err
-	}
-
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
-			if err := c.handlePaymentStatusChangedEvents(ctx, statusChangedMessages); err != nil {
-				slog.Error("failed to handle payment status changed events", sl.Err(err))
+			if err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing, c.handlePaymentStatusChangedEvent); err != nil {
+				slog.Error("failed to consume payment status changed event", sl.Err(err))
 			}
 		}
 	}
-}
-
-func (c *AmqpConsumer) handlePaymentStatusChangedEvents(ctx context.Context, messages <-chan amqp091.Delivery) error {
-	for msg := range messages {
-		if err := c.handlePaymentStatusChangedEvent(ctx, msg); err != nil {
-			slog.Error("failed to handle payment status changed event", sl.Err(err))
-			return err
-		}
-	}
-
-	return nil
 }
 
 var errPaymentNotFound = errors.New("invalid payment id")

@@ -6,15 +6,24 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 func (s *AccountStorage) Create(ctx context.Context, in *dto.CreateAccount) (id uuid.UUID, err error) {
 
-	log := slog.With(sl.Method("accountstorage.Create"))
-
+	fn := "accountstorage.Create"
+	ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, fn)
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("user_id", in.UserId.String()),
+		attribute.String("house_id", in.HouseId.String()),
+	)
+	log := slog.With(sl.Method(fn))
 	log.Debug("creating account", slog.Any("create account dto", in))
 
 	query, args, err := sq.Insert(pg.ACCOUNTS_TABLE).

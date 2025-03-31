@@ -7,8 +7,8 @@ import (
 	"log/slog"
 
 	"github.com/joho/godotenv"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/account-service/internal/app"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
 )
 
 var (
@@ -30,7 +30,7 @@ func main() {
 
 	ctx := context.Background()
 
-	instance, cleanup, err := app.New()
+	instance, cleanup, err := app.New(ctx)
 	if err != nil {
 		slog.Error("failed to start application", sl.Err(err))
 		panic(err)

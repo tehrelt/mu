@@ -5,16 +5,25 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/internal/models"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, out chan<- models.Account) error {
 	defer close(out)
 
-	log := slog.With(sl.Method("paymentstorage.Create"))
+	fn := "accountstorage.List"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(
+		ctx,
+		fn,
+	)
+	defer span.End()
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("list payments", slog.Any("filters", filters))
 

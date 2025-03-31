@@ -4,6 +4,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -11,6 +12,8 @@ import (
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
@@ -19,14 +22,14 @@ import (
 	"github.com/tehrelt/mu/account-service/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/account-service/pkg/pb/housepb"
 	"github.com/tehrelt/mu/account-service/pkg/pb/userpb"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -40,6 +43,7 @@ func New() (*App, func(), error) {
 		_billingpb,
 		_amqp,
 		_pg,
+		_tracer,
 		config.New,
 	))
 }
@@ -183,4 +187,13 @@ func _billingpb(cfg *config.Config) (
 	}
 
 	return billingpb.NewBillingServiceClient(client), func() { client.Close() }, nil
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }

@@ -6,14 +6,20 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/internal/models"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *AccountStorage) Update(ctx context.Context, in *dto.UpdateAccount) (*models.Account, error) {
 
+	fn := "accountstroage.Update"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 	log := slog.With(sl.Method("accountstorage.Update"))
 
 	log.Debug("updating account", slog.Any("update account dto", in))

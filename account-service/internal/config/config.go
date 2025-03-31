@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/account-service/pkg/prettyslog"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
 )
 
 type App struct {
@@ -37,10 +37,15 @@ const (
 )
 
 type Config struct {
-	Env         Env `env:"ENV"`
-	App         App
-	Grpc        Grpc
-	Postgres    Postgres
+	Env      Env `env:"ENV"`
+	App      App
+	Grpc     Grpc
+	Postgres Postgres
+
+	Jaeger struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
+
 	RateService struct {
 		Host string `env:"RATE_SERVICE_HOST"`
 		Port int    `env:"RATE_SERVICE_PORT"`

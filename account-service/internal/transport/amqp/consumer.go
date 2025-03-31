@@ -5,16 +5,17 @@ import (
 	"log/slog"
 
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/account-service/pkg/pb/billingpb"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
 )
 
 type AmqpConsumer struct {
 	cfg        *config.Config
-	channel    *amqp091.Channel
+	manager    *rmqmanager.RabbitMqManager
 	storage    *accountstorage.AccountStorage
 	broker     *rmq.Broker
 	billingApi billingpb.BillingServiceClient
@@ -29,7 +30,7 @@ func New(
 ) *AmqpConsumer {
 	return &AmqpConsumer{
 		cfg:        cfg,
-		channel:    ch,
+		manager:    rmqmanager.New(ch),
 		storage:    s,
 		broker:     b,
 		billingApi: billingApi,
