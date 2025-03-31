@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"net"
 
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/billing-service/internal/config"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg/paymentstorage"
 	"github.com/tehrelt/mu/billing-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/billing-service/pkg/pb/billingpb"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -40,8 +40,8 @@ func (s *Server) Run(ctx context.Context) error {
 
 	server := grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(tracer.UnaryServerInterceptor(s.tracer)),
-		grpc.StreamInterceptor(tracer.StreamServerInterceptor(s.tracer)),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
 	)
 
 	host := s.cfg.Grpc.Host

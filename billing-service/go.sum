@@ -124,6 +124,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+github.com/tehrelt/mu-lib v0.3.0 h1:gfIr18mPvdU5LYkXCnN3Z0kEXvmvVxRt10/rTOS05FA=
+github.com/tehrelt/mu-lib v0.3.0/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/tel-io/instrumentation/module/otelgrpc v1.0.5 h1:hRy90pSlCwS7Zpy3NGKena8eVBv3+jdb0XqJEDa9z6Q=
 github.com/tel-io/instrumentation/module/otelgrpc v1.0.5/go.mod h1:R7fjHq58gsjpvoYvGKQwWOjNMRyDGjhuWzTbeQAu6M8=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=

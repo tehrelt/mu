@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/config"
 	"github.com/tehrelt/mu/billing-service/internal/dto"
-	"github.com/tehrelt/mu/billing-service/rmqmanager"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )

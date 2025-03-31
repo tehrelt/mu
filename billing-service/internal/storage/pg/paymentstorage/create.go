@@ -6,20 +6,21 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/dto"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel"
 )
 
 func (s *PaymentStorage) Create(ctx context.Context, in *dto.CreatePayment) (id uuid.UUID, err error) {
 
+	fn := "paymentstorage.Create"
 	t := otel.Tracer(tracer.TracerKey)
 	ctx, span := t.Start(ctx, traceKey)
 	defer span.End()
 
-	log := slog.With(sl.Method("paymentstorage.Create"))
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("creating payment", slog.Any("create house dto", in))
 

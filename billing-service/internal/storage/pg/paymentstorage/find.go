@@ -8,21 +8,21 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/models"
 	"github.com/tehrelt/mu/billing-service/internal/storage"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel"
 )
 
 func (s *PaymentStorage) Find(ctx context.Context, paymentId uuid.UUID) (*models.Payment, error) {
 
+	fn := "paymentstorage.Find"
 	t := otel.Tracer(tracer.TracerKey)
-	ctx, span := t.Start(ctx, traceKey)
+	ctx, span := t.Start(ctx, fn)
 	defer span.End()
-
-	log := slog.With(sl.Method("paymentstorage.Create"))
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("find payment", slog.Any("payment_id", paymentId))
 

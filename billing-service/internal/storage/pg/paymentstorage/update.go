@@ -6,23 +6,23 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/dto"
 	"github.com/tehrelt/mu/billing-service/internal/models"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel"
 )
 
 func (s *PaymentStorage) Update(ctx context.Context, in *dto.UpdatePayment) (*models.Payment, error) {
 
+	fn := "paymentstorage.Update"
 	t := otel.Tracer(tracer.TracerKey)
-	ctx, span := t.Start(ctx, traceKey)
+	ctx, span := t.Start(ctx, fn)
 	defer span.End()
+	log := slog.With(sl.Method(fn))
 
-	log := slog.With(sl.Method("paymentstorage.Create"))
-
-	log.Debug("creating payment", slog.Any("create house dto", in))
+	log.Debug("updating payment", slog.Any("update payment", in))
 
 	oldpayment, err := s.Find(ctx, in.Id)
 	if err != nil {
