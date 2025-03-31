@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/internal/models"
@@ -135,7 +136,11 @@ func New(cfg *config.Config, s *accountstorage.AccountStorage, b *rmq.Broker) *S
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)

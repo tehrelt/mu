@@ -11,6 +11,7 @@ import (
 	"github.com/tehrelt/mu/account-service/internal/models"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, out chan<- models.Account) error {
@@ -33,6 +34,7 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, 
 
 	if filters.UserId != "" {
 		builder = builder.Where(sq.Eq{"user_id": filters.UserId})
+		span.SetAttributes(attribute.String("user_id", filters.UserId))
 	}
 
 	query, args, err := builder.
