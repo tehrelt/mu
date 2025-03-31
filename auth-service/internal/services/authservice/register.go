@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/models"
 )
 
 func (s *AuthService) Register(ctx context.Context, req *dto.RegisterUser) (*dto.TokenPair, error) {

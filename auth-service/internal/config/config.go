@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/prettyslog"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/pkg/prettyslog"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )

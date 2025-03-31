@@ -11,17 +11,18 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/profileservice"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/grpc/usersapi"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/credentialstorage"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/rolestorage"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/redis/sessionstorage"
-	grpc2 "github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services/authservice"
+	"github.com/tehrelt/mu/auth-service/internal/services/profileservice"
+	"github.com/tehrelt/mu/auth-service/internal/storage/grpc/usersapi"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/credentialstorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/rolestorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/redis/sessionstorage"
+	grpc2 "github.com/tehrelt/mu/auth-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
@@ -58,14 +59,14 @@ func New(ctx context.Context) (*App, func(), error) {
 	authService := authservice.New(api, api, roleStorage, sessionsStorage, configConfig, jwtClient, credentialStorage, credentialStorage)
 	profileService := profileservice.New(configConfig, api, jwtClient, roleStorage)
 	v := _servers(configConfig, authService, profileService)
-	traceTracer, err := tracer.SetupTracer(ctx, configConfig)
+	tracer, err := _tracer(ctx, configConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	app := newApp(configConfig, v, traceTracer)
+	app := newApp(configConfig, v, tracer)
 	return app, func() {
 		cleanup3()
 		cleanup2()
@@ -143,4 +144,12 @@ func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservic
 	servers := make([]Server, 0, 2)
 	servers = append(servers, grpc2.New(cfg, as, ps))
 	return servers
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }

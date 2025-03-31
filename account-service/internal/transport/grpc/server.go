@@ -7,12 +7,12 @@ import (
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/account-service/internal/config"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/account-service/pkg/pb/accountpb"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"

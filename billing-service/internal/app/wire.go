@@ -12,12 +12,13 @@ import (
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/config"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg/paymentstorage"
 	"github.com/tehrelt/mu/billing-service/internal/storage/rmq"
 	tgrpc "github.com/tehrelt/mu/billing-service/internal/transport/grpc"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
+	"go.opentelemetry.io/otel/trace"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
@@ -34,7 +35,7 @@ func New(ctx context.Context) (*App, func(), error) {
 
 		_amqp,
 		_pg,
-		tracer.SetupTracer,
+		_tracer,
 		config.New,
 	))
 }
@@ -56,7 +57,7 @@ func _pg(cfg *config.Config) (*sqlx.DB, func(), error) {
 	slog.Debug("connecting to database", slog.String("conn", cs))
 	t := time.Now()
 	if err := db.Ping(); err != nil {
-		slog.Error("failed to connect to database", slog.String("err", err.Error()), slog.String("conn", cs))
+		slog.Error("failed to connect to database", sl.Err(err), slog.String("conn", cs))
 		return nil, func() { db.Close() }, err
 	}
 	slog.Info("connected to database", slog.String("ping", fmt.Sprintf("%2.fs", time.Since(t).Seconds())))
@@ -120,4 +121,13 @@ func amqp_setup_exchange(channel *amqp091.Channel, exchange string, queues ...st
 
 func _servers(g *tgrpc.Server) []Server {
 	return []Server{g}
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }

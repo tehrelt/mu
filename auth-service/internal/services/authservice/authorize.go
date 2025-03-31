@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/services"
 )
 
 func (s *AuthService) Authorize(ctx context.Context, token string, roles ...models.Role) (*dto.UserClaims, error) {

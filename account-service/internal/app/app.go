@@ -8,7 +8,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Server interface {
@@ -17,11 +18,13 @@ type Server interface {
 
 type App struct {
 	servers []Server
+	tracer  trace.Tracer
 }
 
-func newApp(servers []Server) *App {
+func newApp(servers []Server, tracer trace.Tracer) *App {
 	return &App{
 		servers: servers,
+		tracer:  tracer,
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
 )
 
 type Server interface {

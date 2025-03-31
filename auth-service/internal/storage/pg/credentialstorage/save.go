@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
 	"go.opentelemetry.io/otel"
 )
 

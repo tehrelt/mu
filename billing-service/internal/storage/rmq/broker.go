@@ -7,12 +7,9 @@ import (
 	"time"
 
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu/billing-service/internal/config"
 	"github.com/tehrelt/mu/billing-service/internal/dto"
-	"github.com/tehrelt/mu/billing-service/rmqmanager"
-	"github.com/tehrelt/mu/billing-service/tracer"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/trace"
 )
 
 const traceKey = "rmq broker"
@@ -32,9 +29,6 @@ func New(cfg *config.Config, ch *amqp091.Channel) *Broker {
 func (b *Broker) PublishStatusChanged(ctx context.Context, event *dto.EventStatusChanged) error {
 
 	event.Timestamp = time.Now()
-
-	ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, traceKey, trace.WithSpanKind(trace.SpanKindInternal))
-	defer span.End()
 
 	j, err := json.Marshal(event)
 	if err != nil {

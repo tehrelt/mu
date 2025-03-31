@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/tehrelt/mu/user-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
 	"go.opentelemetry.io/otel/trace"
 )
 

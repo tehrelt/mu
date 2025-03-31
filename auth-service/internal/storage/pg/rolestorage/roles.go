@@ -8,14 +8,21 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *RoleStorage) Roles(ctx context.Context, userId uuid.UUID) ([]models.Role, error) {
 
-	log := slog.With(sl.Method("credentialStorage.Roles"))
+	fn := "rolestorage.Roles"
+	log := slog.With(sl.Method(fn))
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 
 	query, args, err := sq.Select("role").
 		From(pg.ROLES_TABLE).

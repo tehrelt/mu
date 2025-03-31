@@ -6,11 +6,11 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services"
+	"github.com/tehrelt/mu/auth-service/internal/storage"
 )
 
 func (s *AuthService) Refresh(ctx context.Context, userId uuid.UUID, refreshToken string) (*dto.TokenPair, error) {

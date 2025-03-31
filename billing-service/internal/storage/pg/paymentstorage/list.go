@@ -6,22 +6,22 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/billing-service/internal/dto"
 	"github.com/tehrelt/mu/billing-service/internal/models"
 	"github.com/tehrelt/mu/billing-service/internal/storage/pg"
-	"github.com/tehrelt/mu/billing-service/pkg/sl"
-	"github.com/tehrelt/mu/billing-service/tracer"
 	"go.opentelemetry.io/otel"
 )
 
 func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, out chan<- models.Payment) error {
 	defer close(out)
 
+	fn := "paymentstorage.List"
 	t := otel.Tracer(tracer.TracerKey)
-	ctx, span := t.Start(ctx, traceKey)
+	ctx, span := t.Start(ctx, fn)
 	defer span.End()
-
-	log := slog.With(sl.Method("paymentstorage.Create"))
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("list payments", slog.Any("filters", filters))
 

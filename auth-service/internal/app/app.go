@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/config"
 	"go.opentelemetry.io/otel/trace"
 )
 

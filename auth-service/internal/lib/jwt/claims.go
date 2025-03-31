@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
 )
 
 type claims struct {

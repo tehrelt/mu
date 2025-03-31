@@ -5,9 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
 )
 
 func (api *Api) Create(ctx context.Context, req *dto.CreateUser) (uuid.UUID, error) {

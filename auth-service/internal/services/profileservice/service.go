@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/models"
 )
 
 type UserProvider interface {

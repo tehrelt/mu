@@ -8,15 +8,29 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/models"
 	"github.com/tehrelt/mu/account-service/internal/storage"
 	"github.com/tehrelt/mu/account-service/internal/storage/pg"
-	"github.com/tehrelt/mu/account-service/pkg/sl"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func (s *AccountStorage) Find(ctx context.Context, id uuid.UUID) (*models.Account, error) {
 
-	log := slog.With(sl.Method("accountstorage.Create"))
+	fn := "accountstorage.Find"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(
+		ctx,
+		fn,
+		trace.WithAttributes(
+			attribute.String("account_id", id.String()),
+		),
+	)
+	defer span.End()
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("find account", slog.Any("account_id", id))
 

@@ -8,15 +8,21 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/user-service/internal/models"
 	"github.com/tehrelt/mu/user-service/internal/storage"
 	"github.com/tehrelt/mu/user-service/internal/storage/pg"
-	"github.com/tehrelt/mu/user-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id uuid.UUID, err error) {
 
-	log := slog.With(sl.Method("userstorage.Create"))
+	fn := "userstorage.Create"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("creating user", slog.Any("create user dto", user))
 

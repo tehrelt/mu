@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/services"
+	"github.com/tehrelt/mu/auth-service/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 

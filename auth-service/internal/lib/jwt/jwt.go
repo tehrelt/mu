@@ -1,6 +1,6 @@
 package jwt
 
-import "github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+import "github.com/tehrelt/mu/auth-service/internal/config"
 
 type TokenType string
 

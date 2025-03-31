@@ -1,8 +1,8 @@
 package authservice
 
 import (
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 

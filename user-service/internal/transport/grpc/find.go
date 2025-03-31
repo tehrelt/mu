@@ -6,10 +6,10 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/user-service/internal/models"
 	"github.com/tehrelt/mu/user-service/internal/storage"
 	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
-	"github.com/tehrelt/mu/user-service/pkg/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
