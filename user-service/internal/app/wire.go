@@ -11,10 +11,11 @@ import (
 
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/user-service/internal/config"
-	"github.com/tehrelt/mu/user-service/internal/lib/tracer"
 	"github.com/tehrelt/mu/user-service/internal/storage/pg/userstorage"
 	"github.com/tehrelt/mu/user-service/internal/transport/grpc"
+	"go.opentelemetry.io/otel/trace"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
@@ -32,7 +33,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		),
 
 		_pg,
-		tracer.SetupTracer,
+		_tracer,
 		config.New,
 	))
 }
@@ -68,4 +69,13 @@ func _grpc(cfg *config.Config, creator grpc.UserCreator, provider grpc.UserProvi
 
 func _servers(g *grpc.Server) []Server {
 	return []Server{g}
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }

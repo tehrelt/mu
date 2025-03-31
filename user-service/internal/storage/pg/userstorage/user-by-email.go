@@ -8,14 +8,21 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/user-service/internal/models"
 	"github.com/tehrelt/mu/user-service/internal/storage"
 	"github.com/tehrelt/mu/user-service/internal/storage/pg"
-	"github.com/tehrelt/mu/user-service/pkg/sl"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *UserStorage) UserByEmail(ctx context.Context, email string) (*models.User, error) {
-	log := slog.With(sl.Method("userstorage.userByEmail"))
+
+	fn := "userstorage.UserByEmail"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
+	log := slog.With(sl.Method(fn))
 
 	query, args, err := sq.Select("u.id, u.last_name, u.first_name, u.middle_name, u.email, pd.phone, pd.snils, pd.passport_number, pd.passport_series, u.created_at, u.updated_at").
 		From(fmt.Sprintf("%s u", pg.USERS)).

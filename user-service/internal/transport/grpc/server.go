@@ -7,11 +7,11 @@ import (
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/user-service/internal/config"
-	"github.com/tehrelt/mu/user-service/internal/lib/tracer/interceptors"
 	"github.com/tehrelt/mu/user-service/internal/models"
 	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
-	"github.com/tehrelt/mu/user-service/pkg/sl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
