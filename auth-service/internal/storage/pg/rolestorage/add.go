@@ -5,13 +5,22 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
+
+	"go.opentelemetry.io/otel"
 )
 
 func (s *RoleStorage) Add(ctx context.Context, in *dto.UserRoles) (err error) {
-	log := slog.With(sl.Method("rolestorage.Add"))
+
+	fn := "rolestorage.Add"
+	log := slog.With(sl.Method(fn))
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {

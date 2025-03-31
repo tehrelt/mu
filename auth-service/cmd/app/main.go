@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/app"
+	"github.com/tehrelt/mu/auth-service/internal/app"
 
 	"github.com/joho/godotenv"
 )

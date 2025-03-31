@@ -27,7 +27,7 @@ services:
 
       GRPC_PORT: 4000
 
-      ENV: prod
+      ENV: dev
     depends_on:
       - auth-pg
       - auth-redis

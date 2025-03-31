@@ -1,8 +1,8 @@
 package converters
 
 import (
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 )
 
 func TokenPairToPb(pair *dto.TokenPair) *authpb.Tokens {

@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/samber/lo"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc/converters"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/transport/grpc/converters"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 )
 
 // Authorize implements authpb.AuthServiceServer.

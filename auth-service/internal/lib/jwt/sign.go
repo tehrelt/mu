@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
 )
 
 func (jc *JwtClient) Sign(user *dto.UserClaims, tokenType TokenType) (string, error) {

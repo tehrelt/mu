@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/storage"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

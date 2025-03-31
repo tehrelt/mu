@@ -6,8 +6,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
 )
 
 func (s *CredentialStorage) Password(ctx context.Context, userId uuid.UUID) (string, error) {

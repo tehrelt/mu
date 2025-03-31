@@ -6,9 +6,9 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/services"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

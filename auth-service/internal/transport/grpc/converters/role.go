@@ -1,8 +1,8 @@
 package converters
 
 import (
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/authpb"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 )
 
 func RoleFromPb(r authpb.Role) models.Role {

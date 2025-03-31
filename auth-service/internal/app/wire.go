@@ -10,20 +10,21 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/tracer"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/profileservice"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/grpc/usersapi"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/credentialstorage"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg/rolestorage"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/redis/sessionstorage"
-	tgrpc "github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userpb"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services/authservice"
+	"github.com/tehrelt/mu/auth-service/internal/services/profileservice"
+	"github.com/tehrelt/mu/auth-service/internal/storage/grpc/usersapi"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/credentialstorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/rolestorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/redis/sessionstorage"
+	tgrpc "github.com/tehrelt/mu/auth-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/config"
 
 	"github.com/google/wire"
 	_ "github.com/jackc/pgx/stdlib"
@@ -55,7 +56,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		jwt.New,
 		_pg,
 		_redis,
-		tracer.SetupTracer,
+		_tracer,
 		config.New,
 	))
 }
@@ -129,4 +130,13 @@ func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservic
 	servers := make([]Server, 0, 2)
 	servers = append(servers, tgrpc.New(cfg, as, ps))
 	return servers
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }
