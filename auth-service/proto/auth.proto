@@ -10,11 +10,13 @@ service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc Logout(LogoutRequest) returns (LogoutResponse);
     rpc Profile(ProfileRequest) returns (ProfileResponse);
+    rpc Refresh(RefreshRequest) returns (RefreshResponse);
 }
 
 enum Role {
-    ROLE_REGULAR = 0;
-    ROLE_ADMIN = 1;
+    ROLE_UNKNOWN = 0;
+    ROLE_REGULAR = 1;
+    ROLE_ADMIN = 2;
 }
 
 message AuthorizeRequest {
@@ -81,3 +83,11 @@ message LogoutRequest {
     string access_token = 1;
 }
 message LogoutResponse {}
+
+message RefreshRequest {
+    string refresh_token = 1;
+}
+
+message RefreshResponse {
+    Tokens tokens = 1;
+}

@@ -13,14 +13,21 @@ import (
 	"github.com/tehrelt/mu/auth-service/internal/storage"
 )
 
-func (s *AuthService) Refresh(ctx context.Context, userId uuid.UUID, refreshToken string) (*dto.TokenPair, error) {
+func (s *AuthService) Refresh(ctx context.Context, refreshToken string) (*dto.TokenPair, error) {
 
 	fn := "authservice.Refresh"
 	log := s.logger.With(sl.Method(fn))
 
 	log.Debug("refreshing token", slog.String("refresh_token", refreshToken))
 
-	if _, err := s.jwtClient.Verify(refreshToken, jwt.RefreshToken); err != nil {
+	claims, err := s.jwtClient.Verify(refreshToken, jwt.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	userId, err := uuid.Parse(claims.Id)
+	if err != nil {
+		slog.Error("failed to parse user id from jwt payload", slog.String("claims.Id", claims.Id))
 		return nil, err
 	}
 

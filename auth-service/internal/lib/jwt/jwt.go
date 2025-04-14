@@ -4,6 +4,10 @@ import "github.com/tehrelt/mu/auth-service/internal/config"
 
 type TokenType string
 
+func (t TokenType) String() string {
+	return string(t)
+}
+
 const (
 	AccessToken  TokenType = "access"
 	RefreshToken TokenType = "refresh"
