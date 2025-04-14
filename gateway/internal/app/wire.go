@@ -1,3 +1,6 @@
+//go:build wireinject
+// +build wireinject
+
 package app
 
 import (
@@ -8,8 +11,8 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/gateway/internal/config"
+	"github.com/tehrelt/mu/gateway/internal/transport/http"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
-	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,35 +24,27 @@ func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
+		http.New,
 
-		_userpb,
+		// _userpb,
 		_authpb,
 		_tracer,
 		config.New,
 	))
 }
 
-func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
+// func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
 
-	host := cfg.UserService.Host
-	port := cfg.UserService.Port
+// 	host := cfg.UserService.Host
+// 	port := cfg.UserService.Port
 
-	return create_grpc_client(host, port, userpb.NewUserServiceClient)
-}
+// 	return create_grpc_client(host, port, userpb.NewUserServiceClient)
+// }
 
 func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	host := cfg.AuthService.Host
 	port := cfg.AuthService.Port
 
-	return create_grpc_client(host, port, authpb.NewAuthServiceClient)
-}
-
-func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
-	return tracer.SetupTracer(ctx, cfg.Jaeger.Endpoint, cfg.App.Name)
-}
-
-func create_grpc_client[T any](host string, port int, fn func(grpc.ClientConnInterface) T) (T, error) {
-	var zero T
 	addr := fmt.Sprintf("%s:%d", host, port)
 	conn, err := grpc.NewClient(
 		addr,
@@ -58,8 +53,33 @@ func create_grpc_client[T any](host string, port int, fn func(grpc.ClientConnInt
 		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
 	)
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
 
-	return fn(conn), nil
+	return authpb.NewAuthServiceClient(conn), nil
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	return tracer.SetupTracer(ctx, cfg.Jaeger.Endpoint, cfg.App.Name)
+}
+
+// func create_grpc_client[T any](host string, port int, fn func(grpc.ClientConnInterface) T) (T, error) {
+// 	var zero T
+// 	addr := fmt.Sprintf("%s:%d", host, port)
+// 	conn, err := grpc.NewClient(
+// 		addr,
+// 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+// 		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+// 		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+// 	)
+// 	if err != nil {
+// 		return zero, err
+// 	}
+
+// 	return fn(conn), nil
+// }
+
+func _servers(h *http.Server) ([]Server, error) {
+	servers := []Server{h}
+	return servers, nil
 }

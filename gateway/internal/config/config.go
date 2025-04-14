@@ -41,6 +41,11 @@ type Config struct {
 	Env Env `env:"ENV"`
 	App App
 
+	Http struct {
+		Host string `env:"HTTP_HOST"`
+		Port int    `env:"HTTP_PORT"`
+	}
+
 	RegisterService struct {
 		Host string `env:"REGISTER_SERVICE_HOST"`
 		Port int    `env:"REGISTER_SERVICE_PORT"`
