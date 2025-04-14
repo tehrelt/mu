@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,11 +11,21 @@ import (
 func (jc *JwtClient) Sign(user *dto.UserClaims, tokenType TokenType) (string, error) {
 	cfg := jc.GetTokenConfig(tokenType)
 
+	ttl := time.Duration(cfg.TTL) * time.Minute
+	iat := jwt.NewNumericDate(time.Now())
+	exp := jwt.NewNumericDate(time.Now().Add(ttl))
+	slog.Info(
+		"signing token",
+		slog.String("token_type", tokenType.String()),
+		slog.Duration("ttl", ttl),
+		slog.Any("exp", exp),
+		slog.Any("iat", iat),
+	)
 	payload := claims{
 		UserClaims: *user,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(cfg.TTL))),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: exp,
+			IssuedAt:  iat,
 		},
 	}
 
