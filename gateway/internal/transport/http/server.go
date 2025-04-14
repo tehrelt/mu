@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -12,19 +13,31 @@ import (
 	"github.com/tehrelt/mu/gateway/internal/transport/http/handlers"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 )
 
-type Server struct {
-	cfg    *config.Config
-	fiber  *fiber.App
-	auther authpb.AuthServiceClient
+type ErrorResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
-func New(cfg *config.Config, auther authpb.AuthServiceClient) *Server {
+type Server struct {
+	cfg      *config.Config
+	fiber    *fiber.App
+	auther   authpb.AuthServiceClient
+	register registerpb.RegisterServiceClient
+}
+
+func New(
+	cfg *config.Config,
+	auther authpb.AuthServiceClient,
+	register registerpb.RegisterServiceClient,
+) *Server {
 	return &Server{
-		cfg:    cfg,
-		fiber:  fiber.New(),
-		auther: auther,
+		cfg:      cfg,
+		fiber:    fiber.New(),
+		auther:   auther,
+		register: register,
 	}
 }
 
@@ -33,22 +46,42 @@ func (s *Server) setup() {
 		CaseSensitive: false,
 		BodyLimit:     1 << 20,
 		AppName:       s.cfg.App.Name,
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			resp := ErrorResponse{
+				Code:    fiber.StatusInternalServerError,
+				Message: err.Error(),
+			}
+
+			var e *fiber.Error
+			if ok := errors.As(err, &e); ok {
+
+				resp.Code = e.Code
+				resp.Message = e.Message
+				slog.Error(
+					"http error",
+					slog.Any("error", resp),
+				)
+				return c.Status(e.Code).JSON(resp)
+			}
+
+			return c.Status(resp.Code).JSON(resp)
+		},
 	})
 
 	s.fiber.Use(logger.New())
 	s.fiber.Use(middlewares.Trace)
 
+	token := middlewares.BearerToken()
+	authmw := middlewares.Auth(s.auther)
+
 	root := s.fiber.Group("/api")
 
-	root.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"message": "Hello, World",
-		})
-	})
-
 	auth := root.Group("/auth")
+	auth.Post("/register", handlers.Register(s.register))
 	auth.Post("/login", handlers.Login(s.auther))
-	auth.Get("/profile", middlewares.BearerToken(), handlers.Profile(s.auther))
+	auth.Get("/profile", token, authmw(), handlers.Profile(s.auther))
+	// auth.Put("/refresh", token, handlers.Refresh(s.auther)) // TODO
+
 }
 
 func (s *Server) Run(ctx context.Context) error {

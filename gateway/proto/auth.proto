@@ -13,8 +13,9 @@ service AuthService {
 }
 
 enum Role {
-    ROLE_REGULAR = 0;
-    ROLE_ADMIN = 1;
+    ROLE_UNKNOWN = 0;
+    ROLE_REGULAR = 1;
+    ROLE_ADMIN = 2;
 }
 
 message AuthorizeRequest {

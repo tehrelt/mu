@@ -1,5 +1,6 @@
 package middlewares
 
 const (
-	TokenLocalKey = "token"
+	TokenLocalKey   = "token"
+	ProfileLocalKey = "user"
 )

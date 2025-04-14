@@ -1,26 +1,35 @@
 package handlers
 
 import (
-	"log/slog"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 )
 
+type ProfileResponse struct {
+	Id         string `json:"id"`
+	LastName   string `json:"lastName"`
+	FirstName  string `json:"firstName"`
+	MiddleName string `json:"middleName"`
+	Email      string `json:"email"`
+}
+
 func Profile(auther authpb.AuthServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		token, ok := c.Locals(middlewares.TokenLocalKey).(string)
+		profile, ok := c.Locals(middlewares.ProfileLocalKey).(*dto.UserProfile)
 		if !ok {
-			slog.Error("failed to get token from context")
-			return fiber.ErrUnauthorized
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
 		}
-		resp, err := auther.Profile(c.UserContext(), &authpb.ProfileRequest{
-			AccessToken: token,
-		})
-		if err != nil {
-			return err
+
+		resp := &ProfileResponse{
+			Id:         profile.Id.String(),
+			LastName:   profile.LastName,
+			FirstName:  profile.FirstName,
+			MiddleName: profile.MiddleName,
+			Email:      profile.Email,
 		}
+
 		return c.JSON(resp)
 	}
 }
