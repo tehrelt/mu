@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type LoginRequest struct {
@@ -29,6 +31,11 @@ func Login(auther authpb.AuthServiceClient) fiber.Handler {
 			Password: req.Password,
 		})
 		if err != nil {
+			if e, ok := status.FromError(err); ok {
+				if e.Code() == codes.Unauthenticated {
+					return fiber.NewError(fiber.StatusUnauthorized, e.Message())
+				}
+			}
 			return err
 		}
 
