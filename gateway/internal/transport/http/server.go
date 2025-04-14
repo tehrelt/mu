@@ -48,6 +48,7 @@ func (s *Server) setup() {
 
 	auth := root.Group("/auth")
 	auth.Post("/login", handlers.Login(s.auther))
+	auth.Get("/profile", middlewares.BearerToken(), handlers.Profile(s.auther))
 }
 
 func (s *Server) Run(ctx context.Context) error {
