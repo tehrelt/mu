@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"log/slog"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 )
@@ -12,6 +10,11 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginResponse struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 func Login(auther authpb.AuthServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req LoginRequest
@@ -19,8 +22,7 @@ func Login(auther authpb.AuthServiceClient) fiber.Handler {
 			return err
 		}
 
-		slog.Debug("login request", slog.Any("payload", req))
-		resp, err := auther.Login(c.Context(), &authpb.LoginRequest{
+		resp, err := auther.Login(c.UserContext(), &authpb.LoginRequest{
 			Login: &authpb.LoginRequest_Email{
 				Email: req.Login,
 			},
@@ -30,9 +32,11 @@ func Login(auther authpb.AuthServiceClient) fiber.Handler {
 			return err
 		}
 
-		return c.JSON(&fiber.Map{
-			"accessToken":  resp.Tokens.AccessToken,
-			"refreshToken": resp.Tokens.RefreshToken,
-		})
+		res := &LoginResponse{
+			AccessToken:  resp.Tokens.AccessToken,
+			RefreshToken: resp.Tokens.RefreshToken,
+		}
+
+		return c.JSON(res)
 	}
 }
