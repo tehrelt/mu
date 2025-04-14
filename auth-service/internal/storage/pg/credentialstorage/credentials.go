@@ -7,11 +7,19 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *CredentialStorage) Password(ctx context.Context, userId uuid.UUID) (string, error) {
-	log := slog.With(sl.Method("credentialsstorage.Credentials"))
+
+	fn := "credentialstorage.Password"
+	log := slog.With(sl.Method(fn))
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 
 	log.Debug("get credentials", slog.String("userId", userId.String()))
 

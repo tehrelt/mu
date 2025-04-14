@@ -25,7 +25,7 @@ type AuthService interface {
 	Authorize(ctx context.Context, token string, roles ...models.Role) (*dto.UserClaims, error)
 	Login(ctx context.Context, req *dto.LoginUser) (*dto.TokenPair, error)
 	Register(ctx context.Context, req *dto.RegisterUser) (*dto.TokenPair, error)
-	Refresh(ctx context.Context, userId uuid.UUID, token string) (*dto.TokenPair, error)
+	Refresh(ctx context.Context, token string) (*dto.TokenPair, error)
 	Logout(ctx context.Context, userId uuid.UUID) error
 }
 

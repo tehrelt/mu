@@ -80,7 +80,7 @@ func (s *Server) setup() {
 	auth.Post("/register", handlers.Register(s.register))
 	auth.Post("/login", handlers.Login(s.auther))
 	auth.Get("/profile", token, authmw(), handlers.Profile(s.auther))
-	// auth.Put("/refresh", token, handlers.Refresh(s.auther)) // TODO
+	auth.Put("/refresh", token, handlers.Refresh(s.auther)) // TODO
 
 }
 
