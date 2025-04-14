@@ -18,6 +18,10 @@ func BearerToken() fiber.Handler {
 
 		parts := strings.Split(header, " ")
 
+		if strings.Compare(parts[0], "Bearer") != 0 {
+			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
+		}
+
 		if len(parts) != 2 {
 			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
 		}
