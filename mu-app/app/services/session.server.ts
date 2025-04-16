@@ -26,14 +26,13 @@ class SessionService {
   }
 
   async retrieve(cookieHeader: string): Promise<TokenPair | undefined> {
-    console.log("cookieheader", cookieHeader);
     const session = await tokensCookie.getSession(cookieHeader);
     if (!session.data) return undefined;
     return session.data as TokenPair;
   }
 
-  async clear(): Promise<string> {
-    const session = await tokensCookie.getSession();
+  async clear(cookieHeader: string): Promise<string> {
+    const session = await tokensCookie.getSession(cookieHeader);
     return await tokensCookie.destroySession(session);
   }
 }

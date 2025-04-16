@@ -13,7 +13,7 @@ func BearerToken() fiber.Handler {
 		header := c.Get("Authorization")
 
 		if header == "" {
-			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
+			return fiber.NewError(401, "no authorization header")
 		}
 
 		parts := strings.Split(header, " ")
