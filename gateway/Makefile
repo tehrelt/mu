@@ -3,11 +3,11 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
-build: gen 
-	go build -o ./bin/app.exe ./cmd/app
+build: gen
+	go build -o ./bin/app ./cmd/app
 
 run: build
-	./bin/app -local
+	./bin/app -env .env
 
 protobuf:
 	cp -r ../proto .
@@ -16,7 +16,7 @@ protobuf:
 
 gen: protobuf wire
 
-wire: 
+wire:
 	wire ./internal/app
 
 migrate.up:
@@ -24,4 +24,3 @@ migrate.up:
 
 migrate.down:
 	migrate -path ./migrations -database 'postgres://$(PG_USER):$(PG_PASS)@$(PG_HOST):$(PG_PORT)/$(PG_NAME)?sslmode=disable' down
-

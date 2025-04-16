@@ -49,6 +49,14 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 				AccessToken: token,
 			})
 			if err != nil {
+				if e, ok := status.FromError(err); ok {
+					if e.Code() == codes.Unauthenticated {
+						return fiber.NewError(fiber.ErrUnauthorized.Code, "unauthorized")
+					}
+					slog.Error("unexpected rpc error", sl.Err(err))
+				} else {
+					slog.Error("unexpected error", sl.Err(err))
+				}
 				return err
 			}
 

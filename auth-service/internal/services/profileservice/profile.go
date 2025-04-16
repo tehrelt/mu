@@ -2,12 +2,14 @@ package profileservice
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/auth-service/internal/dto"
 	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services"
 )
 
 func (s *ProfileService) Profile(ctx context.Context, token string) (*dto.Profile, error) {
@@ -17,6 +19,9 @@ func (s *ProfileService) Profile(ctx context.Context, token string) (*dto.Profil
 	payload, err := s.jc.Verify(token, jwt.AccessToken)
 	if err != nil {
 		log.Error("failed to jwt verify", sl.Err(err))
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, services.ErrTokenExpired
+		}
 		return nil, err
 	}
 

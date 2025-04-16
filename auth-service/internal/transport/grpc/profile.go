@@ -2,11 +2,15 @@ package grpc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/samber/lo"
 	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/services"
 	"github.com/tehrelt/mu/auth-service/internal/transport/grpc/converters"
 	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Profile implements authpb.AuthServiceServer.
@@ -14,6 +18,9 @@ func (s *Server) Profile(ctx context.Context, req *authpb.ProfileRequest) (*auth
 
 	profile, err := s.profileservice.Profile(ctx, req.AccessToken)
 	if err != nil {
+		if errors.Is(err, services.ErrTokenExpired) {
+			return nil, status.Errorf(codes.Unauthenticated, "token expired")
+		}
 		return nil, err
 	}
 

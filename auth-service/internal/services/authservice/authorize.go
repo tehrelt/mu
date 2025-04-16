@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/tehrelt/mu/auth-service/internal/dto"
@@ -13,6 +14,9 @@ import (
 func (s *AuthService) Authorize(ctx context.Context, token string, roles ...models.Role) (*dto.UserClaims, error) {
 	claims, err := s.jwtClient.Verify(token, jwt.AccessToken)
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, services.ErrTokenExpired
+		}
 		return nil, err
 	}
 
