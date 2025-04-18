@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { sessionService } from "../shared/services/session.service";
+import { authService } from "@/shared/services/auth.service";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_ADDRESS,
@@ -19,7 +20,7 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (cfg) => cfg,
-  (e) => {
+  async (e) => {
     if (e instanceof AxiosError) {
       if (!e.response) {
         throw e;
@@ -29,6 +30,18 @@ api.interceptors.response.use(
       if (status === 401) {
         const config = e.config as AxiosRequestConfig & { isRetry: boolean };
         if (config.isRetry) {
+          console.log("access token not refreshed retry is failed");
+          sessionService.clear();
+          throw e;
+        }
+
+        try {
+          const token = await authService.refresh();
+          sessionService.set(token.accessToken);
+          console.log("access token refreshed");
+
+          return api.request(config);
+        } catch (e) {
           sessionService.clear();
           throw e;
         }
