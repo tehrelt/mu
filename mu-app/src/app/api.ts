@@ -36,10 +36,10 @@ api.interceptors.response.use(
         }
 
         try {
+          config.isRetry = true;
           const token = await authService.refresh();
           sessionService.set(token.accessToken);
           console.log("access token refreshed");
-
           return api.request(config);
         } catch (e) {
           sessionService.clear();

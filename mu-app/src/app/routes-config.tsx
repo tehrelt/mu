@@ -10,9 +10,7 @@ export const RoutesConfig = () => {
         <Route index element={<Index />} />
       </Route>
 
-      <Route>
-        <Route path="/sign-in" element={<SignInPage />} />
-      </Route>
+      <Route path="/sign-in" element={<SignInPage />} />
     </Routes>
   );
 };

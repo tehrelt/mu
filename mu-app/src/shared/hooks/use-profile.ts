@@ -4,10 +4,7 @@ import { authService } from "../services/auth.service";
 export const useProfile = () => {
   const data = useQuery({
     queryKey: ["profile"],
-    queryFn: async () => {
-      const profile = await authService.profile();
-      return profile;
-    },
+    queryFn: () => authService.profile(),
   });
 
   return data;
