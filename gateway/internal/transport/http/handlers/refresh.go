@@ -6,8 +6,7 @@ import (
 )
 
 type RefreshRequest struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	AccessToken string `json:"accessToken"`
 }
 
 func Refresh(auther authpb.AuthServiceClient) fiber.Handler {
@@ -25,9 +24,10 @@ func Refresh(auther authpb.AuthServiceClient) fiber.Handler {
 		}
 
 		ret := &RefreshRequest{
-			AccessToken:  res.Tokens.AccessToken,
-			RefreshToken: res.Tokens.RefreshToken,
+			AccessToken: res.Tokens.AccessToken,
 		}
+
+		c.Cookie(createCookie(res.Tokens.RefreshToken))
 
 		return c.JSON(ret)
 	}
