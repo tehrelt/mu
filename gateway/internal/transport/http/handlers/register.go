@@ -22,8 +22,7 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	AccessToken string `json:"accessToken"`
 }
 
 func Register(register registerpb.RegisterServiceClient) fiber.Handler {
@@ -59,9 +58,9 @@ func Register(register registerpb.RegisterServiceClient) fiber.Handler {
 			return err
 		}
 
+		c.Cookie(createCookie(regResponse.Tokens.RefreshToken))
 		res := &RegisterResponse{
-			AccessToken:  regResponse.Tokens.AccessToken,
-			RefreshToken: regResponse.Tokens.RefreshToken,
+			AccessToken: regResponse.Tokens.AccessToken,
 		}
 
 		return c.JSON(res)

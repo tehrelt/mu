@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"log/slog"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 )
 
@@ -15,11 +12,9 @@ type RefreshRequest struct {
 
 func Refresh(auther authpb.AuthServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
-		token, ok := c.Locals(middlewares.TokenLocalKey).(string)
-		if !ok {
-			slog.Warn("no token in fiber locals")
-			return fiber.NewError(401, "where token")
+		token := c.Cookies("refresh_token", "")
+		if token == "" {
+			return fiber.NewError(401, "no refresh token")
 		}
 
 		res, err := auther.Refresh(c.UserContext(), &authpb.RefreshRequest{

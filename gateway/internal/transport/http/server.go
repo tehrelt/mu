@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/gateway/internal/config"
@@ -68,6 +69,10 @@ func (s *Server) setup() {
 		},
 	})
 
+	s.fiber.Use(cors.New(cors.Config{
+		AllowOrigins:     s.cfg.Cors.AllowedOrigins,
+		AllowCredentials: true,
+	}))
 	s.fiber.Use(logger.New())
 	s.fiber.Use(middlewares.Trace)
 
@@ -78,9 +83,9 @@ func (s *Server) setup() {
 
 	auth := root.Group("/auth")
 	auth.Post("/register", handlers.Register(s.register))
+	auth.Put("/refresh", handlers.Refresh(s.auther))
 	auth.Post("/login", handlers.Login(s.auther))
 	auth.Get("/profile", middlewares.Cookies(), token, authmw(), handlers.Profile(s.auther))
-	auth.Put("/refresh", token, handlers.Refresh(s.auther))
 	auth.Post("/logout", token, handlers.Logout(s.auther))
 
 }

@@ -7,14 +7,23 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func createCookie(token string) *fiber.Cookie {
+	return &fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    token,
+		HTTPOnly: true,
+		SameSite: "lax",
+	}
+}
+
 type LoginRequest struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	AccessToken string `json:"accessToken"`
+	// RefreshToken string `json:"refreshToken"`
 }
 
 func Login(auther authpb.AuthServiceClient) fiber.Handler {
@@ -40,9 +49,10 @@ func Login(auther authpb.AuthServiceClient) fiber.Handler {
 		}
 
 		res := &LoginResponse{
-			AccessToken:  resp.Tokens.AccessToken,
-			RefreshToken: resp.Tokens.RefreshToken,
+			AccessToken: resp.Tokens.AccessToken,
 		}
+
+		c.Cookie(createCookie(resp.Tokens.RefreshToken))
 
 		return c.JSON(res)
 	}

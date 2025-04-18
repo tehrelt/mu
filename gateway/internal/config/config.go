@@ -41,6 +41,8 @@ type Config struct {
 	Env Env `env:"ENV"`
 	App App
 
+	Cors Cors
+
 	Http struct {
 		Host string `env:"HTTP_HOST"`
 		Port int    `env:"HTTP_PORT"`
