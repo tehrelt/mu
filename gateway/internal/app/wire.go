@@ -12,6 +12,7 @@ import (
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/gateway/internal/config"
 	"github.com/tehrelt/mu/gateway/internal/transport/http"
+	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"go.opentelemetry.io/otel/trace"
@@ -28,6 +29,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		http.New,
 
 		// _userpb,
+		_accountpb,
 		_regpb,
 		_authpb,
 		_tracer,
@@ -59,6 +61,24 @@ func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	}
 
 	return authpb.NewAuthServiceClient(conn), nil
+}
+
+func _accountpb(cfg *config.Config) (accountpb.AccountServiceClient, error) {
+	host := cfg.AccountService.Host
+	port := cfg.AccountService.Port
+
+	addr := fmt.Sprintf("%s:%d", host, port)
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return accountpb.NewAccountServiceClient(conn), nil
 }
 
 func _regpb(cfg *config.Config) (registerpb.RegisterServiceClient, error) {

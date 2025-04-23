@@ -6,6 +6,7 @@ include:
   - housing-service.yaml
   - billing-service.yaml
   - register-service.yaml
+  - account-service.yaml
 
 services:
   pgadmin:
@@ -18,7 +19,7 @@ services:
       - PGADMIN_LISTEN_PORT=80
 
   jaeger:
-    image: jaegertracing/all-in-one 
+    image: jaegertracing/all-in-one
     container_name: mu-jaeger
     ports:
       - "14268:14268"

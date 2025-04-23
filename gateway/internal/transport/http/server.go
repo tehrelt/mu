@@ -13,6 +13,7 @@ import (
 	"github.com/tehrelt/mu/gateway/internal/config"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/handlers"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
+	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 )
@@ -23,22 +24,25 @@ type ErrorResponse struct {
 }
 
 type Server struct {
-	cfg      *config.Config
-	fiber    *fiber.App
-	auther   authpb.AuthServiceClient
-	register registerpb.RegisterServiceClient
+	cfg       *config.Config
+	fiber     *fiber.App
+	auther    authpb.AuthServiceClient
+	register  registerpb.RegisterServiceClient
+	accounter accountpb.AccountServiceClient
 }
 
 func New(
 	cfg *config.Config,
 	auther authpb.AuthServiceClient,
 	register registerpb.RegisterServiceClient,
+	accounter accountpb.AccountServiceClient,
 ) *Server {
 	return &Server{
-		cfg:      cfg,
-		fiber:    fiber.New(),
-		auther:   auther,
-		register: register,
+		cfg:       cfg,
+		fiber:     fiber.New(),
+		auther:    auther,
+		register:  register,
+		accounter: accounter,
 	}
 }
 
@@ -88,6 +92,8 @@ func (s *Server) setup() {
 	auth.Get("/profile", middlewares.Cookies(), token, authmw(), handlers.Profile(s.auther))
 	auth.Post("/logout", token, handlers.Logout(s.auther))
 
+	accounts := root.Group("/accounts")
+	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
 }
 
 func (s *Server) Run(ctx context.Context) error {

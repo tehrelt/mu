@@ -1,0 +1,56 @@
+services:
+  account-service:
+    container_name: account-service
+    build:
+      context: ../account-service
+    env_file:
+      - .env
+    environment:
+      ENV: local
+      APP_NAME: MU Account Service
+      GRPC_PORT: 4000
+
+      WAIT_HOSTS: account-service-pg:5432, rmq:5672
+
+      PG_HOST: account-service-pg
+      PG_PORT: 5432
+
+      PG_NAME: ${ACCOUNT_PG_NAME}
+      PG_USER: ${ACCOUNT_PG_USER}
+      PG_PASS: ${ACCOUNT_PG_PASS}
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 4000
+
+      BILLING_SERVICE_HOST: billing-service
+      BILLING_SERVICE_PORT: 4000
+
+      HOUSE_SERVICE_HOST: house-service
+      HOUSE_SERVICE_PORT: 4000
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
+
+      RATE_SERVICE_HOST: rate-service
+      RATE_SERVICE_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+    ports:
+      - "${ACCOUNT_GRPC_PORT}:4000"
+
+  account-service-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${ACCOUNT_PG_NAME}
+      POSTGRES_USER: ${ACCOUNT_PG_USER}
+      POSTGRES_PASSWORD: ${ACCOUNT_PG_PASS}
+    volumes:
+      - account-service-pg-data:/var/lib/postgresql/data
+
+volumes:
+  account-service-pg-data:
+    name: mu-account-service-pg

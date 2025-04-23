@@ -13,7 +13,7 @@ func Refresh(auther authpb.AuthServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token := c.Cookies("refresh_token", "")
 		if token == "" {
-			return fiber.NewError(401, "no refresh token")
+			return fiber.NewError(400, "no refresh token")
 		}
 
 		res, err := auther.Refresh(c.UserContext(), &authpb.RefreshRequest{

@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&env, "env", "dev", "environment")
+	flag.StringVar(&env, "env", "", "environment")
 }
 
 func main() {

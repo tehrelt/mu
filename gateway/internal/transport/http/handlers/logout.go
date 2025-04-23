@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
@@ -24,6 +25,10 @@ func Logout(auther authpb.AuthServiceClient) fiber.Handler {
 			slog.Error("failed to logout", "error", err)
 			return fiber.NewError(fiber.StatusInternalServerError, "unexpected error")
 		}
+
+		cookie := createCookie("clear")
+		cookie.Expires = time.Now().Add(-24 * time.Hour)
+		c.Cookie(cookie)
 
 		return c.SendStatus(200)
 	}

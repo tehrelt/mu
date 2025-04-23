@@ -6,9 +6,8 @@ services:
     env_file:
       - .env
     environment:
-      WAIT_HOSTS: rate-service-pg:5432, rmq:5672
-
       APP_NAME: MU Rate Service
+      WAIT_HOSTS: rate-service-pg:5432, rmq:5672
 
       PG_HOST: rate-service-pg
       PG_PORT: 5432
