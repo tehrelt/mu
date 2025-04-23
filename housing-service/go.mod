@@ -52,7 +52,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/samber/lo v1.49.1
-	github.com/tehrelt/mu-lib v0.3.8
+	github.com/tehrelt/mu-lib v0.3.11
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect

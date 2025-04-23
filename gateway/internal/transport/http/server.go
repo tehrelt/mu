@@ -59,11 +59,11 @@ func (s *Server) setup() {
 
 			var e *fiber.Error
 			if ok := errors.As(err, &e); ok {
-
 				resp.Code = e.Code
 				resp.Message = e.Message
 				slog.Error(
 					"http error",
+					slog.String("path", c.BaseURL()),
 					slog.Any("error", resp),
 				)
 				return c.Status(e.Code).JSON(resp)

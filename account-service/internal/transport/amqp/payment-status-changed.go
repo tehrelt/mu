@@ -83,7 +83,7 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 	}
 
 	oldBalance := acc.Balance
-	acc.Balance += bill.Payment.Amount
+	acc.DeltaBalance(bill.Payment.Amount)
 
 	if _, err := c.storage.Update(ctx, &dto.UpdateAccount{
 		Id:         event.AccountId,

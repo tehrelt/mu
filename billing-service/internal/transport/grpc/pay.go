@@ -21,8 +21,8 @@ func (s *Server) Pay(ctx context.Context, in *billingpb.PayRequest) (*billingpb.
 	}
 
 	newstatus := models.PaymentStatusSuccess
-
-	newdata := dto.NewUpdatePayment(id).SetStatus(newstatus)
+	newdata := dto.NewUpdatePayment(id).
+		SetStatus(newstatus)
 
 	old, err := s.storage.Update(ctx, newdata)
 	if err != nil {

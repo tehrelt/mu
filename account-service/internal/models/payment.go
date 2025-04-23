@@ -15,6 +15,10 @@ type Account struct {
 	UpdatedAt *time.Time `db:"updated_at"`
 }
 
+func (a *Account) DeltaBalance(amount int64) {
+	a.Balance += amount
+}
+
 func (p *Account) ToProto() *accountpb.Account {
 	pb := &accountpb.Account{
 		Id:        p.Id,

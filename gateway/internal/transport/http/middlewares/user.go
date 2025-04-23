@@ -49,6 +49,7 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 				AccessToken: token,
 			})
 			if err != nil {
+				slog.Error("error with get profile", sl.Err(err))
 				if e, ok := status.FromError(err); ok {
 					if e.Code() == codes.Unauthenticated {
 						return fiber.NewError(fiber.ErrUnauthorized.Code, "unauthorized")
@@ -59,6 +60,8 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 				}
 				return err
 			}
+
+			slog.Info("profile fetched", slog.Any("profile", profileResponse))
 
 			profile := &dto.UserProfile{}
 			if err := profile.FromProto(profileResponse); err != nil {

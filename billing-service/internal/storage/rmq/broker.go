@@ -28,6 +28,9 @@ func New(cfg *config.Config, ch *amqp091.Channel) *Broker {
 
 func (b *Broker) PublishStatusChanged(ctx context.Context, event *dto.EventStatusChanged) error {
 
+	fn := "broker.PublishStatusChanged"
+	log := slog.With(slog.String("fn", fn))
+
 	event.Timestamp = time.Now()
 
 	j, err := json.Marshal(event)
@@ -35,6 +38,13 @@ func (b *Broker) PublishStatusChanged(ctx context.Context, event *dto.EventStatu
 		slog.Error("failed marshal event data", slog.Any("event", event))
 		return err
 	}
+
+	log.Info(
+		"sending event",
+		slog.String("exchange", b.cfg.PaymentStatusChanged.Exchange),
+		slog.String("routing", b.cfg.PaymentStatusChanged.Routing),
+		slog.Any("event", event),
+	)
 
 	return b.manager.Publish(ctx, b.cfg.PaymentStatusChanged.Exchange, b.cfg.PaymentStatusChanged.Routing, j)
 }

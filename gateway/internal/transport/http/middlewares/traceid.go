@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu-lib/tracer"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/propagation"
@@ -12,7 +13,7 @@ import (
 func Trace(c *fiber.Ctx) error {
 
 	ctx := c.UserContext()
-	t := otel.Tracer("gateway")
+	t := otel.Tracer(tracer.TracerKey)
 	ctx, span := t.Start(ctx, fmt.Sprintf("%s %s", c.Method(), c.Path()))
 	defer span.End()
 

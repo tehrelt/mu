@@ -22,7 +22,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	github.com/tehrelt/mu-lib v0.3.8 // indirect
+	github.com/tehrelt/mu-lib v0.3.11 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.35.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

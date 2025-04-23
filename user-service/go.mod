@@ -49,7 +49,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/tehrelt/mu-lib v0.3.8
+	github.com/tehrelt/mu-lib v0.3.11
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect

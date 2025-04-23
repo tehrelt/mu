@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"io"
+	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
@@ -37,6 +39,7 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 			UserId: profile.Id.String(),
 		})
 		if err != nil {
+			slog.Error("failed to list users accounts", sl.UUID("userId", profile.Id))
 			return err
 		}
 
