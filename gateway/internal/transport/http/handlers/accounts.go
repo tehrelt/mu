@@ -13,11 +13,16 @@ type UserAccountsResponse struct {
 	Accounts []UserAccount `json:"accounts"`
 }
 
-type UserAccount struct {
+type HouseInfo struct {
 	Id      string `json:"id"`
-	HouseId string `json:"houseId"`
-	UserId  string `json:"userId"`
-	Balance int64  `json:"balance"`
+	Address string `json:"address"`
+}
+
+type UserAccount struct {
+	Id      string    `json:"id"`
+	UserId  string    `json:"userId"`
+	House   HouseInfo `json:"house"`
+	Balance int64     `json:"balance"`
 }
 
 func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
@@ -49,10 +54,12 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 			}
 
 			resp.Accounts = append(resp.Accounts, UserAccount{
-				Id:      account.Id,
-				HouseId: account.HouseId,
-				UserId:  account.UserId,
-				Balance: account.Balance,
+				Id:     account.Id,
+				UserId: account.UserId,
+				House: HouseInfo{
+					Id:      account.House.Id,
+					Address: account.House.Address,
+				},
 			})
 		}
 

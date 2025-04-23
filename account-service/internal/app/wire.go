@@ -45,6 +45,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		_amqp,
 		_pg,
 		_tracer,
+		_housepb,
 		config.New,
 	))
 }

@@ -28,7 +28,7 @@ services:
       BILLING_SERVICE_HOST: billing-service
       BILLING_SERVICE_PORT: 4000
 
-      HOUSE_SERVICE_HOST: house-service
+      HOUSE_SERVICE_HOST: housing-service
       HOUSE_SERVICE_PORT: 4000
 
       USER_SERVICE_HOST: user-service

@@ -7,6 +7,7 @@ option go_package="github.com/tehrelt/moi-uslugi/proto/house;housepb";
 service HouseService {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc House(HouseRequest) returns (HouseResponse);
+    rpc ListHousesByIds(stream ListHousesByIdsRequest) returns (stream ListHousesResponse);
 }
 
 message House {
@@ -36,4 +37,12 @@ message HouseRequest {
 
 message HouseResponse {
     House house = 1;
+}
+
+message ListHousesByIdsRequest {
+    string id = 1;
+}
+
+message ListHousesResponse {
+   House house = 1;
 }

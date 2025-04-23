@@ -14,8 +14,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, out chan<- models.Account) error {
-	defer close(out)
+func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters) (<-chan models.Account, error) {
 
 	fn := "accountstorage.List"
 	t := otel.Tracer(tracer.TracerKey)
@@ -43,34 +42,47 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters, 
 
 	if err != nil {
 		log.Error("failed to build query", sl.Err(err))
-		return err
+		return nil, err
 	}
 
 	log.Debug("executing query", sl.Query(query), sl.Args(args))
 
-	rows, err := s.db.QueryxContext(ctx, query, args...)
-	if err != nil {
-		log.Error("failed to execute query", sl.Err(err))
-		return err
-	}
+	out := make(chan models.Account)
+	errchan := make(chan error, 1)
+	go func() {
+		defer close(errchan)
+		defer close(out)
 
-	for rows.Next() {
-		var acc models.Account
-		if err := rows.Scan(
-			&acc.Id,
-			&acc.UserId,
-			&acc.HouseId,
-			&acc.Balance,
-			&acc.CreatedAt,
-			&acc.UpdatedAt,
-		); err != nil {
+		rows, err := s.db.QueryxContext(ctx, query, args...)
+		if err != nil {
 			log.Error("failed to execute query", sl.Err(err))
-			return err
+			errchan <- err
 		}
 
-		log.Debug("account sent to channel", slog.String("account_id", acc.Id))
-		out <- acc
-	}
+		for rows.Next() {
+			var acc models.Account
+			if err := rows.Scan(
+				&acc.Id,
+				&acc.UserId,
+				&acc.HouseId,
+				&acc.Balance,
+				&acc.CreatedAt,
+				&acc.UpdatedAt,
+			); err != nil {
+				log.Error("failed to execute query", sl.Err(err))
+				errchan <- err
+			}
 
-	return nil
+			log.Debug("account sent to channel", slog.String("account_id", acc.Id))
+			out <- acc
+		}
+	}()
+
+	go func() {
+		for range errchan {
+			log.Error("failed to execute query", sl.Err(err))
+		}
+	}()
+
+	return out, nil
 }

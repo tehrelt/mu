@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HouseService_Create_FullMethodName = "/house.HouseService/Create"
-	HouseService_House_FullMethodName  = "/house.HouseService/House"
+	HouseService_Create_FullMethodName          = "/house.HouseService/Create"
+	HouseService_House_FullMethodName           = "/house.HouseService/House"
+	HouseService_ListHousesByIds_FullMethodName = "/house.HouseService/ListHousesByIds"
 )
 
 // HouseServiceClient is the client API for HouseService service.
@@ -29,6 +30,7 @@ const (
 type HouseServiceClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 	House(ctx context.Context, in *HouseRequest, opts ...grpc.CallOption) (*HouseResponse, error)
+	ListHousesByIds(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ListHousesByIdsRequest, ListHousesResponse], error)
 }
 
 type houseServiceClient struct {
@@ -59,12 +61,26 @@ func (c *houseServiceClient) House(ctx context.Context, in *HouseRequest, opts .
 	return out, nil
 }
 
+func (c *houseServiceClient) ListHousesByIds(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ListHousesByIdsRequest, ListHousesResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &HouseService_ServiceDesc.Streams[0], HouseService_ListHousesByIds_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ListHousesByIdsRequest, ListHousesResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type HouseService_ListHousesByIdsClient = grpc.BidiStreamingClient[ListHousesByIdsRequest, ListHousesResponse]
+
 // HouseServiceServer is the server API for HouseService service.
 // All implementations must embed UnimplementedHouseServiceServer
 // for forward compatibility.
 type HouseServiceServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	House(context.Context, *HouseRequest) (*HouseResponse, error)
+	ListHousesByIds(grpc.BidiStreamingServer[ListHousesByIdsRequest, ListHousesResponse]) error
 	mustEmbedUnimplementedHouseServiceServer()
 }
 
@@ -80,6 +96,9 @@ func (UnimplementedHouseServiceServer) Create(context.Context, *CreateRequest) (
 }
 func (UnimplementedHouseServiceServer) House(context.Context, *HouseRequest) (*HouseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method House not implemented")
+}
+func (UnimplementedHouseServiceServer) ListHousesByIds(grpc.BidiStreamingServer[ListHousesByIdsRequest, ListHousesResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method ListHousesByIds not implemented")
 }
 func (UnimplementedHouseServiceServer) mustEmbedUnimplementedHouseServiceServer() {}
 func (UnimplementedHouseServiceServer) testEmbeddedByValue()                      {}
@@ -138,6 +157,13 @@ func _HouseService_House_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HouseService_ListHousesByIds_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(HouseServiceServer).ListHousesByIds(&grpc.GenericServerStream[ListHousesByIdsRequest, ListHousesResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type HouseService_ListHousesByIdsServer = grpc.BidiStreamingServer[ListHousesByIdsRequest, ListHousesResponse]
+
 // HouseService_ServiceDesc is the grpc.ServiceDesc for HouseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -154,6 +180,13 @@ var HouseService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HouseService_House_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ListHousesByIds",
+			Handler:       _HouseService_ListHousesByIds_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "proto/house.proto",
 }

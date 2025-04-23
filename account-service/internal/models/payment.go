@@ -19,7 +19,6 @@ func (p *Account) ToProto() *accountpb.Account {
 	pb := &accountpb.Account{
 		Id:        p.Id,
 		UserId:    p.UserId,
-		HouseId:   p.HouseId,
 		Balance:   p.Balance,
 		CreatedAt: p.CreatedAt.Unix(),
 	}

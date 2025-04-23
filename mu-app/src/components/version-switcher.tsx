@@ -44,7 +44,9 @@ export function AccountSwitcher() {
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 {selectedAccount ? (
-                  <span className="font-medium">{selectedAccount.houseId}</span>
+                  <span className="font-medium">
+                    {selectedAccount.house.address}
+                  </span>
                 ) : (
                   <span className="font-medium">Select Account</span>
                 )}
@@ -69,7 +71,7 @@ export function AccountSwitcher() {
                     key={acc.id}
                     onSelect={() => selectAccount(acc)}
                   >
-                    {acc.houseId}
+                    {acc.house.address}
                   </DropdownMenuItem>
                 ))}
 
@@ -80,6 +82,12 @@ export function AccountSwitcher() {
                   Clear
                 </DropdownMenuItem>
               </>
+            )}
+
+            {accounts.isError && (
+              <DropdownMenuItem disabled>
+                Error when fetching accounts {accounts.error.message}
+              </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
