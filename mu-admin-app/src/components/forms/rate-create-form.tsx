@@ -1,24 +1,16 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormLabel, FormMessage } from "@/components/ui/form";
-import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { routes } from "@/shared/routes";
-import { toast } from "sonner";
-import { GalleryVerticalEnd } from "lucide-react";
-import { RateCreate, rateCreateSchema } from "@/shared/types/rate";
 import { rateService } from "@/shared/services/rates.service";
+import { RateCreate, rateCreateSchema } from "@/shared/types/rate";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export function RateCreateForm({
   className,

@@ -11,10 +11,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/gateway/internal/config"
+	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/handlers"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 )
 
@@ -29,6 +31,7 @@ type Server struct {
 	auther    authpb.AuthServiceClient
 	register  registerpb.RegisterServiceClient
 	accounter accountpb.AccountServiceClient
+	rater     ratepb.RateServiceClient
 }
 
 func New(
@@ -36,6 +39,7 @@ func New(
 	auther authpb.AuthServiceClient,
 	register registerpb.RegisterServiceClient,
 	accounter accountpb.AccountServiceClient,
+	rater ratepb.RateServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -43,6 +47,7 @@ func New(
 		auther:    auther,
 		register:  register,
 		accounter: accounter,
+		rater:     rater,
 	}
 }
 
@@ -94,6 +99,10 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
+
+	rates := root.Group("/rates")
+	rates.Post("/", token, authmw(dto.RoleAdmin), handlers.RateCreateHandler(s.rater))
+	rates.Get("/", token, authmw(dto.RoleAdmin), handlers.RateListHandler(s.rater))
 }
 
 func (s *Server) Run(ctx context.Context) error {

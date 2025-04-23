@@ -14,6 +14,7 @@ import (
 	"github.com/tehrelt/mu/gateway/internal/transport/http"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
@@ -29,6 +30,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		http.New,
 
 		// _userpb,
+		_ratepb,
 		_accountpb,
 		_regpb,
 		_authpb,
@@ -77,6 +79,20 @@ func _regpb(cfg *config.Config) (registerpb.RegisterServiceClient, error) {
 	}
 
 	return client.(registerpb.RegisterServiceClient), nil
+}
+
+func _ratepb(cfg *config.Config) (ratepb.RateServiceClient, error) {
+	host := cfg.RateService.Host
+	port := cfg.RateService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return ratepb.NewRateServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(ratepb.RateServiceClient), nil
 }
 
 func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
