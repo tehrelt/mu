@@ -11,12 +11,21 @@ service AuthService {
     rpc Logout(LogoutRequest) returns (LogoutResponse);
     rpc Profile(ProfileRequest) returns (ProfileResponse);
     rpc Refresh(RefreshRequest) returns (RefreshResponse);
+    rpc AddRole(AddRoleRequest) returns (AddRoleResponse);
 }
 
 enum Role {
     ROLE_UNKNOWN = 0;
     ROLE_REGULAR = 1;
     ROLE_ADMIN = 2;
+}
+
+message AddRoleRequest {
+    string user_id = 1;
+    Role role = 2;
+}
+
+message AddRoleResponse {
 }
 
 message AuthorizeRequest {

@@ -14,6 +14,7 @@ import (
 	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
 	"github.com/tehrelt/mu/auth-service/internal/services/authservice"
 	"github.com/tehrelt/mu/auth-service/internal/services/profileservice"
+	"github.com/tehrelt/mu/auth-service/internal/services/roleservice"
 	"github.com/tehrelt/mu/auth-service/internal/storage/grpc/usersapi"
 	"github.com/tehrelt/mu/auth-service/internal/storage/pg/credentialstorage"
 	"github.com/tehrelt/mu/auth-service/internal/storage/pg/rolestorage"
@@ -35,6 +36,9 @@ func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
+
+		roleservice.New,
+		wire.Bind(new(roleservice.RoleUpdated), new(*rolestorage.RoleStorage)),
 
 		authservice.New,
 		wire.Bind(new(authservice.UserCreator), new(*usersapi.Api)),
@@ -126,9 +130,9 @@ func _userpb(cfg *config.Config) (*usersapi.Api, func(), error) {
 	return usersapi.New(client), func() { conn.Close() }, nil
 }
 
-func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservice.ProfileService) []Server {
+func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservice.ProfileService, rs *roleservice.Service) []Server {
 	servers := make([]Server, 0, 2)
-	servers = append(servers, tgrpc.New(cfg, as, ps))
+	servers = append(servers, tgrpc.New(cfg, as, ps, rs))
 	return servers
 }
 

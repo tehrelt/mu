@@ -36,6 +36,7 @@ func Profile(auther authpb.AuthServiceClient, accounter accountpb.AccountService
 				"role param is set",
 				slog.String("expectedRole", string(expectedRole)),
 				slog.Bool("isValid", expectedRole.Validate()),
+				slog.Any("accRoles", profile.Roles),
 			)
 			if expectedRole.Validate() {
 				if !lo.Contains(profile.Roles, expectedRole) {

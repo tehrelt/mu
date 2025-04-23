@@ -13,6 +13,7 @@ import (
 	"github.com/tehrelt/mu/auth-service/internal/config"
 	"github.com/tehrelt/mu/auth-service/internal/dto"
 	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/services/roleservice"
 	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,6 +38,7 @@ type Server struct {
 	cfg            *config.Config
 	authservice    AuthService
 	profileservice ProfileService
+	roleservice    *roleservice.Service
 	authpb.UnimplementedAuthServiceServer
 }
 
@@ -44,11 +46,13 @@ func New(
 	cfg *config.Config,
 	as AuthService,
 	us ProfileService,
+	rs *roleservice.Service,
 ) *Server {
 	return &Server{
 		cfg:            cfg,
 		authservice:    as,
 		profileservice: us,
+		roleservice:    rs,
 	}
 }
 

@@ -27,7 +27,11 @@ class AuthService {
   }
 
   async profile(): Promise<Profile> {
-    const response = await api.get("/auth/profile?role=admin");
+    const response = await api.get("/auth/profile", {
+      params: {
+        role: "admin"
+      }
+    });
 
     const profile = profileSchema.safeParse(response.data);
     if (!profile.success) {

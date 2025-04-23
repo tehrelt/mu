@@ -27,7 +27,7 @@ func (u *UserProfile) FromProto(p *authpb.ProfileResponse) (err error) {
 
 	u.Roles = make([]Role, len(p.Roles))
 	for i, role := range p.Roles {
-		u.Roles[i].FromProto(role)
+		u.Roles[i] = u.Roles[i].FromProto(role)
 	}
 
 	return
