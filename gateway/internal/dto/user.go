@@ -11,6 +11,7 @@ type UserProfile struct {
 	FirstName  string
 	MiddleName string
 	Email      string
+	Roles      []Role
 }
 
 func (u *UserProfile) FromProto(p *authpb.ProfileResponse) (err error) {
@@ -23,6 +24,11 @@ func (u *UserProfile) FromProto(p *authpb.ProfileResponse) (err error) {
 	u.FirstName = p.FirstName
 	u.MiddleName = p.MiddleName
 	u.Email = p.Email
+
+	u.Roles = make([]Role, len(p.Roles))
+	for i, role := range p.Roles {
+		u.Roles[i].FromProto(role)
+	}
 
 	return
 }

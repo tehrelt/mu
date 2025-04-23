@@ -61,7 +61,7 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 				return err
 			}
 
-			slog.Info("profile fetched", slog.Any("profile", profileResponse))
+			// slog.Debug("profile fetched", slog.Any("profile", profileResponse))
 
 			profile := &dto.UserProfile{}
 			if err := profile.FromProto(profileResponse); err != nil {

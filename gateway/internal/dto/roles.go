@@ -1,8 +1,19 @@
 package dto
 
-import "github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+import (
+	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+)
 
 type Role string
+
+func (r Role) Validate() bool {
+	switch r {
+	case RoleAdmin, RoleRegular:
+		return true
+	default:
+		return false
+	}
+}
 
 func (r Role) ToProto() authpb.Role {
 	switch r {
@@ -15,7 +26,19 @@ func (r Role) ToProto() authpb.Role {
 	}
 }
 
+func (r Role) FromProto(role authpb.Role) Role {
+	switch role {
+	case authpb.Role_ROLE_ADMIN:
+		return RoleAdmin
+	case authpb.Role_ROLE_REGULAR:
+		return RoleRegular
+	default:
+		return RoleUnknown
+	}
+}
+
 const (
 	RoleAdmin   Role = "admin"
 	RoleRegular Role = "regular"
+	RoleUnknown Role = "unknown"
 )
