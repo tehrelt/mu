@@ -10,7 +10,14 @@ import (
 )
 
 type UserAccountsResponse struct {
-	Accounts []*accountpb.Account `json:"accounts"`
+	Accounts []UserAccount `json:"accounts"`
+}
+
+type UserAccount struct {
+	Id      string `json:"id"`
+	HouseId string `json:"houseId"`
+	UserId  string `json:"userId"`
+	Balance int64  `json:"balance"`
 }
 
 func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
@@ -29,7 +36,7 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 		}
 
 		resp := &UserAccountsResponse{
-			Accounts: make([]*accountpb.Account, 0),
+			Accounts: make([]UserAccount, 0),
 		}
 
 		for {
@@ -41,7 +48,12 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 				return err
 			}
 
-			resp.Accounts = append(resp.Accounts, account)
+			resp.Accounts = append(resp.Accounts, UserAccount{
+				Id:      account.Id,
+				HouseId: account.HouseId,
+				UserId:  account.UserId,
+				Balance: account.Balance,
+			})
 		}
 
 		return c.JSON(resp)

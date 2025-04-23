@@ -11,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { routes } from "@/shared/routes";
 
 type UserCardProps = {
   user: Profile;
@@ -33,10 +35,12 @@ export const UserCard = ({ user }: UserCardProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <House />
-              Личный кабинет
-            </DropdownMenuItem>
+            <Link to={routes.dashboard}>
+              <DropdownMenuItem>
+                <House />
+                Личный кабинет
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
