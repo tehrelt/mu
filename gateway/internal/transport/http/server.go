@@ -89,7 +89,7 @@ func (s *Server) setup() {
 	auth.Post("/register", handlers.Register(s.register))
 	auth.Put("/refresh", handlers.Refresh(s.auther))
 	auth.Post("/login", handlers.Login(s.auther))
-	auth.Get("/profile", middlewares.Cookies(), token, authmw(), handlers.Profile(s.auther))
+	auth.Get("/profile", token, authmw(), handlers.Profile(s.auther, s.accounter))
 	auth.Post("/logout", token, handlers.Logout(s.auther))
 
 	accounts := root.Group("/accounts")

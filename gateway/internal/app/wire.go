@@ -37,54 +37,53 @@ func New(ctx context.Context) (*App, func(), error) {
 	))
 }
 
-// func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
-
-// 	host := cfg.UserService.Host
-// 	port := cfg.UserService.Port
-
-// 	return create_grpc_client(host, port, userpb.NewUserServiceClient)
-// }
-
 func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	host := cfg.AuthService.Host
 	port := cfg.AuthService.Port
 
-	addr := fmt.Sprintf("%s:%d", host, port)
-	conn, err := grpc.NewClient(
-		addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
-		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
-	)
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return authpb.NewAuthServiceClient(cc)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return authpb.NewAuthServiceClient(conn), nil
+	return client.(authpb.AuthServiceClient), nil
 }
 
 func _accountpb(cfg *config.Config) (accountpb.AccountServiceClient, error) {
 	host := cfg.AccountService.Host
 	port := cfg.AccountService.Port
 
-	addr := fmt.Sprintf("%s:%d", host, port)
-	conn, err := grpc.NewClient(
-		addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
-		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
-	)
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return accountpb.NewAccountServiceClient(cc)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return accountpb.NewAccountServiceClient(conn), nil
+	return client.(accountpb.AccountServiceClient), nil
 }
 
 func _regpb(cfg *config.Config) (registerpb.RegisterServiceClient, error) {
 	host := cfg.RegisterService.Host
 	port := cfg.RegisterService.Port
 
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return registerpb.NewRegisterServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(registerpb.RegisterServiceClient), nil
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	return tracer.SetupTracer(ctx, cfg.Jaeger.Endpoint, cfg.App.Name)
+}
+
+func create_grpc_client(host string, port int, fn func(grpc.ClientConnInterface) any) (any, error) {
 	addr := fmt.Sprintf("%s:%d", host, port)
 	conn, err := grpc.NewClient(
 		addr,
@@ -96,28 +95,8 @@ func _regpb(cfg *config.Config) (registerpb.RegisterServiceClient, error) {
 		return nil, err
 	}
 
-	return registerpb.NewRegisterServiceClient(conn), nil
+	return fn(conn), nil
 }
-
-func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
-	return tracer.SetupTracer(ctx, cfg.Jaeger.Endpoint, cfg.App.Name)
-}
-
-// func create_grpc_client[T any](host string, port int, fn func(grpc.ClientConnInterface) T) (T, error) {
-// 	var zero T
-// 	addr := fmt.Sprintf("%s:%d", host, port)
-// 	conn, err := grpc.NewClient(
-// 		addr,
-// 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-// 		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
-// 		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
-// 	)
-// 	if err != nil {
-// 		return zero, err
-// 	}
-
-// 	return fn(conn), nil
-// }
 
 func _servers(h *http.Server) ([]Server, error) {
 	servers := []Server{h}

@@ -22,7 +22,6 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters) 
 		ctx,
 		fn,
 	)
-	defer span.End()
 	log := slog.With(sl.Method(fn))
 
 	log.Debug("list payments", slog.Any("filters", filters))
@@ -50,13 +49,16 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters) 
 	out := make(chan models.Account)
 	errchan := make(chan error, 1)
 	go func() {
+		defer span.End()
 		defer close(errchan)
 		defer close(out)
 
 		rows, err := s.db.QueryxContext(ctx, query, args...)
 		if err != nil {
 			log.Error("failed to execute query", sl.Err(err))
+			span.RecordError(err)
 			errchan <- err
+			return
 		}
 
 		for rows.Next() {
@@ -70,7 +72,9 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters) 
 				&acc.UpdatedAt,
 			); err != nil {
 				log.Error("failed to execute query", sl.Err(err))
+				span.RecordError(err)
 				errchan <- err
+				continue
 			}
 
 			log.Debug("account sent to channel", slog.String("account_id", acc.Id))

@@ -4,6 +4,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/housing-service/internal/config"
 	"github.com/tehrelt/mu/housing-service/internal/storage/pg/housestorage"
 	"github.com/tehrelt/mu/housing-service/internal/storage/rmq"
@@ -18,6 +20,7 @@ import (
 	tgrpc "github.com/tehrelt/mu/housing-service/internal/transport/grpc"
 	ratepb "github.com/tehrelt/mu/housing-service/pkg/pb/ratespb"
 	"github.com/tehrelt/mu/housing-service/pkg/sl"
+	"go.opentelemetry.io/otel/trace"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,7 +28,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
@@ -36,11 +39,21 @@ func New() (*App, func(), error) {
 		housestorage.New,
 		rmq.New,
 
+		_tracer,
 		_ratepb,
 		_amqp,
 		_pg,
 		config.New,
 	))
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }
 
 func _pg(cfg *config.Config) (*sqlx.DB, func(), error) {

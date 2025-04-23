@@ -69,6 +69,10 @@ github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOf
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tehrelt/mu-lib v0.3.4 h1:fgO7f6n9luHpGfUjjJstpBuVqtB2mEzzdRQVd7g7D9M=
 github.com/tehrelt/mu-lib v0.3.4/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.3.7 h1:JwnX5tsp2Ks5liCK4tDtxAS3D/WWy26PR8xfPG6G0jk=
+github.com/tehrelt/mu-lib v0.3.7/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.3.8 h1:NFICYkZpmkd5uo9TyblIs011gxdyRTEux9Khs4UqZ1U=
+github.com/tehrelt/mu-lib v0.3.8/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasthttp v1.51.0 h1:8b30A5JlZ6C7AS81RsWjYMQmrZG6feChmgAolCl1SqA=

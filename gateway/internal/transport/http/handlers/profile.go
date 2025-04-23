@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
+	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 )
 
@@ -15,7 +16,7 @@ type ProfileResponse struct {
 	Email      string `json:"email"`
 }
 
-func Profile(auther authpb.AuthServiceClient) fiber.Handler {
+func Profile(auther authpb.AuthServiceClient, accounter accountpb.AccountServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		profile, ok := c.Locals(middlewares.ProfileLocalKey).(*dto.UserProfile)
 		if !ok {

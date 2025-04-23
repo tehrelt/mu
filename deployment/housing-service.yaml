@@ -22,6 +22,8 @@ services:
 
       GRPC_PORT: 4000
 
+      JAEGER_ENDPOINT: http://jaeger:4317
+
       ENV: prod
     depends_on:
       - housing-service-pg
