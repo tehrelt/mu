@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAccounts } from "@/shared/hooks/use-accounts";
 import { HouseAccount } from "@/shared/types/account";
+import { Balance } from "./ui/balance";
 
 export function AccountSwitcher() {
   const accounts = useAccounts();
@@ -44,9 +45,12 @@ export function AccountSwitcher() {
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 {selectedAccount ? (
-                  <span className="font-medium">
-                    {selectedAccount.house.address}
-                  </span>
+                  <div className="flex flex-col items-start">
+                    <p className="font-medium">
+                      {selectedAccount.house.address}
+                    </p>
+                    <Balance balance={selectedAccount.balance} />
+                  </div>
                 ) : (
                   <span className="font-medium">Select Account</span>
                 )}

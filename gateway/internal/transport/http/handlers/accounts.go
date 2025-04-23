@@ -63,6 +63,7 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 					Id:      account.House.Id,
 					Address: account.House.Address,
 				},
+				Balance: account.Balance,
 			})
 		}
 
