@@ -26,7 +26,7 @@ func (s *UserStorage) UserByEmail(ctx context.Context, email string) (*models.Us
 
 	query, args, err := sq.Select("u.id, u.last_name, u.first_name, u.middle_name, u.email, pd.phone, pd.snils, pd.passport_number, pd.passport_series, u.created_at, u.updated_at").
 		From(fmt.Sprintf("%s u", pg.USERS)).
-		CrossJoin(fmt.Sprintf("%s pd", pg.PERSONAL_DATA)).
+		Join(fmt.Sprintf("%s pd ON pd.user_id = u.id", pg.PERSONAL_DATA)).
 		Where(sq.Eq{"u.email": email}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()

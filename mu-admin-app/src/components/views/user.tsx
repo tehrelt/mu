@@ -67,10 +67,22 @@ export const UserViewer = ({ user }: Props) => {
           <CardContent>
             <div>
               <p>
-                <span className="text-lg font-bold">Паспорт: </span>
+                <span className="text-md font-bold">Почта: </span>
+                <span>{user.email}</span>
+              </p>
+              <p>
+                <span className="text-md font-bold">Паспорт: </span>
                 <span>
                   {user.passportSeries}#{user.passportNumber}
                 </span>
+              </p>
+              <p>
+                <span className="text-md font-bold">Телефон: </span>
+                <span>{user.phone}</span>
+              </p>
+              <p>
+                <span className="text-md font-bold">Снилс: </span>
+                <span>{user.snils}</span>
               </p>
             </div>
           </CardContent>
