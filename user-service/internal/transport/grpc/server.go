@@ -22,6 +22,7 @@ var _ userpb.UserServiceServer = (*Server)(nil)
 type UserProvider interface {
 	UserById(ctx context.Context, id uuid.UUID) (*models.User, error)
 	UserByEmail(ctx context.Context, email string) (*models.User, error)
+	List(ctx context.Context, filters *models.UserFilters) (<-chan *models.User, error)
 }
 
 type UserCreator interface {
@@ -32,6 +33,8 @@ type Users struct {
 	creator  UserCreator
 	provider UserProvider
 }
+
+var _ userpb.UserServiceServer = (*Server)(nil)
 
 type Server struct {
 	cfg   *config.Config

@@ -16,6 +16,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -29,7 +30,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		_servers,
 		http.New,
 
-		// _userpb,
+		_userpb,
 		_ratepb,
 		_accountpb,
 		_regpb,
@@ -51,6 +52,20 @@ func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	}
 
 	return client.(authpb.AuthServiceClient), nil
+}
+
+func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
+	host := cfg.UserService.Host
+	port := cfg.UserService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return userpb.NewUserServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(userpb.UserServiceClient), nil
 }
 
 func _accountpb(cfg *config.Config) (accountpb.AccountServiceClient, error) {

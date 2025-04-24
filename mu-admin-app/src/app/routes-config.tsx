@@ -8,6 +8,7 @@ import { RateCreatePage } from "@/pages/rates/create";
 import { RateListPage } from "@/pages/rates/list";
 import { RateNotFoundPage } from "@/pages/rates/not-found";
 import RateDetailsPage from "@/pages/rates/detail";
+import { UserListPage } from "@/pages/users/list";
 
 export const RoutesConfig = () => {
   return (
@@ -21,6 +22,12 @@ export const RoutesConfig = () => {
             <Route path={routes.rate.list} element={<RateListPage />} />
             <Route path={routes.rate.detail()} element={<RateDetailsPage />} />
             <Route path={"*"} element={<RateNotFoundPage />} />
+          </Route>
+
+          <Route path={routes.users.index}>
+            <Route path={routes.users.list} element={<UserListPage />} />
+            <Route path={routes.users.detail()} element={<RateDetailsPage />} />
+            {/* <Route path={"*"} element={<UsersNotFoundPage />} /> */}
           </Route>
         </Route>
       </Route>

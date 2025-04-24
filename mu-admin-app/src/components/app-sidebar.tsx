@@ -40,7 +40,7 @@ const data = {
         },
         {
           title: "Список",
-          url: "#",
+          url: routes.users.list,
         },
       ],
     },

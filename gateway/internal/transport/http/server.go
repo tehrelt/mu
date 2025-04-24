@@ -18,6 +18,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 )
 
 type ErrorResponse struct {
@@ -32,6 +33,7 @@ type Server struct {
 	register  registerpb.RegisterServiceClient
 	accounter accountpb.AccountServiceClient
 	rater     ratepb.RateServiceClient
+	userapi   userpb.UserServiceClient
 }
 
 func New(
@@ -40,6 +42,7 @@ func New(
 	register registerpb.RegisterServiceClient,
 	accounter accountpb.AccountServiceClient,
 	rater ratepb.RateServiceClient,
+	userapi userpb.UserServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -48,6 +51,7 @@ func New(
 		register:  register,
 		accounter: accounter,
 		rater:     rater,
+		userapi:   userapi,
 	}
 }
 
@@ -104,6 +108,9 @@ func (s *Server) setup() {
 	rates.Post("/", token, authmw(dto.RoleAdmin), handlers.RateCreateHandler(s.rater))
 	rates.Get("/", token, authmw(dto.RoleAdmin), handlers.RateListHandler(s.rater))
 	rates.Get("/:id", token, authmw(dto.RoleAdmin), handlers.RateDetailsHandler(s.rater))
+
+	users := root.Group("/users")
+	users.Get("/", token, authmw(dto.RoleAdmin), handlers.UserListHandler(s.userapi))
 }
 
 func (s *Server) Run(ctx context.Context) error {
