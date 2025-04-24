@@ -7,7 +7,9 @@ export const DashboardLayout = () => {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Outlet />
+        <div className="py-8 px-12 space-y-4">
+          <Outlet />
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

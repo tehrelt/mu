@@ -21,7 +21,7 @@ export const RateListPage = () => {
   const onSearchChange = (val: string) => setSearch(val);
 
   return (
-    <div className="py-8 px-12 space-y-4">
+    <>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Тарифы</h1>
         <div className="flex gap-x-2">
@@ -38,6 +38,6 @@ export const RateListPage = () => {
         </div>
       </div>
       {data.isSuccess && data.data && <RateTable data={data.data.rates} />}
-    </div>
+    </>
   );
 };

@@ -103,6 +103,7 @@ func (s *Server) setup() {
 	rates := root.Group("/rates")
 	rates.Post("/", token, authmw(dto.RoleAdmin), handlers.RateCreateHandler(s.rater))
 	rates.Get("/", token, authmw(dto.RoleAdmin), handlers.RateListHandler(s.rater))
+	rates.Get("/:id", token, authmw(dto.RoleAdmin), handlers.RateDetailsHandler(s.rater))
 }
 
 func (s *Server) Run(ctx context.Context) error {
