@@ -1,6 +1,7 @@
 services:
   housing-service:
     container_name: housing-service
+    restart: unless-stopped
     build:
       context: ../housing-service
     env_file:
