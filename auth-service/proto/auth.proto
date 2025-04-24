@@ -12,12 +12,20 @@ service AuthService {
     rpc Profile(ProfileRequest) returns (ProfileResponse);
     rpc Refresh(RefreshRequest) returns (RefreshResponse);
     rpc AddRole(AddRoleRequest) returns (AddRoleResponse);
+    rpc HasAdmin(HasAdminRequest) returns (HasAdminResponse);
 }
 
 enum Role {
     ROLE_UNKNOWN = 0;
     ROLE_REGULAR = 1;
     ROLE_ADMIN = 2;
+}
+
+message HasAdminRequest {
+}
+
+message HasAdminResponse {
+    bool has_admin = 1;
 }
 
 message AddRoleRequest {

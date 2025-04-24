@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - local-pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - local-redis-data:/data
+    ports:
+      - "6379:6379"
+
+volumes:
+  local-pg-data:
+  local-redis-data:

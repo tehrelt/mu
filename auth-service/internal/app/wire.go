@@ -38,7 +38,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		_servers,
 
 		roleservice.New,
-		wire.Bind(new(roleservice.RoleUpdated), new(*rolestorage.RoleStorage)),
+		wire.Bind(new(roleservice.RoleStorage), new(*rolestorage.RoleStorage)),
 
 		authservice.New,
 		wire.Bind(new(authservice.UserCreator), new(*usersapi.Api)),

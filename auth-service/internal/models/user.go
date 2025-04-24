@@ -38,6 +38,10 @@ type User struct {
 	PersonalData
 }
 
+type UserRole struct {
+	Id uuid.UUID `json:"id"`
+}
+
 type Credentials struct {
 	UserId         uuid.UUID `json:"userId"`
 	HashedPassword string    `json:"hashedPassword"`
