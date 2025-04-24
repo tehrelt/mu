@@ -10,9 +10,7 @@ function App() {
   const [queryClient] = React.useState(
     new QueryClient({
       defaultOptions: {
-        queries: {
-          gcTime: 0,
-        },
+        queries: {},
       },
     })
   );

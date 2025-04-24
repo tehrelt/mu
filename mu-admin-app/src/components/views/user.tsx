@@ -33,7 +33,7 @@ export const UserViewer = ({ user }: Props) => {
     <>
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbLink href={routes.rate.list}>Тарифы</BreadcrumbLink>
+          <BreadcrumbLink href={routes.users.list}>Пользователи</BreadcrumbLink>
           <BreadcrumbSeparator />
           <BreadcrumbPage>
             <DropdownMenu>
