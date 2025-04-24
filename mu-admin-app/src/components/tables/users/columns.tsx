@@ -16,7 +16,7 @@ export const usersColumns: ColumnDef<User>[] = [
     cell: ({ getValue }) => {
       const uuid = getValue() as string;
       return (
-        <Link to={routes.rate.detail(uuid)}>
+        <Link to={routes.users.detail(uuid)}>
           <Button variant={"link"}>
             <UUID uuid={uuid} length={4} />
           </Button>
