@@ -2,18 +2,20 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
+	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 // Find implements userspb.UserServiceServer.
-func (s *Server) Find(ctx context.Context, req *userspb.FindRequest) (*userspb.FindResponse, error) {
+func (s *Server) Find(ctx context.Context, req *userpb.FindRequest) (*userpb.FindResponse, error) {
 
 	log := slog.With(sl.Method("Find"))
 
@@ -22,7 +24,7 @@ func (s *Server) Find(ctx context.Context, req *userspb.FindRequest) (*userspb.F
 
 	// Handle the oneof field
 	switch req.SearchBy.(type) {
-	case *userspb.FindRequest_Id:
+	case *userpb.FindRequest_Id:
 		rawId := req.GetId()
 
 		id, err := uuid.Parse(rawId)
@@ -32,32 +34,36 @@ func (s *Server) Find(ctx context.Context, req *userspb.FindRequest) (*userspb.F
 		}
 
 		user, err = s.users.provider.UserById(ctx, id)
-	case *userspb.FindRequest_Email:
+	case *userpb.FindRequest_Email:
 		email := req.GetEmail()
-		// TODO ADD EMAIL VALIDATION
 		user, err = s.users.provider.UserByEmail(ctx, email)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "either id or email must be provided")
 	}
 
+	slog.Debug("user provided", slog.Any("err", err), slog.Any("user", user))
+
 	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 		log.Error("failed to find user", sl.Err(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	response := &userspb.FindResponse{
-		User: &userspb.User{
+	response := &userpb.FindResponse{
+		User: &userpb.User{
 			Id:    user.Id.String(),
 			Email: user.Email,
-			Fio: &userspb.FIO{
+			Fio: &userpb.FIO{
 				Lastname:   user.LastName,
 				Firstname:  user.FirstName,
 				Middlename: user.MiddleName,
 			},
-			PersonalData: &userspb.PersonalData{
+			PersonalData: &userpb.PersonalData{
 				Snils: user.PersonalData.Snils,
 				Phone: user.PersonalData.Phone,
-				Passport: &userspb.Passport{
+				Passport: &userpb.Passport{
 					Series: int32(user.PersonalData.Passport.Series),
 					Number: int32(user.PersonalData.Passport.Number),
 				},

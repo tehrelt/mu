@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/joho/godotenv"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/app"
+	"github.com/tehrelt/mu/user-service/internal/app"
 )
 
 var (
@@ -28,7 +28,7 @@ func main() {
 
 	ctx := context.Background()
 
-	instance, cleanup, err := app.New()
+	instance, cleanup, err := app.New(ctx)
 	if err != nil {
 		panic(err)
 	}

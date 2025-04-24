@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/models"
 )
 
 type SaveCredentials struct {

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/prettyslog"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/pkg/prettyslog"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -16,19 +16,11 @@ type App struct {
 	Version string `env:"APP_VERSION" env-required:"true"`
 }
 
-type Http struct {
-	Enabled bool   `env:"HTTP_ENABLED" env-required:"true" env-default:"false"`
-	Host    string `env:"HTTP_HOST" env-default:"0.0.0.0"`
-	Port    int    `env:"HTTP_PORT"`
-	Cors    Cors
-}
-
 type Cors struct {
 	AllowedOrigins string `env:"CORS_ALLOWED_ORIGINS" env-default:"localhost:3000"`
 }
 
 type Grpc struct {
-	Enabled       bool   `env:"GRPC_ENABLED" env-required:"true" env-default:"false"`
 	Host          string `env:"GRPC_HOST" env-default:"0.0.0.0"`
 	Port          int    `env:"GRPC_PORT"`
 	UseReflection bool   `env:"GRPC_USE_REFLECTION" env-default:"false"`
@@ -64,16 +56,25 @@ type DefaultUser struct {
 	Password string `env:"DEFAULT_USER_PASSWORD" env-default:"admin"`
 }
 
+type UserService struct {
+	Host string `env:"USER_SERVICE_HOST" env-required:"true"`
+	Port int    `env:"USER_SERVICE_PORT" env-required:"true"`
+}
+
 type Config struct {
 	Env          string `env:"ENV" env-default:"local"`
 	App          App
-	Http         Http
 	Grpc         Grpc
 	Pg           Pg
 	Jwt          Jwt
 	Bcrypt       Bcrypt
 	Redis        Redis
 	DefaultAdmin DefaultUser
+	UserService  UserService
+
+	Jaeger struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
 }
 
 func New() *Config {

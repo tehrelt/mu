@@ -1,0 +1,60 @@
+services:
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ../auth-service
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: auth-pg:5432, auth-redis:6379
+
+      APP_NAME: MU Auth Service
+      APP_VERSION: "v0.0.1"
+
+      REDIS_HOST: auth-redis
+      REDIS_PORT: 6379
+
+      PG_HOST: auth-pg
+      PG_PORT: 5432
+      PG_NAME: ${AUTH_PG_NAME}
+      PG_USER: ${AUTH_PG_USER}
+      PG_PASS: ${AUTH_PG_PASS}
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
+
+      GRPC_PORT: 4000
+
+      ENV: dev
+    depends_on:
+      - auth-pg
+      - auth-redis
+      - user-service
+    ports:
+      - "${AUTH_GRPC_PORT}:4000"
+
+  auth-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${AUTH_PG_NAME}
+      POSTGRES_USER: ${AUTH_PG_USER}
+      POSTGRES_PASSWORD: ${AUTH_PG_PASS}
+    volumes:
+      - auth-pg-data:/var/lib/postgresql/data
+
+  auth-redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - auth-redis-data:/data
+
+volumes:
+  auth-pg-data:
+    name: mzhn-auth-pg
+  auth-redis-data:
+    name: mzhn-auth-redis

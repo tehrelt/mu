@@ -2,18 +2,27 @@ package userstorage
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/jackc/pgx"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
+	"github.com/tehrelt/mu/user-service/internal/storage/pg"
+	"go.opentelemetry.io/otel"
 )
 
 func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id uuid.UUID, err error) {
 
-	log := slog.With(sl.Method("userstorage.Create"))
+	fn := "userstorage.Create"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
+	log := slog.With(sl.Method(fn))
 
 	log.Debug("creating user", slog.Any("create user dto", user))
 
@@ -51,6 +60,16 @@ func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id u
 
 	if err := tx.QueryRowContext(ctx, sql, args...).Scan(&rawId); err != nil {
 		log.Error("failed to execute query", sl.Err(err))
+		var pgErr pgx.PgError
+		if errors.As(err, &pgErr) {
+			log.Debug("pg error occured", slog.Any("pg error", pgErr))
+			if pgErr.Code == "23505" {
+				log.Info("duplicate entry", slog.String("pgErr", pgErr.Message))
+				return uuid.Nil, storage.ErrUserAlreadyExists
+			}
+			log.Error("failed to execute query", sl.Err(err), slog.String("pgErr", pgErr.Message))
+		}
+		return uuid.Nil, err
 	}
 	log.Debug("user created, creating personal data entry", slog.String("id", rawId))
 	id, err = uuid.Parse(rawId)
@@ -74,6 +93,7 @@ func (s *UserStorage) Create(ctx context.Context, user *models.CreateUser) (id u
 
 	if _, err = tx.ExecContext(ctx, sql, args...); err != nil {
 		log.Error("failed to execute query", sl.Err(err))
+		return
 	}
 
 	return

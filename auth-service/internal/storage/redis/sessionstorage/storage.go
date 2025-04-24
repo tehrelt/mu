@@ -8,15 +8,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/services/authservice"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/services/authservice"
+	"github.com/tehrelt/mu/auth-service/internal/storage"
+	"go.opentelemetry.io/otel"
 
 	"github.com/redis/go-redis/v9"
 )
 
 var _ authservice.SessionsStorage = (*SessionsStorage)(nil)
+
+const traceKey = "redis:session-storage"
 
 type SessionsStorage struct {
 	db     *redis.Client
@@ -25,7 +29,11 @@ type SessionsStorage struct {
 }
 
 func (s *SessionsStorage) Save(ctx context.Context, userId uuid.UUID, token string) error {
+
 	fn := "redis.Save"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 	log := s.logger.With(slog.String("userId", userId.String()), sl.Method(fn))
 
 	log.Debug("Saving session")
@@ -40,8 +48,10 @@ func (s *SessionsStorage) Save(ctx context.Context, userId uuid.UUID, token stri
 }
 
 func (s *SessionsStorage) Check(ctx context.Context, userId uuid.UUID, refreshToken string) error {
-
 	fn := "redis.Check"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
 	log := s.logger.With(slog.String("userId", userId.String()), sl.Method(fn))
 
 	log.Debug("Checking session")
@@ -65,7 +75,12 @@ func (s *SessionsStorage) Check(ctx context.Context, userId uuid.UUID, refreshTo
 }
 
 func (s *SessionsStorage) Delete(ctx context.Context, userId uuid.UUID) error {
+
 	fn := "redis.Delete"
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, fn)
+	defer span.End()
+
 	log := s.logger.With(sl.Method(fn), slog.String("userId", userId.String()))
 
 	log.Debug("Deleting session")
@@ -79,7 +94,7 @@ func (s *SessionsStorage) Delete(ctx context.Context, userId uuid.UUID) error {
 	return nil
 }
 
-func NewSessionsStorage(db *redis.Client, cfg *config.Config) *SessionsStorage {
+func New(db *redis.Client, cfg *config.Config) *SessionsStorage {
 	return &SessionsStorage{
 		db:     db,
 		cfg:    cfg,

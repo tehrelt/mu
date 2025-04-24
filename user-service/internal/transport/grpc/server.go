@@ -6,22 +6,23 @@ import (
 	"log/slog"
 	"net"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/config"
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
+	"github.com/tehrelt/mu/user-service/internal/config"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
-var _ userspb.UserServiceServer = (*Server)(nil)
+var _ userpb.UserServiceServer = (*Server)(nil)
 
 type UserProvider interface {
 	UserById(ctx context.Context, id uuid.UUID) (*models.User, error)
 	UserByEmail(ctx context.Context, email string) (*models.User, error)
+	List(ctx context.Context, filters *models.UserFilters) (<-chan *models.User, error)
 }
 
 type UserCreator interface {
@@ -33,11 +34,13 @@ type Users struct {
 	provider UserProvider
 }
 
+var _ userpb.UserServiceServer = (*Server)(nil)
+
 type Server struct {
 	cfg   *config.Config
 	users Users
 
-	userspb.UnimplementedUserServiceServer
+	userpb.UnimplementedUserServiceServer
 }
 
 func New(cfg *config.Config, usersCreator UserCreator, usersProvider UserProvider) *Server {
@@ -51,16 +54,20 @@ func New(cfg *config.Config, usersCreator UserCreator, usersProvider UserProvide
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
-	log.Info("start grpc server", slog.String("addr", addr))
+	slog.Info("start grpc server", slog.String("addr", addr))
 
-	log.Info("enabling reflection")
+	slog.Info("enabling reflection")
 	reflection.Register(server)
 
-	userspb.RegisterUserServiceServer(server, s)
+	userpb.RegisterUserServiceServer(server, s)
 
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -82,7 +89,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}()
 
 	<-ctx.Done()
-	log.Info("grpc server stopped")
+	slog.Info("grpc server stopped")
 	server.GracefulStop()
 	return nil
 }

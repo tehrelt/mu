@@ -35,3 +35,8 @@ type CreateUser struct {
 	Email        string
 	PersonalData PersonalData
 }
+
+type UserFilters struct {
+	Limit  uint64
+	Offset uint64
+}

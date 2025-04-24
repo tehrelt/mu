@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package house;
+
+option go_package="github.com/tehrelt/moi-uslugi/proto/house;housepb";
+
+service HouseService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc House(HouseRequest) returns (HouseResponse);
+    rpc ListHousesByIds(stream ListHousesByIdsRequest) returns (stream ListHousesResponse);
+}
+
+message House {
+    string id = 1;
+    string address = 2;
+    int64 rooms_qty = 3;
+    int64 residents_qty = 4;
+    int64 created_at = 5;
+    int64 updated_at = 6;
+    repeated string connected_services = 7;
+}
+
+message CreateRequest {
+    string address = 1;
+    int64 rooms_qty = 2;
+    int64 residents_qty = 3;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+
+message HouseRequest {
+    string house_id = 1;
+}
+
+message HouseResponse {
+    House house = 1;
+}
+
+message ListHousesByIdsRequest {
+    string id = 1;
+}
+
+message ListHousesResponse {
+   House house = 1;
+}

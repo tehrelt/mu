@@ -1,11 +1,11 @@
 package usersapi
 
-import "github.com/tehrelt/moi-uslugi/auth-service/pkg/pb/userspb"
+import "github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
 
 type Api struct {
-	client userspb.UserServiceClient
+	client userpb.UserServiceClient
 }
 
-func New(client userspb.UserServiceClient) *Api {
+func New(client userpb.UserServiceClient) *Api {
 	return &Api{client}
 }

@@ -1,0 +1,16 @@
+services:
+  register-service:
+    container_name: mu-register-service
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: pg:${PG_PORT}
+      PG_HOST: pg
+      PG_PORT: ${PG_PORT}
+      ENV: prod
+    depends_on:
+      - pg
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"

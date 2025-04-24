@@ -2,17 +2,19 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
-	"github.com/tehrelt/moi-uslugi/user-service/internal/models"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/pb/userspb"
-	"github.com/tehrelt/moi-uslugi/user-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/user-service/internal/models"
+	"github.com/tehrelt/mu/user-service/internal/storage"
+	"github.com/tehrelt/mu/user-service/pkg/pb/userpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 // Create implements userspb.UserServiceServer.
-func (s *Server) Create(ctx context.Context, req *userspb.CreateRequest) (*userspb.CreateResponse, error) {
+func (s *Server) Create(ctx context.Context, req *userpb.CreateRequest) (*userpb.CreateResponse, error) {
 
 	log := slog.With(sl.Method("Create"))
 
@@ -34,10 +36,14 @@ func (s *Server) Create(ctx context.Context, req *userspb.CreateRequest) (*users
 	id, err := s.users.creator.Create(ctx, candidate)
 	if err != nil {
 		log.Error("failed to create user", sl.Err(err))
+
+		if errors.Is(err, storage.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &userspb.CreateResponse{
+	return &userpb.CreateResponse{
 		Id: id.String(),
 	}, nil
 }

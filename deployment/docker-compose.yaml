@@ -1,0 +1,30 @@
+include:
+  - user.yaml
+  - auth.yaml
+  - rmq.yaml
+  - rate-service.yaml
+  - housing-service.yaml
+  - billing-service.yaml
+  - register-service.yaml
+  - account-service.yaml
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=root@mu.ru
+      - PGADMIN_DEFAULT_PASSWORD=rootroot
+      - PGADMIN_LISTEN_PORT=80
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    restart: unless-stopped
+    container_name: mu-jaeger
+    ports:
+      - "14268:14268"
+      - "14269:14269"
+      - "16686:16686"
+      - "4317:4317"

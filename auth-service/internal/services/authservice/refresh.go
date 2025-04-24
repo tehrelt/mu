@@ -2,44 +2,52 @@ package authservice
 
 import (
 	"context"
-	"fmt"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/domain/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/lib/jwt"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"errors"
+	"log/slog"
+
+	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services"
+	"github.com/tehrelt/mu/auth-service/internal/storage"
 )
 
-func (a *AuthService) Refresh(ctx context.Context, req *dto.Refresh) (*dto.Tokens, error) {
+func (s *AuthService) Refresh(ctx context.Context, refreshToken string) (*dto.TokenPair, error) {
+
 	fn := "authservice.Refresh"
-	log := a.logger.With(sl.Method(fn))
+	log := s.logger.With(sl.Method(fn))
 
-	log.Debug("refreshing user's session")
+	log.Debug("refreshing token", slog.String("refresh_token", refreshToken))
 
-	claims, err := jwt.Verify(req.RefreshToken, a.cfg.Jwt.RefreshSecret)
+	claims, err := s.jwtClient.Verify(refreshToken, jwt.RefreshToken)
 	if err != nil {
-		log.Error("refresh token invalid", sl.Err(err))
-		if err := a.sessions.Delete(ctx, req.RefreshToken); err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("%s: %w", fn, err)
-	}
-
-	if err := a.sessions.Check(ctx, claims.Id, req.RefreshToken); err != nil {
-		log.Error("session not found", sl.Err(err))
 		return nil, err
 	}
 
-	tokens, err := a.generateJwtPair(claims)
+	userId, err := uuid.Parse(claims.Id)
+	if err != nil {
+		slog.Error("failed to parse user id from jwt payload", slog.String("claims.Id", claims.Id))
+		return nil, err
+	}
+
+	if err := s.sessions.Check(ctx, userId, refreshToken); err != nil {
+		if errors.Is(err, storage.ErrSessionInvalid) {
+			return nil, services.ErrInvalidSession
+		}
+
+		log.Error("unexpected error", sl.Err(err))
+		return nil, err
+	}
+
+	tokens, err := s.createTokens(&dto.UserClaims{Id: userId.String()})
 	if err != nil {
 		log.Error("cannot generate jwt", sl.Err(err))
 		return nil, err
 	}
 
-	if err := a.sessions.Delete(ctx, claims.Id); err != nil {
-		return nil, err
-	}
-
-	if err := a.sessions.Save(ctx, claims.Id, tokens.RefreshToken); err != nil {
-		log.Error("save session error", sl.Err(err))
+	if err := s.sessions.Save(ctx, userId, tokens.RefreshToken); err != nil {
+		log.Error("cannot save session", sl.Err(err))
 		return nil, err
 	}
 

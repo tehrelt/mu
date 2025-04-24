@@ -5,15 +5,22 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/dto"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/storage/pg"
-	"github.com/tehrelt/moi-uslugi/auth-service/pkg/sl"
+	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/models"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg"
+	"go.opentelemetry.io/otel"
 )
 
-func (s *CredentialStorage) Save(ctx context.Context, creds *dto.SaveCredentials) (err error) {
+func (s *CredentialStorage) Save(ctx context.Context, creds *models.Credentials) (err error) {
+
+	t := otel.Tracer(tracer.TracerKey)
+	ctx, span := t.Start(ctx, traceKey)
+	defer span.End()
+
 	log := slog.With(sl.Method("credentialstorage.Save"))
 
-	log.Debug("saving credentials")
+	log.Debug("saving credentials", slog.Any("input", creds))
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		log.Error("failed to begin transaction", sl.Err(err))

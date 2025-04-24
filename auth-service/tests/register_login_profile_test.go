@@ -1,7 +1,7 @@
 package tests_test
 
 import (
-	"github.com/tehrelt/moi-uslugi/auth-service/tests/suite"
+	"github.com/tehrelt/mu/auth-service/tests/suite"
 	"net/http"
 	"testing"
 

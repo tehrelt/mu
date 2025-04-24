@@ -1,0 +1,47 @@
+services:
+  billing-service:
+    container_name: billing-service
+    restart: unless-stopped
+    build:
+      context: ../billing-service
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: billing-service-pg:5432, rmq:5672
+
+      APP_NAME: MU Billing Service
+
+      PG_HOST: billing-service-pg
+      PG_PORT: 5432
+
+      PG_NAME: ${BILLING_PG_NAME}
+      PG_USER: ${BILLING_PG_USER}
+      PG_PASS: ${BILLING_PG_PASS}
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      GRPC_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+
+      ENV: prod
+    depends_on:
+      - billing-service-pg
+      - rmq
+    ports:
+      - "${BILLING_GRPC_PORT}:4000"
+
+  billing-service-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BILLING_PG_NAME}
+      POSTGRES_USER: ${BILLING_PG_USER}
+      POSTGRES_PASSWORD: ${BILLING_PG_PASS}
+    volumes:
+      - billing-service-pg-data:/var/lib/postgresql/data
+
+volumes:
+  billing-service-pg-data:
+    name: mu-billing-service-pg

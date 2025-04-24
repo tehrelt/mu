@@ -1,0 +1,44 @@
+services:
+  rate-service:
+    container_name: rate-service
+    restart: unless-stopped
+    build:
+      context: ../rate-service
+    env_file:
+      - .env
+    environment:
+      APP_NAME: MU Rate Service
+      WAIT_HOSTS: rate-service-pg:5432, rmq:5672
+
+      PG_HOST: rate-service-pg
+      PG_PORT: 5432
+
+      PG_NAME: ${RATE_PG_NAME}
+      PG_USER: ${RATE_PG_USER}
+      PG_PASS: ${RATE_PG_PASS}
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      GRPC_PORT: 4000
+
+      ENV: prod
+    depends_on:
+      - rate-service-pg
+      - rmq
+    ports:
+      - "${RATE_GRPC_PORT}:4000"
+
+  rate-service-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${RATE_PG_NAME}
+      POSTGRES_USER: ${RATE_PG_USER}
+      POSTGRES_PASSWORD: ${RATE_PG_PASS}
+    volumes:
+      - rate-service-pg-data:/var/lib/postgresql/data
+
+volumes:
+  rate-service-pg-data:
+    name: mu-rate-service-pg

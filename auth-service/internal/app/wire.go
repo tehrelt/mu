@@ -10,22 +10,57 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/transport/grpc"
+	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
+	"github.com/tehrelt/mu/auth-service/internal/services/authservice"
+	"github.com/tehrelt/mu/auth-service/internal/services/profileservice"
+	"github.com/tehrelt/mu/auth-service/internal/services/roleservice"
+	"github.com/tehrelt/mu/auth-service/internal/storage/grpc/usersapi"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/credentialstorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/pg/rolestorage"
+	"github.com/tehrelt/mu/auth-service/internal/storage/redis/sessionstorage"
+	tgrpc "github.com/tehrelt/mu/auth-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/auth-service/pkg/pb/userpb"
+	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tehrelt/moi-uslugi/auth-service/internal/config"
+	"github.com/tehrelt/mu/auth-service/internal/config"
 
 	"github.com/google/wire"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
-func New() (*App, func(), error) {
+func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
 
+		roleservice.New,
+		wire.Bind(new(roleservice.RoleStorage), new(*rolestorage.RoleStorage)),
+
+		authservice.New,
+		wire.Bind(new(authservice.UserCreator), new(*usersapi.Api)),
+		wire.Bind(new(authservice.UserProvider), new(*usersapi.Api)),
+		wire.Bind(new(authservice.CredentialsSaver), new(*credentialstorage.CredentialStorage)),
+		wire.Bind(new(authservice.CredentialsProvider), new(*credentialstorage.CredentialStorage)),
+		wire.Bind(new(authservice.SessionsStorage), new(*sessionstorage.SessionsStorage)),
+		wire.Bind(new(authservice.RoleStorage), new(*rolestorage.RoleStorage)),
+
+		profileservice.New,
+		wire.Bind(new(profileservice.UserProvider), new(*usersapi.Api)),
+		wire.Bind(new(profileservice.RoleProvider), new(*rolestorage.RoleStorage)),
+
+		sessionstorage.New,
+		credentialstorage.New,
+		rolestorage.New,
+		_userpb,
+
+		jwt.New,
 		_pg,
 		_redis,
+		_tracer,
 		config.New,
 	))
 }
@@ -81,12 +116,31 @@ func _redis(cfg *config.Config) (*redis.Client, func(), error) {
 	return client, func() { client.Close() }, nil
 }
 
-func _servers(cfg *config.Config) []Server {
-	servers := make([]Server, 0, 2)
-
-	if cfg.Grpc.Enabled {
-		servers = append(servers, grpc.New(cfg, as, us))
+func _userpb(cfg *config.Config) (*usersapi.Api, func(), error) {
+	host := cfg.UserService.Host
+	port := cfg.UserService.Port
+	addr := fmt.Sprintf("%s:%d", host, port)
+	slog.Debug("connecting to user service", slog.String("addr", addr))
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, err
 	}
 
+	client := userpb.NewUserServiceClient(conn)
+	return usersapi.New(client), func() { conn.Close() }, nil
+}
+
+func _servers(cfg *config.Config, as *authservice.AuthService, ps *profileservice.ProfileService, rs *roleservice.Service) []Server {
+	servers := make([]Server, 0, 2)
+	servers = append(servers, tgrpc.New(cfg, as, ps, rs))
 	return servers
+}
+
+func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
+	jaeger := cfg.Jaeger.Endpoint
+	appname := cfg.App.Name
+
+	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
+
+	return tracer.SetupTracer(ctx, jaeger, appname)
 }
