@@ -1,6 +1,8 @@
 services:
   billing-service:
     container_name: billing-service
+
+    restart: unless-stopped
     build:
       context: ../billing-service
     env_file:

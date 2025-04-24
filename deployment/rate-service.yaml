@@ -1,6 +1,7 @@
 services:
   rate-service:
     container_name: rate-service
+    restart: unless-stopped
     build:
       context: ../rate-service
     env_file:

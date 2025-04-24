@@ -1,6 +1,7 @@
 services:
   rmq:
     container_name: mzhn-rabbitmq
+    restart: unless-stopped
     image: rabbitmq:3-management
     volumes:
       - rmq-data:/data

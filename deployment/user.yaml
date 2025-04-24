@@ -1,6 +1,7 @@
 services:
   user-service:
     container_name: user-service
+    restart: unless-stopped
     build:
       context: ../user-service
     env_file:

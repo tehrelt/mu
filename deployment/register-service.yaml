@@ -1,6 +1,7 @@
 services:
   register-service:
     container_name: register-service
+    restart: unless-stopped
     build:
       context: ../register-service
     env_file:

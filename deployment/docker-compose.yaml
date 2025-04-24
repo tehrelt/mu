@@ -11,6 +11,7 @@ include:
 services:
   pgadmin:
     image: dpage/pgadmin4
+    restart: unless-stopped
     ports:
       - "80:80"
     environment:
@@ -20,6 +21,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one
+    restart: unless-stopped
     container_name: mu-jaeger
     ports:
       - "14268:14268"

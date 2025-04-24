@@ -1,6 +1,7 @@
 services:
   account-service:
     container_name: account-service
+    restart: unless-stopped
     build:
       context: ../account-service
     env_file:
