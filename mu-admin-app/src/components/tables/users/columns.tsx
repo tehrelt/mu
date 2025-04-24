@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { UUID } from "@/components/ui/uuid";
 import { datef } from "@/lib/utils";
 import { routes } from "@/shared/routes";
-import { User } from "@/shared/types/user";
+import { UserSnippet } from "@/shared/types/user";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
-export const usersColumns: ColumnDef<User>[] = [
+export const usersColumns: ColumnDef<UserSnippet>[] = [
   {
     size: 20,
     maxSize: 30,

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
+export const userSnippetSchema = z.object({
   id: z.string().uuid(),
   lastName: z.string(),
   firstName: z.string(),
@@ -19,9 +19,17 @@ export const userSchema = z.object({
     .optional(),
 });
 
+export type UserSnippet = z.infer<typeof userSnippetSchema>;
+
+export const userSchema = userSnippetSchema.extend({
+  passportSeries: z.number(),
+  passportNumber: z.number(),
+  snils: z.string(),
+});
+
 export type User = z.infer<typeof userSchema>;
 
 export const userListSchema = z.object({
-  users: z.array(userSchema),
+  users: z.array(userSnippetSchema),
 });
 export type UserList = z.infer<typeof userListSchema>;

@@ -1,5 +1,5 @@
 import { api } from "@/app/api";
-import { userListSchema, userSchema } from "../types/user";
+import { userListSchema, userSchema, userSnippetSchema } from "../types/user";
 
 type UserListRequest = {
   query?: string;

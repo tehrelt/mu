@@ -9,7 +9,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 )
 
-type User struct {
+type UserSnippet struct {
 	Id         string     `json:"id"`
 	LastName   string     `json:"lastName"`
 	FirstName  string     `json:"firstName"`
@@ -26,7 +26,7 @@ type UserListRequest struct {
 }
 
 type ListUsersResponse struct {
-	Users []User `json:"users"`
+	Users []UserSnippet `json:"users"`
 }
 
 func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
@@ -48,7 +48,7 @@ func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 			return err
 		}
 
-		var users []User
+		var users []UserSnippet
 
 		for {
 			resp, err := stream.Recv()
@@ -62,7 +62,7 @@ func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 			slog.Debug("recieved users chunk", slog.Any("chunk", resp.UsersChunk))
 
 			for _, user := range resp.UsersChunk {
-				u := User{
+				u := UserSnippet{
 					Id:         user.Id,
 					LastName:   user.Fio.Lastname,
 					FirstName:  user.Fio.Firstname,

@@ -1,10 +1,10 @@
 import { DataTable } from "@/components/data-table";
 import { Rate } from "@/shared/types/rate";
 import { usersColumns } from "./columns";
-import { User } from "@/shared/types/user";
+import { UserSnippet } from "@/shared/types/user";
 
 type Props = {
-  data: User[];
+  data: UserSnippet[];
 };
 
 export const UserTable = ({ data }: Props) => {

@@ -111,6 +111,7 @@ func (s *Server) setup() {
 
 	users := root.Group("/users")
 	users.Get("/", token, authmw(dto.RoleAdmin), handlers.UserListHandler(s.userapi))
+	users.Get("/:id", token, authmw(dto.RoleAdmin), handlers.UserDetailHandler(s.userapi))
 }
 
 func (s *Server) Run(ctx context.Context) error {

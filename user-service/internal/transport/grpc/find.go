@@ -36,11 +36,12 @@ func (s *Server) Find(ctx context.Context, req *userpb.FindRequest) (*userpb.Fin
 		user, err = s.users.provider.UserById(ctx, id)
 	case *userpb.FindRequest_Email:
 		email := req.GetEmail()
-		// TODO ADD EMAIL VALIDATION
 		user, err = s.users.provider.UserByEmail(ctx, email)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "either id or email must be provided")
 	}
+
+	slog.Debug("user provided", slog.Any("err", err), slog.Any("user", user))
 
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
