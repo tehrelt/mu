@@ -1,4 +1,9 @@
 import RateTable from "@/components/tables/rates";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/shared/hooks/use-debounce";
@@ -23,7 +28,14 @@ export const RateListPage = () => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Тарифы</h1>
+        {/* <h1 className="text-2xl font-bold">Тарифы</h1> */}
+
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbPage>Тарифы</BreadcrumbPage>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex gap-x-2">
           <div className="w-[256px]">
             <Input
