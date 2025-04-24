@@ -54,22 +54,17 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Link
-        to={routes.home}
-        className="flex items-center gap-2 self-center font-medium"
-      >
+    <div className={cn("flex flex-col gap-4", className)} {...props}>
+      <div className="flex items-center gap-2 self-center font-medium">
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <GalleryVerticalEnd className="size-4" />
         </div>
         Мои услуги
-      </Link>
+      </div>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            lorem ipsum ojgewopg -3 3i2p ehg e lk'ge
-          </CardDescription>
+          <CardTitle className="text-xl">Админ панель</CardTitle>
+          {/* <CardDescription>Админ панель</CardDescription> */}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -90,31 +85,23 @@ export function LoginForm({
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <div className="grid gap-3">
-                        <div className="flex items-center">
-                          <Label htmlFor="password">Пароль</Label>
-                          <Link
-                            to={routes.forgotPassword}
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                          >
-                            Забыли пароль?
-                          </Link>
-                        </div>
+                      <div>
+                        <Label htmlFor="password">Пароль</Label>
                         <Input {...field} type="password" />
                       </div>
                     )}
                   />
                   <Button type="submit" className="w-full" disabled={isPending}>
-                    Login
+                    Войти
                   </Button>
                 </div>
-                <div className="text-center text-sm">
+                <div className="text-center text-sm text-muted-foreground">
                   Нет аккаунта?{" "}
                   <Link
-                    to={routes.signUp}
+                    to={routes.requestAccess}
                     className="underline underline-offset-4"
                   >
-                    Зарегистрироваться
+                    Запросить доступ
                   </Link>
                 </div>
               </div>

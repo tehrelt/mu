@@ -27,11 +27,14 @@ import {
 } from "@/components/ui/sidebar";
 import { useProfile } from "@/shared/hooks/use-profile";
 import { fio } from "@/shared/lib/utils";
+import { useLogout } from "@/shared/hooks/use-logout";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
 
   const profile = useProfile();
+
+  const { mutate: logout } = useLogout();
 
   return (
     <SidebarMenu>
@@ -85,7 +88,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logout()}>
               <LogOut />
               Log out
             </DropdownMenuItem>

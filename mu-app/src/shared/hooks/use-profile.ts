@@ -5,6 +5,7 @@ export const useProfile = () => {
   const data = useQuery({
     queryKey: ["profile"],
     queryFn: () => authService.profile(),
+    retry: false,
   });
 
   return data;
