@@ -17,6 +17,14 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { ConnectedAccounts } from "./connected-accounts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { ChevronDownIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 type Props = {
   rate: Rate;
@@ -29,7 +37,24 @@ const RateViewer = ({ rate }: Props) => {
         <BreadcrumbList>
           <BreadcrumbLink href={routes.rate.list}>Тарифы</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbPage>{rate.name}</BreadcrumbPage>
+          <BreadcrumbPage>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-x-1">
+                {rate.name}
+                <ChevronDownIcon />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem className="flex items-center gap-x-1">
+                  <PencilIcon />
+                  Редактировать
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-x-1">
+                  <TrashIcon />
+                  Удалить
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
 

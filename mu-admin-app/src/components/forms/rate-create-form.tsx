@@ -48,12 +48,6 @@ export function RateCreateForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Link
-        to={routes.rate.list}
-        className="flex items-center gap-2 self-center font-medium"
-      >
-        К списку
-      </Link>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Создание тарифа</CardTitle>
