@@ -11,6 +11,8 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/register-service/internal/config"
+	"github.com/tehrelt/mu/register-service/internal/cron"
+	"github.com/tehrelt/mu/register-service/internal/services/registerservice"
 	tgrpc "github.com/tehrelt/mu/register-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
 	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
@@ -26,7 +28,10 @@ func New(ctx context.Context) (*App, func(), error) {
 		newApp,
 		_servers,
 
+		cron.New,
 		tgrpc.New,
+
+		registerservice.New,
 
 		_userpb,
 		_authpb,

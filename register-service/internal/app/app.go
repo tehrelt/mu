@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/register-service/internal/cron"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -19,12 +20,14 @@ type Server interface {
 type App struct {
 	servers []Server
 	tracer  trace.Tracer
+	cron    *cron.Cron
 }
 
-func newApp(servers []Server, t trace.Tracer) *App {
+func newApp(servers []Server, t trace.Tracer, c *cron.Cron) *App {
 	return &App{
 		servers: servers,
 		tracer:  t,
+		cron:    c,
 	}
 }
 
@@ -40,6 +43,8 @@ func (a *App) Run(ctx context.Context) {
 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
 
 	nctx, cancel := context.WithCancel(ctx)
+
+	a.cron.Start(ctx)
 
 	for _, server := range a.servers {
 		wg.Add(1)

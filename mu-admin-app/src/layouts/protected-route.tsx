@@ -10,7 +10,6 @@ export const ProtectedRoute = () => {
   }
 
   if (!data.isSuccess) {
-    console.log("data.isSuccess", data.isSuccess);
     return <Navigate to={routes.login} replace />;
   }
 

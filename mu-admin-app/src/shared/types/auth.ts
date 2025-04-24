@@ -11,9 +11,9 @@ export const loginSchema = z.object({
 
 export const profileSchema = z.object({
   id: z.string().uuid(),
-  lastName: z.string().min(2).max(100),
-  firstName: z.string().min(2).max(100),
-  middleName: z.string().min(2).max(100).optional(),
+  lastName: z.string().min(0).max(100),
+  firstName: z.string().min(0).max(100),
+  middleName: z.string().min(0).max(100).optional(),
   email: z.string().email(),
 });
 

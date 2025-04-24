@@ -20,7 +20,7 @@ func (s *CredentialStorage) Save(ctx context.Context, creds *models.Credentials)
 
 	log := slog.With(sl.Method("credentialstorage.Save"))
 
-	log.Debug("saving credentials")
+	log.Debug("saving credentials", slog.Any("input", creds))
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		log.Error("failed to begin transaction", sl.Err(err))

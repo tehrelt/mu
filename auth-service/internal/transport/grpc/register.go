@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/auth-service/internal/dto"
+	"github.com/tehrelt/mu/auth-service/internal/models"
 	"github.com/tehrelt/mu/auth-service/internal/services"
 	"github.com/tehrelt/mu/auth-service/pkg/pb/authpb"
 	"google.golang.org/grpc/codes"
@@ -21,9 +22,15 @@ func (s *Server) Register(ctx context.Context, req *authpb.RegisterRequest) (*au
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user id")
 	}
 
+	roles := make([]models.Role, len(req.Roles))
+	for i, role := range req.Roles {
+		roles[i] = roles[i].FromProto(role)
+	}
+
 	reguser := &dto.RegisterUser{
 		UserId:   uid,
 		Password: req.Password,
+		Roles:    roles,
 	}
 
 	tokens, err := s.authservice.Register(ctx, reguser)

@@ -9,27 +9,24 @@ import (
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/register-service/internal/config"
-	"github.com/tehrelt/mu/register-service/pkg/pb/authpb"
+	"github.com/tehrelt/mu/register-service/internal/services/registerservice"
 	"github.com/tehrelt/mu/register-service/pkg/pb/registerpb"
-	"github.com/tehrelt/mu/register-service/pkg/pb/userpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
 type Server struct {
-	cfg     *config.Config
-	authApi authpb.AuthServiceClient
-	userApi userpb.UserServiceClient
+	cfg        *config.Config
+	regservice *registerservice.Service
 
 	registerpb.UnimplementedRegisterServiceServer
 }
 
-func New(cfg *config.Config, authApi authpb.AuthServiceClient, userApi userpb.UserServiceClient) *Server {
+func New(cfg *config.Config, regservice *registerservice.Service) *Server {
 	return &Server{
-		cfg:     cfg,
-		authApi: authApi,
-		userApi: userApi,
+		cfg:        cfg,
+		regservice: regservice,
 	}
 }
 

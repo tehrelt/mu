@@ -20,6 +20,11 @@ type Grpc struct {
 	Port int    `env:"GRPC_PORT" env-default:"8080"`
 }
 
+type DefaultAdmin struct {
+	Email    string `env:"DEFAULT_ADMIN_EMAIL" env-default:"root@mu.ru"`
+	Password string `env:"DEFAULT_ADMIN_PASSWORD" env-default:"password"`
+}
+
 type Postgres struct {
 	Host string `env:"PG_HOST" env-required:"true"`
 	Port int    `env:"PG_PORT" env-required:"true"`
@@ -37,9 +42,10 @@ const (
 )
 
 type Config struct {
-	Env  Env `env:"ENV"`
-	App  App
-	Grpc Grpc
+	Env          Env `env:"ENV"`
+	App          App
+	Grpc         Grpc
+	DefaultAdmin DefaultAdmin
 
 	UserService struct {
 		Host string `env:"USER_SERVICE_HOST"`

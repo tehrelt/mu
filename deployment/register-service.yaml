@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     environment:
-      ENV: prod
+      ENV: dev
       APP_NAME: MU Register Service
       GRPC_PORT: 4000
 
@@ -17,5 +17,6 @@ services:
       USER_SERVICE_PORT: 4000
 
       JAEGER_ENDPOINT: http://jaeger:4317
+      WAIT_HOSTS: auth-service:4000, user-service:4000
     ports:
       - "4006:4000"
