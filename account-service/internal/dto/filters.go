@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/google/uuid"
+
 type Range struct {
 	Min int64
 	Max int64
@@ -10,14 +12,14 @@ func (r *Range) Nil() bool {
 }
 
 type AccountFilters struct {
-	UserId string
+	UserId uuid.UUID
 }
 
 func NewAccountFilter() *AccountFilters {
 	return &AccountFilters{}
 }
 
-func (f *AccountFilters) SetUserId(userId string) *AccountFilters {
+func (f *AccountFilters) SetUserId(userId uuid.UUID) *AccountFilters {
 	f.UserId = userId
 	return f
 }

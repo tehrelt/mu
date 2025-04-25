@@ -1,4 +1,10 @@
 import React from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./tooltip";
 
 type Props = {
   uuid: string;
@@ -8,7 +14,16 @@ type Props = {
 export const UUID = ({ uuid, length = 8 }: Props) => {
   return (
     <div>
-      {uuid.substring(0, length)}...{uuid.substring(uuid.length - 3)}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            {uuid.substring(0, length)}...{uuid.substring(uuid.length - 3)}
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{uuid}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 };

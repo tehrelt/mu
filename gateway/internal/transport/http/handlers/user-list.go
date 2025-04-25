@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
+	"go.opentelemetry.io/otel"
 )
 
 type UserSnippet struct {
@@ -27,11 +30,13 @@ type UserListRequest struct {
 
 type ListUsersResponse struct {
 	Users []UserSnippet `json:"users"`
+	Total uint64        `json:"total"`
 }
 
 func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
+		ctx := c.UserContext()
 		var req UserListRequest
 
 		if err := c.QueryParser(&req); err != nil {
@@ -40,7 +45,10 @@ func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 
 		slog.Debug("user list request", slog.Any("filters", req))
 
-		stream, err := userapi.List(c.Context(), &userpb.ListRequest{
+		ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, fmt.Sprintf("user list request"))
+		defer span.End()
+
+		stream, err := userapi.List(ctx, &userpb.ListRequest{
 			Offset: (req.Page - 1) * req.Limit,
 			Limit:  req.Limit,
 		})
@@ -52,14 +60,16 @@ func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 
 		for {
 			resp, err := stream.Recv()
+			span.AddEvent("response received")
 			if err == io.EOF {
+				span.AddEvent("stream ended")
 				break
 			}
 			if err != nil {
 				return err
 			}
 
-			slog.Debug("recieved users chunk", slog.Any("chunk", resp.UsersChunk))
+			slog.Debug("recieved users chunk", slog.Int("chunk size", len(resp.UsersChunk)))
 
 			for _, user := range resp.UsersChunk {
 				u := UserSnippet{
@@ -78,6 +88,8 @@ func UserListHandler(userapi userpb.UserServiceClient) fiber.Handler {
 
 				users = append(users, u)
 			}
+
+			span.AddEvent("chunkprocessed")
 		}
 
 		return c.JSON(&ListUsersResponse{

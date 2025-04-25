@@ -81,6 +81,12 @@ github.com/tehrelt/mu-lib v0.3.10 h1:O3pt6RTN9naMYMrFIkBpSqiwkYNPWgRmbzLpODg3Yps
 github.com/tehrelt/mu-lib v0.3.10/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/tehrelt/mu-lib v0.3.11 h1:t1I8OqUpqb/ueD1ba+PobBmRvM55M/bX6IE/zYlOOzo=
 github.com/tehrelt/mu-lib v0.3.11/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.3.12 h1:Rox9p85nF1eNwWRYKfaDhPjagBAWi1damDKv2Kalt74=
+github.com/tehrelt/mu-lib v0.3.12/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.3.13 h1:VakHBI2nuIfDO0M7ovBRnFaPd6xOczK1ZIOx1uI1m9E=
+github.com/tehrelt/mu-lib v0.3.13/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.3.15 h1:AsLm1lETbu75gBKK6BvQVSndNZjjq9fzX91hUOmEUDk=
+github.com/tehrelt/mu-lib v0.3.15/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
 go.opentelemetry.io/auto/sdk v1.1.0/go.mod h1:3wSPjt5PWp2RhlCcmmOial7AvC4DQqZb7a7wCow3W8A=

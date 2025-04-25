@@ -46,7 +46,7 @@ func (s *Server) Create(ctx context.Context, in *housepb.CreateRequest) (*housep
 	}, nil
 }
 
-func (s *Server) House(ctx context.Context, in *housepb.HouseRequest) (*housepb.HouseResponse, error) {
+func (s *Server) Find(ctx context.Context, in *housepb.HouseRequest) (*housepb.HouseResponse, error) {
 
 	id, err := uuid.Parse(in.HouseId)
 	if err != nil {

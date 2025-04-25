@@ -16,8 +16,10 @@ import (
 	"github.com/tehrelt/mu/account-service/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/account-service/pkg/pb/housepb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
@@ -58,10 +60,22 @@ func (s *Server) Create(ctx context.Context, in *accountpb.CreateRequest) (*acco
 
 // List implements accountpb.AccountServiceServer.
 func (s *Server) List(in *accountpb.ListRequest, stream grpc.ServerStreamingServer[accountpb.Account]) error {
+
+	ctx := stream.Context()
+
 	errChan := make(chan error)
 	filters := dto.NewAccountFilter()
 
-	accChan, err := s.storage.List(stream.Context(), filters)
+	if in.UserId != "" {
+		uId, err := uuid.Parse(in.UserId)
+		if err != nil {
+			return status.Error(codes.InvalidArgument, "invalid user id")
+		}
+
+		filters = filters.SetUserId(uId)
+	}
+
+	accChan, err := s.storage.List(ctx, filters)
 	if err != nil {
 		return err
 	}
@@ -80,42 +94,9 @@ func (s *Server) List(in *accountpb.ListRequest, stream grpc.ServerStreamingServ
 				return nil
 			}
 
-			data := acc.ToProto()
-			if err := stream.Send(data); err != nil {
-				return err
-			}
-		}
-	}
-}
-
-// ListUsersAccounts implements accountpb.AccountServiceServer.
-func (s *Server) ListUsersAccounts(in *accountpb.ListUsersAccountsRequest, stream grpc.ServerStreamingServer[accountpb.Account]) error {
-
-	fn := "grpc.ListUsersAccounts"
-	log := slog.With(slog.String("fn", fn))
-
-	filters := dto.NewAccountFilter().SetUserId(in.UserId)
-
-	accChan, err := s.storage.List(stream.Context(), filters)
-	if err != nil {
-		log.Error("failed to get list of accounts", sl.Err(err))
-		return err
-	}
-
-	for {
-		select {
-		case <-stream.Context().Done():
-			return stream.Context().Err()
-
-		case acc, ok := <-accChan:
-			if !ok {
-				log.Debug("failed to read from accounts channel")
-				return nil
-			}
-
-			reqlog := log.With(slog.String("houseId", acc.HouseId), slog.String("accId", acc.Id))
+			reqlog := slog.With(slog.String("houseId", acc.HouseId), slog.String("accId", acc.Id))
 			reqlog.Debug("fetching house for account")
-			house, err := s.houser.House(stream.Context(), &housepb.HouseRequest{
+			house, err := s.houser.Find(stream.Context(), &housepb.HouseRequest{
 				HouseId: acc.HouseId,
 			})
 			if err != nil {
@@ -123,12 +104,7 @@ func (s *Server) ListUsersAccounts(in *accountpb.ListUsersAccountsRequest, strea
 				return err
 			}
 
-			data := acc.ToProto()
-
-			data.House = &accountpb.House{
-				Id:      house.House.Id,
-				Address: house.House.Address,
-			}
+			data := acc.ToProto(house.House)
 
 			if err := stream.Send(data); err != nil {
 				return err

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/tehrelt/mu/account-service/pkg/pb/accountpb"
+	"github.com/tehrelt/mu/account-service/pkg/pb/housepb"
 )
 
 type Account struct {
@@ -19,12 +20,20 @@ func (a *Account) DeltaBalance(amount int64) {
 	a.Balance += amount
 }
 
-func (p *Account) ToProto() *accountpb.Account {
+func (p *Account) ToProto(house *housepb.House) *accountpb.Account {
 	pb := &accountpb.Account{
 		Id:        p.Id,
 		UserId:    p.UserId,
 		Balance:   p.Balance,
 		CreatedAt: p.CreatedAt.Unix(),
+		UpdatedAt: 0,
+	}
+
+	if house != nil {
+		pb.House = &accountpb.House{
+			Id:      house.Id,
+			Address: house.Address,
+		}
 	}
 
 	if p.UpdatedAt != nil {

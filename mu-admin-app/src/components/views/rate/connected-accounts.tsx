@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { DataTable } from "../data-table";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { DataTable } from "../../data-table";
 
 type Account = {
   id: string;

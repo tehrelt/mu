@@ -35,7 +35,7 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 			return c.SendStatus(401)
 		}
 
-		stream, err := svc.ListUsersAccounts(c.UserContext(), &accountpb.ListUsersAccountsRequest{
+		stream, err := svc.List(c.UserContext(), &accountpb.ListRequest{
 			UserId: profile.Id.String(),
 		})
 		if err != nil {

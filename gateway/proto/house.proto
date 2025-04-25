@@ -6,7 +6,7 @@ option go_package="github.com/tehrelt/moi-uslugi/proto/house;housepb";
 
 service HouseService {
     rpc Create(CreateRequest) returns (CreateResponse);
-    rpc House(HouseRequest) returns (HouseResponse);
+    rpc Find(HouseRequest) returns (HouseResponse);
     rpc ListHousesByIds(stream ListHousesByIdsRequest) returns (stream ListHousesResponse);
 }
 

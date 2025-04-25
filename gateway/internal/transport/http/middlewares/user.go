@@ -19,9 +19,10 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 		return func(c *fiber.Ctx) error {
 
 			token := c.Locals(TokenLocalKey).(string)
+			ctx := c.UserContext()
 
 			if len(roles) != 0 {
-				_, err := auther.Authorize(c.UserContext(), &authpb.AuthorizeRequest{
+				_, err := auther.Authorize(ctx, &authpb.AuthorizeRequest{
 					Token: token,
 					Roles: lo.Map(
 						roles,
@@ -45,7 +46,7 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 				}
 			}
 
-			profileResponse, err := auther.Profile(c.UserContext(), &authpb.ProfileRequest{
+			profileResponse, err := auther.Profile(ctx, &authpb.ProfileRequest{
 				AccessToken: token,
 			})
 			if err != nil {
@@ -69,6 +70,7 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 			}
 
 			c.Locals(ProfileLocalKey, profile)
+			c.SetUserContext(ctx)
 
 			return c.Next()
 		}

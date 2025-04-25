@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	HouseService_Create_FullMethodName          = "/house.HouseService/Create"
-	HouseService_House_FullMethodName           = "/house.HouseService/House"
+	HouseService_Find_FullMethodName            = "/house.HouseService/Find"
 	HouseService_ListHousesByIds_FullMethodName = "/house.HouseService/ListHousesByIds"
 )
 
@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HouseServiceClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	House(ctx context.Context, in *HouseRequest, opts ...grpc.CallOption) (*HouseResponse, error)
+	Find(ctx context.Context, in *HouseRequest, opts ...grpc.CallOption) (*HouseResponse, error)
 	ListHousesByIds(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ListHousesByIdsRequest, ListHousesResponse], error)
 }
 
@@ -51,10 +51,10 @@ func (c *houseServiceClient) Create(ctx context.Context, in *CreateRequest, opts
 	return out, nil
 }
 
-func (c *houseServiceClient) House(ctx context.Context, in *HouseRequest, opts ...grpc.CallOption) (*HouseResponse, error) {
+func (c *houseServiceClient) Find(ctx context.Context, in *HouseRequest, opts ...grpc.CallOption) (*HouseResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HouseResponse)
-	err := c.cc.Invoke(ctx, HouseService_House_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, HouseService_Find_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ type HouseService_ListHousesByIdsClient = grpc.BidiStreamingClient[ListHousesByI
 // for forward compatibility.
 type HouseServiceServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	House(context.Context, *HouseRequest) (*HouseResponse, error)
+	Find(context.Context, *HouseRequest) (*HouseResponse, error)
 	ListHousesByIds(grpc.BidiStreamingServer[ListHousesByIdsRequest, ListHousesResponse]) error
 	mustEmbedUnimplementedHouseServiceServer()
 }
@@ -94,8 +94,8 @@ type UnimplementedHouseServiceServer struct{}
 func (UnimplementedHouseServiceServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedHouseServiceServer) House(context.Context, *HouseRequest) (*HouseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method House not implemented")
+func (UnimplementedHouseServiceServer) Find(context.Context, *HouseRequest) (*HouseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
 }
 func (UnimplementedHouseServiceServer) ListHousesByIds(grpc.BidiStreamingServer[ListHousesByIdsRequest, ListHousesResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ListHousesByIds not implemented")
@@ -139,20 +139,20 @@ func _HouseService_Create_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HouseService_House_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HouseService_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HouseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HouseServiceServer).House(ctx, in)
+		return srv.(HouseServiceServer).Find(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: HouseService_House_FullMethodName,
+		FullMethod: HouseService_Find_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HouseServiceServer).House(ctx, req.(*HouseRequest))
+		return srv.(HouseServiceServer).Find(ctx, req.(*HouseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -176,8 +176,8 @@ var HouseService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HouseService_Create_Handler,
 		},
 		{
-			MethodName: "House",
-			Handler:    _HouseService_House_Handler,
+			MethodName: "Find",
+			Handler:    _HouseService_Find_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

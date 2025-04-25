@@ -42,6 +42,10 @@ type Config struct {
 	Grpc     Grpc
 	Postgres Postgres
 
+	Jaeger struct {
+		Endpoint string `env:"JAEGER_ENDPOINT"`
+	}
+
 	Amqp struct {
 		Host                  string `env:"AMQP_HOST" env-required:"true"`
 		Port                  int    `env:"AMQP_PORT" env-required:"true"`

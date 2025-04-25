@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/sidebar";
 import { routes } from "@/shared/routes";
 
+import Logo from "@/assets/logo.png";
+
 const data = {
   navMain: [
     {
@@ -51,6 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="text-xl text-center py-4 font-bold">
+        <img src={Logo} alt="logo" className="mx-auto" />
         Admin MoiUslugi
       </SidebarHeader>
       <SidebarContent>

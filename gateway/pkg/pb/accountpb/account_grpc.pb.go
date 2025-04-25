@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AccountService_Create_FullMethodName            = "/account.AccountService/Create"
-	AccountService_List_FullMethodName              = "/account.AccountService/List"
-	AccountService_ListUsersAccounts_FullMethodName = "/account.AccountService/ListUsersAccounts"
+	AccountService_Create_FullMethodName = "/account.AccountService/Create"
+	AccountService_Find_FullMethodName   = "/account.AccountService/Find"
+	AccountService_List_FullMethodName   = "/account.AccountService/List"
 )
 
 // AccountServiceClient is the client API for AccountService service.
@@ -29,8 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountServiceClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Account], error)
-	ListUsersAccounts(ctx context.Context, in *ListUsersAccountsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Account], error)
 }
 
 type accountServiceClient struct {
@@ -45,6 +45,16 @@ func (c *accountServiceClient) Create(ctx context.Context, in *CreateRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateResponse)
 	err := c.cc.Invoke(ctx, AccountService_Create_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountServiceClient) Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindResponse)
+	err := c.cc.Invoke(ctx, AccountService_Find_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,32 +80,13 @@ func (c *accountServiceClient) List(ctx context.Context, in *ListRequest, opts .
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AccountService_ListClient = grpc.ServerStreamingClient[Account]
 
-func (c *accountServiceClient) ListUsersAccounts(ctx context.Context, in *ListUsersAccountsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Account], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AccountService_ServiceDesc.Streams[1], AccountService_ListUsersAccounts_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[ListUsersAccountsRequest, Account]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AccountService_ListUsersAccountsClient = grpc.ServerStreamingClient[Account]
-
 // AccountServiceServer is the server API for AccountService service.
 // All implementations must embed UnimplementedAccountServiceServer
 // for forward compatibility.
 type AccountServiceServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	Find(context.Context, *FindRequest) (*FindResponse, error)
 	List(*ListRequest, grpc.ServerStreamingServer[Account]) error
-	ListUsersAccounts(*ListUsersAccountsRequest, grpc.ServerStreamingServer[Account]) error
 	mustEmbedUnimplementedAccountServiceServer()
 }
 
@@ -109,11 +100,11 @@ type UnimplementedAccountServiceServer struct{}
 func (UnimplementedAccountServiceServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
+func (UnimplementedAccountServiceServer) Find(context.Context, *FindRequest) (*FindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+}
 func (UnimplementedAccountServiceServer) List(*ListRequest, grpc.ServerStreamingServer[Account]) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
-}
-func (UnimplementedAccountServiceServer) ListUsersAccounts(*ListUsersAccountsRequest, grpc.ServerStreamingServer[Account]) error {
-	return status.Errorf(codes.Unimplemented, "method ListUsersAccounts not implemented")
 }
 func (UnimplementedAccountServiceServer) mustEmbedUnimplementedAccountServiceServer() {}
 func (UnimplementedAccountServiceServer) testEmbeddedByValue()                        {}
@@ -154,6 +145,24 @@ func _AccountService_Create_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccountService_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServiceServer).Find(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccountService_Find_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServiceServer).Find(ctx, req.(*FindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AccountService_List_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ListRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -164,17 +173,6 @@ func _AccountService_List_Handler(srv interface{}, stream grpc.ServerStream) err
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AccountService_ListServer = grpc.ServerStreamingServer[Account]
-
-func _AccountService_ListUsersAccounts_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListUsersAccountsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(AccountServiceServer).ListUsersAccounts(m, &grpc.GenericServerStream[ListUsersAccountsRequest, Account]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AccountService_ListUsersAccountsServer = grpc.ServerStreamingServer[Account]
 
 // AccountService_ServiceDesc is the grpc.ServiceDesc for AccountService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -187,16 +185,15 @@ var AccountService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Create",
 			Handler:    _AccountService_Create_Handler,
 		},
+		{
+			MethodName: "Find",
+			Handler:    _AccountService_Find_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "List",
 			Handler:       _AccountService_List_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "ListUsersAccounts",
-			Handler:       _AccountService_ListUsersAccounts_Handler,
 			ServerStreams: true,
 		},
 	},

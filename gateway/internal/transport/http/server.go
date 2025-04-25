@@ -16,6 +16,7 @@ import (
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
@@ -34,6 +35,7 @@ type Server struct {
 	accounter accountpb.AccountServiceClient
 	rater     ratepb.RateServiceClient
 	userapi   userpb.UserServiceClient
+	biller    billingpb.BillingServiceClient
 }
 
 func New(
@@ -43,6 +45,7 @@ func New(
 	accounter accountpb.AccountServiceClient,
 	rater ratepb.RateServiceClient,
 	userapi userpb.UserServiceClient,
+	biller billingpb.BillingServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -52,6 +55,7 @@ func New(
 		accounter: accounter,
 		rater:     rater,
 		userapi:   userapi,
+		biller:    biller,
 	}
 }
 
@@ -103,6 +107,8 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
+	accounts.Get("/:id", token, authmw(), handlers.AccountDetailsHandler(s.accounter))
+	accounts.Get("/:id/payments", token, authmw(), handlers.AccountPaymentsListHandler(s.biller))
 
 	rates := root.Group("/rates")
 	rates.Post("/", token, authmw(dto.RoleAdmin), handlers.RateCreateHandler(s.rater))
@@ -112,6 +118,7 @@ func (s *Server) setup() {
 	users := root.Group("/users")
 	users.Get("/", token, authmw(dto.RoleAdmin), handlers.UserListHandler(s.userapi))
 	users.Get("/:id", token, authmw(dto.RoleAdmin), handlers.UserDetailHandler(s.userapi))
+	users.Get("/:id/accounts", token, authmw(dto.RoleAdmin), handlers.UserAccountsList(s.accounter))
 }
 
 func (s *Server) Run(ctx context.Context) error {

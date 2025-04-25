@@ -10,6 +10,7 @@ import { RateNotFoundPage } from "@/pages/rates/not-found";
 import RateDetailsPage from "@/pages/rates/detail";
 import { UserListPage } from "@/pages/users/list";
 import { UserDetailsPage } from "@/pages/users/detail";
+import { AccountDetailPage } from "@/pages/accounts/detail";
 
 export const RoutesConfig = () => {
   return (
@@ -28,7 +29,13 @@ export const RoutesConfig = () => {
           <Route path={routes.users.index}>
             <Route path={routes.users.list} element={<UserListPage />} />
             <Route path={routes.users.detail()} element={<UserDetailsPage />} />
-            {/* <Route path={"*"} element={<UsersNotFoundPage />} /> */}
+          </Route>
+
+          <Route path={routes.accounts.index}>
+            <Route
+              path={routes.accounts.detail()}
+              element={<AccountDetailPage />}
+            />
           </Route>
         </Route>
       </Route>

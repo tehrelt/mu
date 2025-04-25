@@ -28,7 +28,7 @@ func main() {
 
 	ctx := context.Background()
 
-	instance, cleanup, err := app.New()
+	instance, cleanup, err := app.New(ctx)
 	if err != nil {
 		panic(err)
 	}

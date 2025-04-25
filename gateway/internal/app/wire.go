@@ -14,6 +14,7 @@ import (
 	"github.com/tehrelt/mu/gateway/internal/transport/http"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
@@ -30,6 +31,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		_servers,
 		http.New,
 
+		_billingpb,
 		_userpb,
 		_ratepb,
 		_accountpb,
@@ -52,6 +54,20 @@ func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	}
 
 	return client.(authpb.AuthServiceClient), nil
+}
+
+func _billingpb(cfg *config.Config) (billingpb.BillingServiceClient, error) {
+	host := cfg.BillingService.Host
+	port := cfg.BillingService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return billingpb.NewBillingServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(billingpb.BillingServiceClient), nil
 }
 
 func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {

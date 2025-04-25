@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/rate-service/internal/config"
 	"github.com/tehrelt/mu/rate-service/internal/models"
 	"github.com/tehrelt/mu/rate-service/internal/storage"
@@ -90,7 +91,12 @@ func New(cfg *config.Config, s *servicestorage.ServiceStorage, b *rmq.RabbitMq) 
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
+
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
