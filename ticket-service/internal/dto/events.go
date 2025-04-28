@@ -1,9 +1,13 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/tehrelt/mu/ticket-service/internal/models"
+)
 
 type EventTicketStatusChanged struct {
-	TicketId  string    `json:"ticketId"`
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
+	TicketId  string              `json:"ticketId"`
+	Status    models.TicketStatus `json:"status"`
+	Timestamp time.Time           `json:"timestamp"`
 }
