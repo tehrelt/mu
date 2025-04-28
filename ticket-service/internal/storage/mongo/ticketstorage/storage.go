@@ -7,7 +7,6 @@ import (
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/ticket-service/internal/models"
-	"github.com/tehrelt/mu/ticket-service/internal/storage"
 	"github.com/tehrelt/mu/ticket-service/internal/storage/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -122,7 +121,7 @@ func (s *Storage) Find(ctx context.Context, id string) (t models.Ticket, err err
 	return t, nil
 }
 
-func (s *Storage) Update(ctx context.Context, ticket models.Ticket) (err error) {
+func (s *Storage) Update(ctx context.Context, id string, newStatus models.TicketStatus) (err error) {
 	fn := "ticketstorage.Update"
 	log := s.logger.With(slog.String("fn", fn))
 
@@ -134,20 +133,26 @@ func (s *Storage) Update(ctx context.Context, ticket models.Ticket) (err error) 
 		}
 	}()
 
-	marshaled, err := marshalTicket(ticket)
+	c := s.db.Collection(mongo.TICKETS_COLLECTION)
+
+	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		log.Error("failed to marshal ticket", slog.Any("ticket", ticket), sl.Err(err))
 		return err
 	}
 
-	if marshaled.header().ID == nil {
-		return storage.ErrInvalidId
-	}
-
-	c := s.db.Collection(mongo.TICKETS_COLLECTION)
-	log.Debug("updating ticket", slog.Any("ticket", ticket))
-	if _, err := c.UpdateOne(ctx, bson.M{"_id": marshaled.header().ID}, bson.M{"$set": marshaled}); err != nil {
-		slog.Error("failed update ticket", sl.Err(err), slog.Any("ticket", ticket))
+	log.Debug("updating ticket", slog.Any("new status", newStatus))
+	if _, err := c.UpdateOne(
+		ctx,
+		bson.M{
+			"_id": oid,
+		},
+		bson.M{
+			"$set": bson.M{
+				"status": newStatus,
+			},
+		},
+	); err != nil {
+		slog.Error("failed update ticket", sl.Err(err), slog.Any("ticket_id", id))
 		return err
 	}
 

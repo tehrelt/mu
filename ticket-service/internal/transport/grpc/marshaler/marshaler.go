@@ -53,3 +53,16 @@ func marshalConnectServicePayload(ticket *models.ConnectServiceTicket) *ticketpb
 		},
 	}
 }
+
+func UnmarshalTicketStatus(src ticketpb.TicketStatus) models.TicketStatus {
+	switch src {
+	case ticketpb.TicketStatus_TicketStatusPending:
+		return models.TicketStatusPending
+	case ticketpb.TicketStatus_TicketStatusApproved:
+		return models.TicketStatusApproved
+	case ticketpb.TicketStatus_TicketStatusRejected:
+		return models.TicketStatusRejected
+	default:
+		return models.TicketStatusNil
+	}
+}
