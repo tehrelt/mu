@@ -65,6 +65,8 @@ func (s *Server) List(in *ratepb.ListRequest, stream grpc.ServerStreamingServer[
 		filters = filters.WithType(models.ServiceTypeFromProto(in.Type))
 	}
 
+	slog.Debug("listing services", slog.Any("filters", filters))
+
 	rates, err := s.storage.List(stream.Context(), filters)
 	if err != nil {
 		slog.Error("failed to list services", sl.Err(err))
@@ -72,6 +74,7 @@ func (s *Server) List(in *ratepb.ListRequest, stream grpc.ServerStreamingServer[
 	}
 
 	for service := range rates {
+		slog.Debug("sending service", slog.String("sid", service.Id))
 		stream.Send(&ratepb.Service{
 			Id:          service.Id,
 			Name:        service.Name,

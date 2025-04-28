@@ -20,7 +20,9 @@ func (s *ServiceStorage) List(ctx context.Context, f *models.RateFilters) (<-cha
 		PlaceholderFormat(squirrel.Dollar)
 
 	if f != nil {
-		builder = builder.Where(squirrel.Eq{"s_type": f.Type})
+		if f.Type != nil {
+			builder = builder.Where(squirrel.Eq{"s_type": f.Type})
+		}
 	}
 
 	query, args, err := builder.
