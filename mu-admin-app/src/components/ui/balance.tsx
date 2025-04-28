@@ -11,13 +11,13 @@ export const Balance = ({ balance }: Props) => {
   }).format(balance);
 
   return (
-    <p
+    <span
       className={cn(
         "text-lg font-medium",
         balance < 0 ? "text-red-500" : "text-green-500"
       )}
     >
       {fmt}
-    </p>
+    </span>
   );
 };

@@ -37,6 +37,7 @@ func RateDetailsHandler(rater ratepb.RateServiceClient) fiber.Handler {
 			Name:        resp.Name,
 			Rate:        float64(resp.Rate) / 100,
 			MeasureUnit: resp.MeasureUnit,
+			ServiceType: resp.Type.String(),
 		}
 
 		return c.JSON(rate)

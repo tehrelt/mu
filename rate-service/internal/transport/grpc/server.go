@@ -52,6 +52,7 @@ func (s *Server) Find(ctx context.Context, in *ratepb.FindRequest) (*ratepb.Serv
 		Name:        service.Name,
 		MeasureUnit: service.MeasureUnit,
 		Rate:        service.Rate,
+		Type:        service.Type.ToProto(),
 	}, nil
 
 }

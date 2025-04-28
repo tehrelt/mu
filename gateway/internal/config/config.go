@@ -8,7 +8,6 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/tehrelt/mu-lib/sl"
-	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/gateway/pkg/prettyslog"
 )
 
@@ -38,16 +37,19 @@ const (
 	EnvProd  Env = "prod"
 )
 
+type HttpConfig struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
 type Config struct {
 	Env Env `env:"ENV"`
 	App App
 
 	Cors Cors
 
-	Http struct {
-		Host string `env:"HTTP_HOST"`
-		Port int    `env:"HTTP_PORT"`
-	}
+	PublicHttpApi HttpConfig `env-prefix:"PUBLIC_HTTP_"`
+	AdminHttpApi  HttpConfig `env-prefix:"ADMIN_HTTP_"`
 
 	RegisterService struct {
 		Host string `env:"REGISTER_SERVICE_HOST"`
@@ -100,7 +102,7 @@ func New() *Config {
 	setupLogger(config)
 
 	if config.Env == EnvLocal {
-		interceptors.SetDebug(true)
+		// interceptors.SetDebug(true)
 	}
 
 	slog.Debug("config", slog.Any("c", config))

@@ -11,7 +11,8 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/gateway/internal/config"
-	"github.com/tehrelt/mu/gateway/internal/transport/http"
+	adminapi "github.com/tehrelt/mu/gateway/internal/transport/http/admin"
+	publicapi "github.com/tehrelt/mu/gateway/internal/transport/http/public"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
@@ -29,7 +30,8 @@ func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
-		http.New,
+		adminapi.New,
+		publicapi.New,
 
 		_billingpb,
 		_userpb,
@@ -145,7 +147,7 @@ func create_grpc_client(host string, port int, fn func(grpc.ClientConnInterface)
 	return fn(conn), nil
 }
 
-func _servers(h *http.Server) ([]Server, error) {
-	servers := []Server{h}
+func _servers(public *publicapi.Server, admin *adminapi.Server) ([]Server, error) {
+	servers := []Server{public, admin}
 	return servers, nil
 }

@@ -11,9 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/gateway/internal/config"
-	"github.com/tehrelt/mu/gateway/internal/dto"
-	"github.com/tehrelt/mu/gateway/internal/transport/http/handlers"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
+	"github.com/tehrelt/mu/gateway/internal/transport/http/public/handlers"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
@@ -91,7 +90,7 @@ func (s *Server) setup() {
 		AllowCredentials: true,
 	}))
 	s.fiber.Use(logger.New())
-	s.fiber.Use(middlewares.Trace)
+	s.fiber.Use(middlewares.Trace("public"))
 
 	token := middlewares.BearerToken()
 	authmw := middlewares.Auth(s.auther)
@@ -107,28 +106,16 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
-	accounts.Get("/:id", token, authmw(), handlers.AccountDetailsHandler(s.accounter))
-	accounts.Get("/:id/payments", token, authmw(), handlers.AccountPaymentsListHandler(s.biller))
-
-	rates := root.Group("/rates")
-	rates.Post("/", token, authmw(dto.RoleAdmin), handlers.RateCreateHandler(s.rater))
-	rates.Get("/", token, authmw(dto.RoleAdmin), handlers.RateListHandler(s.rater))
-	rates.Get("/:id", token, authmw(dto.RoleAdmin), handlers.RateDetailsHandler(s.rater))
-
-	users := root.Group("/users")
-	users.Get("/", token, authmw(dto.RoleAdmin), handlers.UserListHandler(s.userapi))
-	users.Get("/:id", token, authmw(dto.RoleAdmin), handlers.UserDetailHandler(s.userapi))
-	users.Get("/:id/accounts", token, authmw(dto.RoleAdmin), handlers.UserAccountsList(s.accounter))
 }
 
 func (s *Server) Run(ctx context.Context) error {
 
 	s.setup()
 
-	host := s.cfg.Http.Host
-	port := s.cfg.Http.Port
+	host := s.cfg.PublicHttpApi.Host
+	port := s.cfg.PublicHttpApi.Port
 	addr := fmt.Sprintf("%s:%d", host, port)
-	slog.Info("start http server", slog.String("addr", addr))
+	slog.Info("start public http server", slog.String("addr", addr))
 
 	go func() {
 		if err := s.fiber.Listen(addr); err != nil {

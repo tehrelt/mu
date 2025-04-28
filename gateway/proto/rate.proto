@@ -9,17 +9,27 @@ service RateService {
     rpc UpdateServiceRate(UpdateServiceRateRequest) returns (UpdateServiceRateResponse);
 }
 
+enum ServiceType {
+    UNKNOWN = 0;
+    WATER_SUPPLY = 1;
+    HEATING = 2;
+    POWER_SUPPLY = 3;
+    GAS_SUPPLY = 4;
+}
+
 message Service {
     string id = 1;
     string name = 2;
     string measure_unit = 3;
     int64 rate = 4;
+    ServiceType type = 5;
 }
 
 message CreateRequest {
     string name = 1;
     int64 initial_rate = 2;
     string measure_unit = 3;
+    ServiceType type = 4;
 }
 
 message CreateResponse {
@@ -43,6 +53,6 @@ message UpdateServiceRateResponse {
 }
 
 message ListRequest {
-
+    ServiceType type = 1;
 }
 

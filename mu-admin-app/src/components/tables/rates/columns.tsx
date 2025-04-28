@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { UUID } from "@/components/ui/uuid";
 import { routes } from "@/shared/routes";
-import { Rate } from "@/shared/types/rate";
+import { localizeServiceType, Rate, ServiceType } from "@/shared/types/rate";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
@@ -26,6 +26,14 @@ export const rateColumns: ColumnDef<Rate>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "serviceType",
+    header: "Service Type",
+    cell: ({ getValue }) => {
+      const serviceType = getValue() as ServiceType;
+      return <span>{localizeServiceType(serviceType)}</span>;
+    },
   },
   {
     accessorKey: "measureUnit",
