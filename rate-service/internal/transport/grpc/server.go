@@ -59,23 +59,25 @@ func (s *Server) Find(ctx context.Context, in *ratepb.FindRequest) (*ratepb.Serv
 // List implements ratepb.RateServiceServer.
 func (s *Server) List(in *ratepb.ListRequest, stream grpc.ServerStreamingServer[ratepb.Service]) error {
 
-	servicesChan := make(chan *models.Service, 4)
-	errChan := make(chan error, 1)
+	filters := models.NewRateFilters()
 
-	go func() {
-		if err := s.storage.List(stream.Context(), servicesChan); err != nil {
-			slog.Error("failed to list services", sl.Err(err))
-			errChan <- err
-			return
-		}
-	}()
+	if in.Type != ratepb.ServiceType_UNKNOWN {
+		filters = filters.WithType(models.ServiceTypeFromProto(in.Type))
+	}
 
-	for service := range servicesChan {
+	rates, err := s.storage.List(stream.Context(), filters)
+	if err != nil {
+		slog.Error("failed to list services", sl.Err(err))
+		return err
+	}
+
+	for service := range rates {
 		stream.Send(&ratepb.Service{
 			Id:          service.Id,
 			Name:        service.Name,
 			MeasureUnit: service.MeasureUnit,
 			Rate:        service.Rate,
+			Type:        service.Type.ToProto(),
 		})
 	}
 

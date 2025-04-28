@@ -10,18 +10,24 @@ import (
 	"github.com/tehrelt/mu/rate-service/pkg/sl"
 )
 
-func (s *ServiceStorage) List(ctx context.Context, out chan<- *models.Service) error {
+func (s *ServiceStorage) List(ctx context.Context, f *models.RateFilters) (<-chan *models.Service, error) {
 	log := slog.With(sl.Method("servicestorage.List"))
 
 	log.Debug("listing all services")
 
-	query, args, err := squirrel.Select("*").
+	builder := squirrel.Select("id, s_name, measure_unit, rate, created_at, updated_at, s_type").
 		From(pg.SERVICES_TABLE).
-		PlaceholderFormat(squirrel.Dollar).
+		PlaceholderFormat(squirrel.Dollar)
+
+	if f != nil {
+		builder = builder.Where(squirrel.Eq{"s_type": f.Type})
+	}
+
+	query, args, err := builder.
 		ToSql()
 	if err != nil {
 		log.Error("failed to build query", sl.Err(err))
-		return err
+		return nil, err
 	}
 
 	log.Debug("executing query", sl.Query(query), sl.Args(args))
@@ -29,19 +35,25 @@ func (s *ServiceStorage) List(ctx context.Context, out chan<- *models.Service) e
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		log.Error("failed to query", sl.Err(err))
-		return err
+		return nil, err
 	}
-	for rows.Next() {
-		service := new(models.Service)
-		err = rows.Scan(&service.Id, &service.Name, &service.MeasureUnit, &service.Rate, &service.CreatedAt, &service.UpdatedAt)
-		if err != nil {
-			log.Error("failed to scan row", sl.Err(err))
-			return err
+
+	out := make(chan *models.Service, 10)
+	go func() {
+		defer rows.Close()
+		defer close(out)
+
+		for rows.Next() {
+			service := new(models.Service)
+			err = rows.Scan(&service.Id, &service.Name, &service.MeasureUnit, &service.Rate, &service.CreatedAt, &service.UpdatedAt, &service.Type)
+			if err != nil {
+				log.Error("failed to scan row", sl.Err(err))
+				continue
+			}
+
+			out <- service
 		}
+	}()
 
-		out <- service
-	}
-	close(out)
-
-	return nil
+	return out, nil
 }

@@ -16,6 +16,7 @@ func (s *Server) Create(ctx context.Context, in *ratepb.CreateRequest) (*ratepb.
 		Name:        in.Name,
 		MeasureUnit: in.MeasureUnit,
 		Rate:        in.InitialRate,
+		Type:        models.ServiceTypeFromProto(in.Type),
 	})
 	if err != nil {
 		slog.Error("failed to create service", sl.Err(err))
