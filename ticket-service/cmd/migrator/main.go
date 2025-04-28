@@ -1,51 +1,57 @@
 package main
 
 import (
-	"errors"
+	"context"
 	"flag"
 	"fmt"
+	"os"
 
-	"github.com/tehrelt/mu/ticket-service/internal/config"
-
-	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
+	"github.com/tehrelt/mu/ticket-service/internal/config"
+	"github.com/tehrelt/mu/ticket-service/internal/storage/mongo"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-	local bool
+	envPath string
 )
 
 func init() {
-	flag.BoolVar(&local, "local", false, "run in local mode")
+	flag.StringVar(&envPath, "env", "", "path to .env file")
 }
 
 func main() {
 	flag.Parse()
 
-	if local {
-		if err := godotenv.Load(); err != nil {
-			panic(fmt.Errorf("cannot load env: %w", err))
+	if envPath != "" {
+		if err := godotenv.Load(envPath); err != nil {
+			fmt.Println("Error loading .env file:", err)
+			os.Exit(1)
 		}
 	}
+
+	ctx := context.Background()
 
 	cfg := config.New()
 
-	pg := cfg.Postgres
-
-	cs := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable", pg.User, pg.Pass, pg.Host, pg.Port, pg.Name)
-	m, err := migrate.New(
-		"file://migrations",
-		cs,
-	)
+	client, err := mongodriver.Connect(ctx, options.Client().ApplyURI(cfg.Mongo.ConnectionString()))
 	if err != nil {
-		panic(err)
+		fmt.Println("Error connecting to MongoDB:", err)
+		os.Exit(1)
+	}
+	defer client.Disconnect(ctx)
+
+	if err := client.Ping(ctx, nil); err != nil {
+		fmt.Println("Error pinging MongoDB:", err)
+		return
 	}
 
-	if err := m.Up(); err != nil {
-		if !errors.Is(err, migrate.ErrNoChange) {
-			panic(err)
-		}
+	db := client.Database(cfg.Mongo.Database)
+	if err := db.CreateCollection(ctx, mongo.TICKETS_COLLECTION); err != nil {
+		fmt.Println("Error creating collection:", err)
+		return
 	}
 }
