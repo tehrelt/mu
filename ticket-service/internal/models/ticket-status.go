@@ -27,3 +27,16 @@ func (s TicketStatus) ToProto() ticketpb.TicketStatus {
 		return ticketpb.TicketStatus_TicketStatusUnknown
 	}
 }
+
+func TicketStatusFromProto(p ticketpb.TicketStatus) TicketStatus {
+	switch p {
+	case ticketpb.TicketStatus_TicketStatusPending:
+		return TicketStatusPending
+	case ticketpb.TicketStatus_TicketStatusApproved:
+		return TicketStatusApproved
+	case ticketpb.TicketStatus_TicketStatusRejected:
+		return TicketStatusRejected
+	default:
+		return TicketStatusNil
+	}
+}

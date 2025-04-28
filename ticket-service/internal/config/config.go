@@ -23,8 +23,8 @@ type Grpc struct {
 type Mongo struct {
 	Host     string `env:"HOST" env-required:"true"`
 	Port     int    `env:"PORT" env-required:"true"`
-	User     string `env:"USER" env-required:"true"`
-	Pass     string `env:"PASS" env-required:"true"`
+	User     string `env:"USER"`
+	Pass     string `env:"PASS"`
 	Database string `env:"DATABASE" env-required:"true"`
 }
 

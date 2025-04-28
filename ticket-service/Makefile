@@ -4,10 +4,10 @@ ifneq (,$(wildcard ./.env))
 endif
 
 build: gen
-	go build -o ./bin/app.exe ./cmd/app
+	go build -o ./bin/app ./cmd/app
 
 run: build
-	./bin/app -local
+	./bin/app -env .env
 
 PB=pkg/pb
 PROTO=proto/ticket.proto

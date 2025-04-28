@@ -69,6 +69,63 @@ func (s *Storage) Create(ctx context.Context, ticket models.Ticket) (err error) 
 	return nil
 }
 
+func (s *Storage) List(ctx context.Context, filters *models.TicketFilters) (<-chan models.Ticket, error) {
+	c := s.db.Collection(mongo.TICKETS_COLLECTION)
+	fn := "ticketstorage.List"
+	log := s.logger.With(slog.String("fn", fn))
+	ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, fn)
+	tickets := make(chan models.Ticket)
+
+	cursor, err := c.Find(ctx, marshalFilters(filters))
+	if err != nil {
+		log.Error("failed to find tickets", sl.Err(err), slog.Any("filters", filters))
+		return nil, err
+	}
+
+	go func() {
+		defer span.End()
+		defer close(tickets)
+		defer cursor.Close(ctx)
+
+		for cursor.Next(ctx) {
+			var header Header
+			if err := cursor.Decode(&header); err != nil {
+				log.Error("failed to decode header", sl.Err(err))
+				span.RecordError(err)
+				continue
+			}
+
+			log.Debug("decoded header", slog.Any("header", header))
+
+			marshaled, err := factoryTicket(header.Type)
+			if err != nil {
+				log.Error("failed to create ticket", sl.Err(err))
+				span.RecordError(err)
+				continue
+			}
+
+			if err := cursor.Decode(marshaled); err != nil {
+				log.Error("failed to decode ticket", sl.Err(err))
+				span.RecordError(err)
+				continue
+			}
+
+			log.Debug("created ticket", slog.Any("ticket", marshaled))
+
+			ticket, err := unmarshalTicket(marshaled)
+			if err != nil {
+				log.Error("failed to unmarshal ticket", sl.Err(err))
+				span.RecordError(err)
+				continue
+			}
+
+			tickets <- ticket
+		}
+	}()
+
+	return tickets, nil
+}
+
 func (s *Storage) Find(ctx context.Context, id string) (t models.Ticket, err error) {
 	fn := "ticketstorage.Find"
 	log := s.logger.With(slog.String("fn", fn))

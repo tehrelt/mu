@@ -29,11 +29,6 @@ type Server struct {
 	ticketpb.UnimplementedTicketServiceServer
 }
 
-// List implements ticketpb.TicketServiceServer.
-func (s *Server) List(*ticketpb.ListRequest, grpc.ServerStreamingServer[ticketpb.Ticket]) error {
-	panic("unimplemented")
-}
-
 func New(cfg *config.Config, s *ticketstorage.Storage, b *rmq.Broker, t trace.Tracer) *Server {
 	return &Server{
 		cfg:     cfg,

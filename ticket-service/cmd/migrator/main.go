@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
 	"github.com/tehrelt/mu/ticket-service/internal/config"
 	"github.com/tehrelt/mu/ticket-service/internal/storage/mongo"

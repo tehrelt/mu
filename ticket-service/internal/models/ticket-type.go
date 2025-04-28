@@ -22,3 +22,14 @@ func (t *TicketType) ToProto() ticketpb.TicketType {
 		return ticketpb.TicketType_TicketTypeUnknown
 	}
 }
+
+func TicketTypeFromProto(p ticketpb.TicketType) TicketType {
+	switch p {
+	case ticketpb.TicketType_TicketTypeAccount:
+		return TicketTypeAccount
+	case ticketpb.TicketType_TicketTypeConnectService:
+		return TicketTypeConnectService
+	default:
+		return TicketTypeNil
+	}
+}
