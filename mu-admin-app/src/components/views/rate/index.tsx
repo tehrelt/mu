@@ -1,5 +1,7 @@
+import { Balance } from "@/components/ui/balance";
+import { routes } from "@/shared/routes";
 import { localizeServiceType, Rate } from "@/shared/types/rate";
-import React from "react";
+import { ChevronDownIcon, PencilIcon, TrashIcon } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbLink,
@@ -7,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../../ui/breadcrumb";
-import { routes } from "@/shared/routes";
+import { Button } from "../../ui/button";
 import {
   Card,
   CardContent,
@@ -15,17 +17,13 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { ConnectedAccounts } from "./connected-accounts";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
-import { Link } from "react-router-dom";
-import { ChevronDownIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { Balance } from "@/components/ui/balance";
+import { ConnectedAccounts } from "./connected-accounts";
 
 type Props = {
   rate: Rate;

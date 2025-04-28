@@ -1,3 +1,4 @@
+import { Balance } from "@/components/ui/balance";
 import { Button } from "@/components/ui/button";
 import { UUID } from "@/components/ui/uuid";
 import { routes } from "@/shared/routes";
@@ -25,11 +26,11 @@ export const rateColumns: ColumnDef<Rate>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Наименование организации",
   },
   {
     accessorKey: "serviceType",
-    header: "Service Type",
+    header: "Вид услуги",
     cell: ({ getValue }) => {
       const serviceType = getValue() as ServiceType;
       return <span>{localizeServiceType(serviceType)}</span>;
@@ -37,10 +38,14 @@ export const rateColumns: ColumnDef<Rate>[] = [
   },
   {
     accessorKey: "measureUnit",
-    header: "Measure Unit",
+    header: "Ед. измерения",
   },
   {
     accessorKey: "rate",
-    header: "Rate",
+    header: "Цена",
+    cell: ({ getValue }) => {
+      const price = getValue() as number;
+      return <Balance balance={price} />;
+    },
   },
 ];
