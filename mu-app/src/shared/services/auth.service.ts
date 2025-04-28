@@ -5,6 +5,7 @@ import {
   tokenPairSchema,
   profileSchema,
   Profile,
+  RegisterInput,
 } from "../types/auth";
 import { sessionService } from "./session.service";
 
@@ -39,6 +40,19 @@ class AuthService {
 
   async refresh() {
     const response = await api.put("/auth/refresh");
+
+    const token = tokenPairSchema.safeParse(response.data);
+    if (!token.success) {
+      throw new Error("Invalid response");
+    }
+
+    sessionService.set(token.data.accessToken);
+
+    return token.data;
+  }
+
+  async register(input: RegisterInput) {
+    const response = await api.post("/auth/register", input);
 
     const token = tokenPairSchema.safeParse(response.data);
     if (!token.success) {

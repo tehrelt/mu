@@ -34,11 +34,7 @@ export function LoginForm({
 
   const navigate = useNavigate();
 
-  const {
-    mutate: login,
-    isPending,
-    error,
-  } = useMutation({
+  const { mutate: login, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: async (data: LoginInput) => await authService.login(data),
     onSuccess: () => {

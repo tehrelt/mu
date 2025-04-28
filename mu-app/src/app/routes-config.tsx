@@ -5,6 +5,7 @@ import { SignInPage } from "@/pages/sign-in";
 import { routes } from "@/shared/routes";
 import { Dashboard } from "@/pages/dashboard";
 import { DashboardLayout } from "@/layouts/dashboard";
+import { SignUpPage } from "@/pages/sign-up";
 
 export const RoutesConfig = () => {
   return (
@@ -17,7 +18,8 @@ export const RoutesConfig = () => {
         <Route index element={<Dashboard />} />
       </Route>
 
-      <Route path="/sign-in" element={<SignInPage />} />
+      <Route path={routes.signIn} element={<SignInPage />} />
+      <Route path={routes.signUp} element={<SignUpPage />} />
     </Routes>
   );
 };
