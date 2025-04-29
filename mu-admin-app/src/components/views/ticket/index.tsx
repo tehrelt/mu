@@ -5,6 +5,7 @@ import {
   TicketConnectService,
   TicketHeader,
   TicketNewAccount,
+  TicketStatusEnum,
 } from "@/shared/types/ticket";
 import {
   Breadcrumb,
@@ -18,17 +19,19 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UUID } from "@/components/ui/uuid";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/shared/services/users.service";
 import { fio } from "@/shared/lib/utils";
 import { Button } from "@/components/ui/button";
 import { rateService } from "@/shared/services/rates.service";
 import { localizeServiceType } from "@/shared/types/rate";
+import { ticketService } from "@/shared/services/tickets.service";
 
 type Props = {
   ticket: Ticket;
@@ -39,6 +42,22 @@ export const TicketViewer = ({ ticket }: Props) => {
     queryKey: ["ticket", { id: ticket.id }, { createdBy: ticket.createdBy }],
     queryFn: async () => await userService.find(ticket.createdBy),
   });
+
+  const client = useQueryClient();
+
+  const { mutate: patchStatus } = useMutation({
+    mutationKey: ["ticket-status-patch", { id: ticket.id }],
+    mutationFn: async (status: TicketStatusEnum) =>
+      await ticketService.updateStatus(ticket.id, status),
+    onSettled: () => {
+      client.invalidateQueries({
+        queryKey: ["ticket", { id: ticket.id }],
+      });
+    },
+  });
+
+  const approve = () => patchStatus("TicketStatusApproved");
+  const reject = () => patchStatus("TicketStatusRejected");
 
   return (
     <>
@@ -83,6 +102,25 @@ export const TicketViewer = ({ ticket }: Props) => {
             </div>
             {renderTicket(ticket)}
           </CardContent>
+          <CardFooter className="grid gap-y-2">
+            {ticket.ticketStatus === "TicketStatusPending" ? (
+              <>
+                <div className="text-lg font-medium">Изменить статус?</div>
+                <div className="flex gap-x-2">
+                  <Button variant={"success"} onClick={approve}>
+                    Одобрить
+                  </Button>
+                  <Button variant={"destructive"} onClick={reject}>
+                    Отклонить
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div>
+                Заявка закрыта - <TicketStatus val={ticket.ticketStatus} />
+              </div>
+            )}
+          </CardFooter>
         </Card>
       </div>
     </>

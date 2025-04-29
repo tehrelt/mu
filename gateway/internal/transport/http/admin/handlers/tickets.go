@@ -81,3 +81,35 @@ func TicketDetailsHandler(ticketer ticketpb.TicketServiceClient) fiber.Handler {
 		return c.JSON(dto.MarshalTicket(ticket.Ticket.Header, ticket.Ticket.Payload))
 	}
 }
+
+type TicketStatusPatchRequest struct {
+	Status string `json:"status"`
+}
+
+func TicketStatusPatchHandler(ticketer ticketpb.TicketServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		ctx := c.UserContext()
+
+		id := c.Params("id")
+		if id == "" {
+			return fiber.ErrBadRequest
+		}
+
+		var req TicketStatusPatchRequest
+		if err := c.BodyParser(&req); err != nil {
+			return err
+		}
+
+		status := dto.ParseTicketStatus(req.Status)
+
+		if _, err := ticketer.UpdateTicketStatus(ctx, &ticketpb.UpdateTicketStatusRequest{
+			Id:     id,
+			Status: status,
+		}); err != nil {
+			return err
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}

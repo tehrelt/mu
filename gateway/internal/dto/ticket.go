@@ -57,3 +57,16 @@ func MarshalTicket(header *ticketpb.TicketHeader, payload any) Ticket {
 		return nil
 	}
 }
+
+func ParseTicketStatus(src string) ticketpb.TicketStatus {
+	switch src {
+	case ticketpb.TicketStatus_TicketStatusPending.String():
+		return ticketpb.TicketStatus_TicketStatusPending
+	case ticketpb.TicketStatus_TicketStatusApproved.String():
+		return ticketpb.TicketStatus_TicketStatusApproved
+	case ticketpb.TicketStatus_TicketStatusRejected.String():
+		return ticketpb.TicketStatus_TicketStatusRejected
+	default:
+		return ticketpb.TicketStatus_TicketStatusUnknown
+	}
+}

@@ -41,6 +41,12 @@ class TicketService {
     const parsed = listResponseSchema.parse(response.data);
     return parsed;
   }
+
+  async updateStatus(id: string, status: TicketStatusEnum) {
+    await api.patch(`/tickets/${id}`, {
+      status,
+    });
+  }
 }
 
 export const ticketService = new TicketService();

@@ -125,6 +125,7 @@ func (s *Server) setup() {
 	tickets := root.Group("/tickets")
 	tickets.Get("/", token, authmw, handlers.TicketListHandler(s.ticketer))
 	tickets.Get("/:id", token, authmw, handlers.TicketDetailsHandler(s.ticketer))
+	tickets.Patch("/:id", token, authmw, handlers.TicketStatusPatchHandler(s.ticketer))
 }
 
 func (s *Server) Run(ctx context.Context) error {
