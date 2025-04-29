@@ -22,6 +22,7 @@ import (
 	tgrpc "github.com/tehrelt/mu/account-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/account-service/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/account-service/pkg/pb/housepb"
+	"github.com/tehrelt/mu/account-service/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/account-service/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
@@ -41,6 +42,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		accountstorage.New,
 		rmq.New,
 
+		_ticketpb,
 		_billingpb,
 		_amqp,
 		_pg,
@@ -101,6 +103,10 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 	}
 
 	if err := amqp_setup_exchange(channel, cfg.BalanceChanged.Exchange, cfg.BalanceChanged.Routing); err != nil {
+		slog.Error("failed to setup notifications exchange", sl.Err(err))
+		return nil, closefn, err
+	}
+	if err := amqp_setup_exchange(channel, cfg.TicketStatusChanged.Exchange, cfg.TicketStatusChanged.NewAccountRoute); err != nil {
 		slog.Error("failed to setup notifications exchange", sl.Err(err))
 		return nil, closefn, err
 	}
@@ -213,4 +219,26 @@ func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {
 	slog.Debug("connecting to jaeger", slog.String("jaeger", jaeger), slog.String("appname", appname))
 
 	return tracer.SetupTracer(ctx, jaeger, appname)
+}
+
+func _ticketpb(cfg *config.Config) (
+	ticketpb.TicketServiceClient,
+	func(),
+	error,
+) {
+	host := cfg.TicketService.Host
+	port := cfg.TicketService.Port
+	addr := fmt.Sprintf("%s:%d", host, port)
+
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ticketpb.NewTicketServiceClient(client), func() { client.Close() }, nil
 }

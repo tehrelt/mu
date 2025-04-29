@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { NewTicketButton } from "./new-ticket-button";
 
 // This is sample data.
 const data = {
@@ -38,8 +39,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="justify-center">
         <AccountSwitcher />
+        <NewTicketButton />
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}

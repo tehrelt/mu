@@ -18,7 +18,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Form, FormField, FormLabel } from "./ui/form";
+import { Form, FormField, FormLabel } from "../ui/form";
 
 export function RegisterForm({
   className,

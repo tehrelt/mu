@@ -38,6 +38,9 @@ services:
       RATE_SERVICE_HOST: rate-service
       RATE_SERVICE_PORT: 4000
 
+      TICKET_SERVICE_HOST: ticket-service
+      TICKET_SERVICE_PORT: 4000
+
       JAEGER_ENDPOINT: http://jaeger:4317
     ports:
       - "${ACCOUNT_GRPC_PORT}:4000"

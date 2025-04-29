@@ -91,7 +91,12 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		defer channel.Close()
 	}
 
-	if err := amqp_setup_exchange(channel, cfg.TicketStatusChangedQueue.Exchange, cfg.TicketStatusChangedQueue.RoutingKey); err != nil {
+	if err := amqp_setup_exchange(
+		channel,
+		cfg.TicketStatusChangedQueue.Exchange,
+		cfg.TicketStatusChangedQueue.NewAccountRoute,
+		cfg.TicketStatusChangedQueue.ConnectServiceRoute,
+	); err != nil {
 		slog.Error("failed to setup notifications exchange", sl.Err(err))
 		return nil, closefn, err
 	}

@@ -6,6 +6,7 @@ import { routes } from "@/shared/routes";
 import { Dashboard } from "@/pages/dashboard";
 import { DashboardLayout } from "@/layouts/dashboard";
 import { SignUpPage } from "@/pages/sign-up";
+import { NewTicketPage } from "@/pages/dashboard/new-ticket";
 
 export const RoutesConfig = () => {
   return (
@@ -16,6 +17,7 @@ export const RoutesConfig = () => {
 
       <Route path={routes.dashboard} element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
+        <Route path={routes.newTicket} element={<NewTicketPage />} />
       </Route>
 
       <Route path={routes.signIn} element={<SignInPage />} />

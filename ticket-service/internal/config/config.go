@@ -61,7 +61,11 @@ type Config struct {
 		Pass string `env:"AMQP_PASS"`
 	}
 
-	TicketStatusChangedQueue QueueConfig `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
+	TicketStatusChangedQueue struct {
+		Exchange            string `env:"EXCHANGE"`
+		NewAccountRoute     string `env:"NEW_ACCOUNT_ROUTE"`
+		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
+	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
 }
 
 type QueueConfig struct {

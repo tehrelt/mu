@@ -115,6 +115,9 @@ func (s *Server) setup() {
 	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))
 	tickets.Post("/new-account", token, authmw(), handlers.TicketNewAccountHandler(s.ticketer))
 	tickets.Get("/", token, authmw(), handlers.TicketListHandler(s.ticketer))
+
+	rates := root.Group("/rates")
+	rates.Get("/", token, authmw(), handlers.RateListHandler(s.rater))
 }
 
 func (s *Server) Run(ctx context.Context) error {

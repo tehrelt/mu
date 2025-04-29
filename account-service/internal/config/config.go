@@ -36,6 +36,16 @@ const (
 	EnvProd  Env = "prod"
 )
 
+type QueueConfig struct {
+	Exchange string `env:"EXCHANGE"`
+	Routing  string `env:"ROUTING_KEY"`
+}
+
+type ExternalServiceConfig struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
 type Config struct {
 	Env      Env `env:"ENV"`
 	App      App
@@ -46,25 +56,11 @@ type Config struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
 	}
 
-	RateService struct {
-		Host string `env:"RATE_SERVICE_HOST"`
-		Port int    `env:"RATE_SERVICE_PORT"`
-	}
-
-	UserService struct {
-		Host string `env:"USER_SERVICE_HOST"`
-		Port int    `env:"USER_SERVICE_PORT"`
-	}
-
-	HouseService struct {
-		Host string `env:"HOUSE_SERVICE_HOST"`
-		Port int    `env:"HOUSE_SERVICE_PORT"`
-	}
-
-	BillingService struct {
-		Host string `env:"BILLING_SERVICE_HOST"`
-		Port int    `env:"BILLING_SERVICE_PORT"`
-	}
+	RateService    ExternalServiceConfig `env-prefix:"RATE_SERVICE_"`
+	UserService    ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	HouseService   ExternalServiceConfig `env-prefix:"HOUSE_SERVICE_"`
+	BillingService ExternalServiceConfig `env-prefix:"BILLING_SERVICE_"`
+	TicketService  ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
 
 	Amqp struct {
 		Host string `env:"AMQP_HOST"`
@@ -82,6 +78,12 @@ type Config struct {
 		Exchange string `env:"BALANCE_CHANGED_EXCHANGE"`
 		Routing  string `env:"BALANCE_CHANGED_ROUTING"`
 	}
+
+	TicketStatusChanged struct {
+		Exchange            string `env:"EXCHANGE"`
+		NewAccountRoute     string `env:"NEW_ACCOUNT_ROUTE"`
+		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
+	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
 }
 
 func New() *Config {

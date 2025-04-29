@@ -26,7 +26,7 @@ func New(cfg *config.Config, ch *amqp091.Channel) *Broker {
 	}
 }
 
-func (b *Broker) PublishStatusChanged(ctx context.Context, event *dto.EventTicketStatusChanged) error {
+func (b *Broker) PublishStatusNewAccount(ctx context.Context, event *dto.EventTicketStatusChanged) error {
 	event.Timestamp = time.Now()
 
 	j, err := json.Marshal(event)
@@ -36,7 +36,22 @@ func (b *Broker) PublishStatusChanged(ctx context.Context, event *dto.EventTicke
 	}
 
 	exchange := b.cfg.TicketStatusChangedQueue.Exchange
-	rk := b.cfg.TicketStatusChangedQueue.RoutingKey
+	rk := b.cfg.TicketStatusChangedQueue.NewAccountRoute
+
+	return b.publish(ctx, exchange, rk, j)
+}
+
+func (b *Broker) PublishStatusConnectService(ctx context.Context, event *dto.EventTicketStatusChanged) error {
+	event.Timestamp = time.Now()
+
+	j, err := json.Marshal(event)
+	if err != nil {
+		slog.Error("failed marshal event data", slog.Any("event", event))
+		return err
+	}
+
+	exchange := b.cfg.TicketStatusChangedQueue.Exchange
+	rk := b.cfg.TicketStatusChangedQueue.ConnectServiceRoute
 
 	return b.publish(ctx, exchange, rk, j)
 }

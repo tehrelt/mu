@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,18 +6,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { LoginInput, loginSchema } from "@/shared/types/auth";
-import { Form, FormField, FormLabel } from "./ui/form";
-import { useMutation } from "@tanstack/react-query";
-import { authService } from "@/shared/services/auth.service";
-import { Link, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { routes } from "@/shared/routes";
-import { toast } from "sonner";
+import { authService } from "@/shared/services/auth.service";
+import { LoginInput, loginSchema } from "@/shared/types/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { GalleryVerticalEnd } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Form, FormField, FormLabel } from "../ui/form";
 
 export function LoginForm({
   className,
