@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UUID } from "@/components/ui/uuid";
 import AccountPayments from "./payments";
+import ConnectedServices from "./services";
 
 type Props = {
   account: AccountInfo;
@@ -40,6 +41,9 @@ export const AccountViewer = ({ account }: Props) => {
         </div>
         <div>
           <AccountPayments accId={account.id} />
+        </div>
+        <div>
+          <ConnectedServices accountId={account.id} />
         </div>
       </div>
     </>

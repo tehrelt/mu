@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { rateService } from "@/shared/services/rates.service";
 import { localizeServiceType } from "@/shared/types/rate";
 import { ticketService } from "@/shared/services/tickets.service";
+import { accountService } from "@/shared/services/account.service";
 
 type Props = {
   ticket: Ticket;
@@ -151,29 +152,56 @@ const ConnectServiceTicket = ({ ticket }: { ticket: TicketConnectService }) => {
     queryKey: ["ticket", { id: ticket.id }, { service: ticket.serviceId }],
     queryFn: async () => {
       const rate = await rateService.find(ticket.serviceId);
-      return rate;
+      const account = await accountService.find(ticket.accountId);
+      return { rate, account };
     },
   });
 
   return (
     <div>
       <div>
-        <p className="text-xl font-medium">Услуга</p>
         {query.isLoading && !query.data ? (
-          <Link to={routes.rate.detail(ticket.serviceId)}>
-            <Button variant={"link"}>
-              <UUID uuid={ticket.serviceId} className="text-muted-foreground" />
-            </Button>
-          </Link>
+          <>
+            <Link to={routes.rate.detail(ticket.serviceId)}>
+              <Button variant={"link"}>
+                <UUID
+                  uuid={ticket.serviceId}
+                  className="text-muted-foreground"
+                />
+              </Button>
+            </Link>
+            <Link to={routes.accounts.detail(ticket.accountId)}>
+              <Button variant={"link"}>
+                <UUID
+                  uuid={ticket.accountId}
+                  className="text-muted-foreground"
+                />
+              </Button>
+            </Link>
+          </>
         ) : (
-          <div className="">
-            <p>
-              Поставщик:
-              <Link to={routes.rate.detail(ticket.serviceId)}>
-                <Button variant={"link"}>{query.data?.name}</Button>
+          <div>
+            <div>
+              <span className="text-xl font-medium">Счёт</span>
+              <Link to={routes.accounts.detail(ticket.accountId)}>
+                <Button variant={"link"}>
+                  {query.data?.account.id} (адрес:{" "}
+                  {query.data?.account.house.address})
+                </Button>
               </Link>
-            </p>
-            <p>Вид услуги: {localizeServiceType(query.data!.serviceType)}</p>
+            </div>
+            <p className="text-xl font-medium">Услуга</p>
+            <div className="">
+              <p>
+                Поставщик:
+                <Link to={routes.rate.detail(ticket.serviceId)}>
+                  <Button variant={"link"}>{query.data?.rate.name}</Button>
+                </Link>
+              </p>
+              <p>
+                Вид услуги: {localizeServiceType(query.data!.rate.serviceType)}
+              </p>
+            </div>
           </div>
         )}
       </div>

@@ -111,6 +111,7 @@ func (s *Server) setup() {
 	accounts := root.Group("/accounts")
 	accounts.Get("/:id", token, authmw, handlers.AccountDetailsHandler(s.accounter))
 	accounts.Get("/:id/payments", token, authmw, handlers.AccountPaymentsListHandler(s.biller))
+	accounts.Get("/:id/services", token, authmw, handlers.AccountServicesListHandler(s.accounter, s.rater))
 
 	rates := root.Group("/rates")
 	rates.Post("/", token, authmw, handlers.RateCreateHandler(s.rater))
