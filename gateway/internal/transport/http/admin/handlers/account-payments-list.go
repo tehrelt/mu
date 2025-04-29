@@ -8,22 +8,15 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 )
 
-type Payment struct {
-	Id        string     `json:"id"`
-	Status    string     `json:"status"`
-	Amount    float64    `json:"amount"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-}
-
 type AccountListPaymentsListResponse struct {
-	Payments []Payment `json:"payments"`
+	Payments []dto.Payment `json:"payments"`
 }
 
-func (r *AccountListPaymentsListResponse) AddPayment(payment Payment) {
+func (r *AccountListPaymentsListResponse) AddPayment(payment dto.Payment) {
 	r.Payments = append(r.Payments, payment)
 }
 
@@ -45,7 +38,7 @@ func AccountPaymentsListHandler(biller billingpb.BillingServiceClient) fiber.Han
 		}
 
 		var response AccountListPaymentsListResponse
-		response.Payments = make([]Payment, 0, 4)
+		response.Payments = make([]dto.Payment, 0, 4)
 
 		for {
 			bill, err := stream.Recv()
@@ -57,7 +50,7 @@ func AccountPaymentsListHandler(biller billingpb.BillingServiceClient) fiber.Han
 				return fiber.NewError(500, "failed to receive payment")
 			}
 
-			payment := Payment{
+			payment := dto.Payment{
 				Id:        bill.Payment.Id,
 				Status:    bill.Payment.Status.String(),
 				Amount:    float64(bill.Payment.Amount) / 100,

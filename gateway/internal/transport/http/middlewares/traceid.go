@@ -15,14 +15,13 @@ func Trace(api string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := c.UserContext()
 		t := otel.Tracer(tracer.TracerKey)
-		ctx, span := t.Start(ctx, fmt.Sprintf("%s %s", c.Method(), c.Path()), trace.WithAttributes())
-		defer span.End()
-
-		span.SetAttributes(
+		ctx, span := t.Start(ctx, fmt.Sprintf("%s %s", c.Method(), c.Path()), trace.WithAttributes(
 			attribute.String("http.api", api),
 			attribute.String("http.path", c.Path()),
 			attribute.String("http.method", c.Method()),
-		)
+		))
+
+		defer span.End()
 
 		propagator := propagation.TraceContext{}
 		carrier := propagation.MapCarrier{}

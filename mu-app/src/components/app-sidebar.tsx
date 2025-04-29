@@ -1,10 +1,9 @@
 import * as React from "react";
 
-import { SearchForm } from "@/components/search-form";
-import { AccountSwitcher } from "@/components/version-switcher";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,22 +13,35 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { AccountSwitcher } from "@/components/version-switcher";
+import { routes } from "@/shared/routes";
+import { NavUser } from "./nav-user";
 import { NewTicketButton } from "./new-ticket-button";
 
 // This is sample data.
 const data = {
   navMain: [
     {
-      title: "Getting Started",
+      title: "Счёт",
+      url: routes.dashboard,
+      items: [
+        {
+          title: "Главная",
+          url: routes.dashboard.index,
+        },
+        {
+          title: "Пополнить",
+          url: routes.dashboard.addFunds,
+        },
+      ],
+    },
+    {
+      title: "Настройки",
       url: "#",
       items: [
         {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
+          title: "Интеграции",
+          url: routes.dashboard.settings.integrations,
         },
       ],
     },
@@ -62,6 +74,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

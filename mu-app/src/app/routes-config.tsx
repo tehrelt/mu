@@ -7,6 +7,10 @@ import { Dashboard } from "@/pages/dashboard";
 import { DashboardLayout } from "@/layouts/dashboard";
 import { SignUpPage } from "@/pages/sign-up";
 import { NewTicketPage } from "@/pages/dashboard/new-ticket";
+import { IntegrationsSettingsPage } from "@/pages/settings/integrations";
+import { AddFundsPage } from "@/pages/dashboard/add-funds";
+import { ProtectedRoute } from "@/layouts/protected-route";
+import { ProcessPaymentPage } from "@/pages/billing/process";
 
 export const RoutesConfig = () => {
   return (
@@ -15,11 +19,17 @@ export const RoutesConfig = () => {
         <Route index element={<Index />} />
       </Route>
 
-      <Route path={routes.dashboard} element={<DashboardLayout />}>
+      <Route path={routes.dashboard.index} element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
-        <Route path={routes.newTicket} element={<NewTicketPage />} />
+        <Route path={routes.dashboard.newTicket} element={<NewTicketPage />} />
+        <Route
+          path={routes.dashboard.settings.integrations}
+          element={<IntegrationsSettingsPage />}
+        />
+        <Route path={routes.dashboard.addFunds} element={<AddFundsPage />} />
       </Route>
 
+      <Route path={routes.billing.process()} element={<ProcessPaymentPage />} />
       <Route path={routes.signIn} element={<SignInPage />} />
       <Route path={routes.signUp} element={<SignUpPage />} />
     </Routes>

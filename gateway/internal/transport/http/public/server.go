@@ -110,6 +110,7 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
+	accounts.Get("/:id/payments", token, authmw(), handlers.PaymentListHandler(s.biller))
 
 	tickets := root.Group("/tickets")
 	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))
@@ -118,6 +119,9 @@ func (s *Server) setup() {
 
 	rates := root.Group("/rates")
 	rates.Get("/", token, authmw(), handlers.RateListHandler(s.rater))
+
+	billing := root.Group("/billing")
+	billing.Post("/", token, authmw(), handlers.PaymentCreateHandler(s.biller))
 }
 
 func (s *Server) Run(ctx context.Context) error {

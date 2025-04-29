@@ -8,7 +8,7 @@ type Props = {};
 
 export const NewTicketButton = (props: Props) => {
   return (
-    <Link to={routes.newTicket} className="">
+    <Link to={routes.dashboard.newTicket} className="">
       <Button className="w-full">
         <PlusCircle />
         Новая заявка

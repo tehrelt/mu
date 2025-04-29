@@ -41,7 +41,6 @@ export function AccountSwitcher() {
                     <p className="font-medium">
                       {selectedAccount.house.address}
                     </p>
-                    <Balance balance={selectedAccount.balance} />
                   </div>
                 ) : (
                   <span className="font-medium">Select Account</span>
