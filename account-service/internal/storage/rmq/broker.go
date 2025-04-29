@@ -32,3 +32,13 @@ func (b *Broker) PublishBalanceChanged(ctx context.Context, event *dto.EventBala
 
 	return b.manager.Publish(ctx, b.cfg.BalanceChanged.Exchange, b.cfg.BalanceChanged.Routing, j)
 }
+
+func (b *Broker) PublishConnectServiceRequest(ctx context.Context, event *dto.EventServiceConnect) error {
+	j, err := json.Marshal(event)
+	if err != nil {
+		slog.Error("failed marshal event data", slog.Any("event", event))
+		return err
+	}
+
+	return b.manager.Publish(ctx, b.cfg.ConnectServiceQueue.Exchange, b.cfg.ConnectServiceQueue.Routing, j)
+}

@@ -19,6 +19,11 @@ type EventBalanceChanged struct {
 	Reason     string `json:"reason"`
 }
 
+type EventServiceConnect struct {
+	HouseId   string `json:"houseId"`
+	ServiceId string `json:"serviceId"`
+}
+
 type EventTicketStatusChanged struct {
 	TicketId  string    `json:"ticketId"`
 	Status    string    `json:"status"`

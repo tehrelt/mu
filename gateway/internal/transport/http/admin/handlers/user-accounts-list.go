@@ -10,8 +10,9 @@ import (
 )
 
 type House struct {
-	Id      string `json:"id"`
-	Address string `json:"address"`
+	Id                  string   `json:"id"`
+	Address             string   `json:"address"`
+	ConnectedServiceIds []string `json:"connectedServices"`
 }
 
 type Account struct {

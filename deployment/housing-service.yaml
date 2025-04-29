@@ -18,6 +18,9 @@ services:
       PG_USER: ${HOUSING_PG_USER}
       PG_PASS: ${HOUSING_PG_PASS}
 
+      RATE_SERVICE_HOST: rate-service
+      RATE_SERVICE_PORT: 4000
+
       AMQP_HOST: rmq
       AMQP_PORT: 5672
 
@@ -25,7 +28,7 @@ services:
 
       JAEGER_ENDPOINT: http://jaeger:4317
 
-      ENV: prod
+      ENV: dev
     depends_on:
       - housing-service-pg
       - rmq

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu/housing-service/internal/config"
 	"github.com/tehrelt/mu/housing-service/internal/storage/pg/housestorage"
 	"github.com/tehrelt/mu/housing-service/internal/storage/rmq"
@@ -14,7 +15,7 @@ import (
 
 type AmqpConsumer struct {
 	cfg     *config.Config
-	channel *amqp091.Channel
+	manager *rmqmanager.RabbitMqManager
 	storage *housestorage.HouseStorage
 	broker  *rmq.Broker
 	rateapi ratepb.RateServiceClient
@@ -23,10 +24,10 @@ type AmqpConsumer struct {
 func New(cfg *config.Config, ch *amqp091.Channel, s *housestorage.HouseStorage, b *rmq.Broker, rapi ratepb.RateServiceClient) *AmqpConsumer {
 	return &AmqpConsumer{
 		cfg:     cfg,
-		channel: ch,
 		storage: s,
 		broker:  b,
 		rateapi: rapi,
+		manager: rmqmanager.New(ch),
 	}
 }
 

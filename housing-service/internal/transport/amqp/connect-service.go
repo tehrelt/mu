@@ -16,19 +16,14 @@ import (
 
 func (c *AmqpConsumer) ConsumeConnectServiceEvent(ctx context.Context) error {
 
-	messages, err := c.channel.ConsumeWithContext(ctx, c.cfg.ConnectServiceQueue.Routing, "", false, false, false, false, nil)
-	if err != nil {
-		slog.Error("failed to consume", sl.Err(err))
-		return err
-	}
-
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case msg := <-messages:
-			if err := c.handleConnectServiceEvent(ctx, msg); err != nil {
-				slog.Error("failed to handle connect service event", sl.Err(err))
+		default:
+			if err := c.manager.Consume(ctx, c.cfg.ConnectServiceQueue.Routing, c.handleConnectServiceEvent); err != nil {
+				slog.Error("failed to consume", sl.Err(err))
+				return err
 			}
 		}
 	}
@@ -46,11 +41,7 @@ func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg amqp09
 	}()
 
 	body := msg.Body
-	unmarshaled := struct {
-		HouseId   string `json:"houseId"`
-		ServiceId string `json:"serviceId"`
-	}{}
-
+	unmarshaled := dto.EventServiceConnect{}
 	if err := json.Unmarshal(body, &unmarshaled); err != nil {
 		slog.Error("failed to unmarshal body", sl.Err(err))
 		return err

@@ -8,6 +8,7 @@ service HouseService {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Find(HouseRequest) returns (HouseResponse);
     rpc ListHousesByIds(stream ListHousesByIdsRequest) returns (stream ListHousesResponse);
+    rpc ListConnectedServicesOfHouse(ListConnectedServicesOfHouseRequest) returns (ListConnectedServicesOfHouseResponse);
 }
 
 message House {
@@ -45,4 +46,12 @@ message ListHousesByIdsRequest {
 
 message ListHousesResponse {
    House house = 1;
+}
+
+message ListConnectedServicesOfHouseRequest {
+    string house_id = 1;
+}
+
+message ListConnectedServicesOfHouseResponse {
+    repeated string connected_services = 1;
 }

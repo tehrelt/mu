@@ -84,6 +84,11 @@ type Config struct {
 		NewAccountRoute     string `env:"NEW_ACCOUNT_ROUTE"`
 		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
 	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
+
+	ConnectServiceQueue struct {
+		Exchange string `env:"CONNECT_SERVICE_QUEUE_EXCHANGE"`
+		Routing  string `env:"CONNECT_SERVICE_QUEUE_ROUTING"`
+	}
 }
 
 func New() *Config {

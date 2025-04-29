@@ -32,8 +32,9 @@ func AccountDetailsHandler(accounter accountpb.AccountServiceClient) fiber.Handl
 			Id:     resp.Account.Id,
 			UserId: resp.Account.UserId,
 			House: House{
-				Id:      resp.Account.House.Id,
-				Address: resp.Account.House.Address,
+				Id:                  resp.Account.House.Id,
+				Address:             resp.Account.House.Address,
+				ConnectedServiceIds: resp.Account.House.ConnectedServiceIds,
 			},
 			Balance:   float64(resp.Account.Balance) / 100,
 			CreatedAt: time.Unix(resp.Account.CreatedAt, 0),

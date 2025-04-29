@@ -31,8 +31,9 @@ func (p *Account) ToProto(house *housepb.House) *accountpb.Account {
 
 	if house != nil {
 		pb.House = &accountpb.House{
-			Id:      house.Id,
-			Address: house.Address,
+			Id:                  house.Id,
+			Address:             house.Address,
+			ConnectedServiceIds: house.ConnectedServices,
 		}
 	}
 
