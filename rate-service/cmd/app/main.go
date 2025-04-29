@@ -10,18 +10,18 @@ import (
 )
 
 var (
-	local bool
+	envPath string
 )
 
 func init() {
-	flag.BoolVar(&local, "local", false, "run in local mode")
+	flag.StringVar(&envPath, "env", "", "path to env file")
 }
 
 func main() {
 	flag.Parse()
 
-	if local {
-		if err := godotenv.Load(); err != nil {
+	if envPath != "" {
+		if err := godotenv.Load(envPath); err != nil {
 			panic(fmt.Errorf("cannot load env: %w", err))
 		}
 	}

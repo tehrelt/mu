@@ -23,6 +23,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var _ ratepb.RateServiceServer = (*Server)(nil)
+
 type Server struct {
 	cfg     *config.Config
 	storage *servicestorage.ServiceStorage
