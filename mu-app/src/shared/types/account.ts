@@ -1,6 +1,5 @@
 import z from "zod";
 
-
 export const houseAccountSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
