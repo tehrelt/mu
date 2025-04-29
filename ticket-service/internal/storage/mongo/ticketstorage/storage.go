@@ -27,8 +27,8 @@ func New(db *m.Database) *Storage {
 }
 
 func (s *Storage) Create(ctx context.Context, ticket models.Ticket) (err error) {
-	fn := "ticketstorage.Update"
-	log := s.logger.With(slog.String("fn", fn))
+	fn := "ticketstorage.Create"
+	log := s.logger.With(sl.Method(fn))
 
 	ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, fn)
 	defer span.End()

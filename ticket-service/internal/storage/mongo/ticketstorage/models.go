@@ -13,9 +13,10 @@ type isTicket interface {
 }
 
 type Header struct {
-	ID     *primitive.ObjectID `bson:"_id"`
-	Type   models.TicketType   `bson:"type"`
-	Status models.TicketStatus `bson:"status"`
+	ID        *primitive.ObjectID `bson:"_id"`
+	Type      models.TicketType   `bson:"type"`
+	Status    models.TicketStatus `bson:"status"`
+	CreatedBy string              `bson:"created_by"`
 }
 
 func (th *Header) header() *Header {
@@ -24,13 +25,11 @@ func (th *Header) header() *Header {
 
 type accountTicket struct {
 	Header  `bson:",inline"`
-	UserId  string `bson:"user_id"`
 	Address string `bson:"address"`
 }
 
 type connectServiceTicket struct {
 	Header    `bson:",inline"`
-	UserId    string `bson:"user_id"`
 	AccountId string `bson:"account_id"`
 	ServiceId string `bson:"service_id"`
 }
@@ -45,13 +44,11 @@ func marshalTicket(ticket models.Ticket) (isTicket, error) {
 	case *models.NewAccountTicket:
 		return &accountTicket{
 			Header:  header,
-			UserId:  ticket.UserId,
 			Address: ticket.Address,
 		}, nil
 	case *models.ConnectServiceTicket:
 		return &connectServiceTicket{
 			Header:    header,
-			UserId:    ticket.UserId,
 			AccountId: ticket.AccountId,
 			ServiceId: ticket.ServiceId,
 		}, nil
@@ -62,8 +59,9 @@ func marshalTicket(ticket models.Ticket) (isTicket, error) {
 
 func marshalHeader(src *models.TicketHeader) (dst Header, err error) {
 	dst = Header{
-		Type:   src.TicketType,
-		Status: src.Status,
+		Type:      src.TicketType,
+		Status:    src.Status,
+		CreatedBy: src.CreatedBy,
 	}
 
 	if src.Id != "" {
@@ -81,13 +79,11 @@ func unmarshalTicket(src isTicket) (models.Ticket, error) {
 	case *accountTicket:
 		return &models.NewAccountTicket{
 			TicketHeader: unmarshalHeader(src.header()),
-			UserId:       ticket.UserId,
 			Address:      ticket.Address,
 		}, nil
 	case *connectServiceTicket:
 		return &models.ConnectServiceTicket{
 			TicketHeader: unmarshalHeader(src.header()),
-			UserId:       ticket.UserId,
 			AccountId:    ticket.AccountId,
 			ServiceId:    ticket.ServiceId,
 		}, nil
@@ -106,6 +102,7 @@ func unmarshalHeader(src *Header) models.TicketHeader {
 		Id:         id,
 		TicketType: src.Type,
 		Status:     src.Status,
+		CreatedBy:  src.CreatedBy,
 	}
 }
 

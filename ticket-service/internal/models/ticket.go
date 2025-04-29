@@ -17,6 +17,7 @@ type TicketHeader struct {
 	Id         string       `bson:"_id"`
 	TicketType TicketType   `bson:"type"`
 	Status     TicketStatus `bson:"status"`
+	CreatedBy  string       `bson:"user_id"`
 	CreatedAt  time.Time    `bson:"createdAt"`
 	UpdatedAt  time.Time    `bson:"updatedAt"`
 }
@@ -37,7 +38,6 @@ type NewAccountTicket struct {
 
 type ConnectServiceTicket struct {
 	TicketHeader
-	UserId    string `bson:"userId"`
 	ServiceId string `bson:"serviceId"`
 	AccountId string `bson:"accountId"`
 }

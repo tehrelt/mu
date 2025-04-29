@@ -30,8 +30,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TicketServiceClient interface {
-	CreateAccountTicket(ctx context.Context, in *TicketAccount, opts ...grpc.CallOption) (*CreateResponse, error)
-	CreateConnectServiceTicket(ctx context.Context, in *TicketConnectService, opts ...grpc.CallOption) (*CreateResponse, error)
+	CreateAccountTicket(ctx context.Context, in *NewTicketAccount, opts ...grpc.CallOption) (*CreateResponse, error)
+	CreateConnectServiceTicket(ctx context.Context, in *NewTicketConnectService, opts ...grpc.CallOption) (*CreateResponse, error)
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Ticket], error)
 	UpdateTicketStatus(ctx context.Context, in *UpdateTicketStatusRequest, opts ...grpc.CallOption) (*UpdateTicketStatusResponse, error)
@@ -45,7 +45,7 @@ func NewTicketServiceClient(cc grpc.ClientConnInterface) TicketServiceClient {
 	return &ticketServiceClient{cc}
 }
 
-func (c *ticketServiceClient) CreateAccountTicket(ctx context.Context, in *TicketAccount, opts ...grpc.CallOption) (*CreateResponse, error) {
+func (c *ticketServiceClient) CreateAccountTicket(ctx context.Context, in *NewTicketAccount, opts ...grpc.CallOption) (*CreateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateResponse)
 	err := c.cc.Invoke(ctx, TicketService_CreateAccountTicket_FullMethodName, in, out, cOpts...)
@@ -55,7 +55,7 @@ func (c *ticketServiceClient) CreateAccountTicket(ctx context.Context, in *Ticke
 	return out, nil
 }
 
-func (c *ticketServiceClient) CreateConnectServiceTicket(ctx context.Context, in *TicketConnectService, opts ...grpc.CallOption) (*CreateResponse, error) {
+func (c *ticketServiceClient) CreateConnectServiceTicket(ctx context.Context, in *NewTicketConnectService, opts ...grpc.CallOption) (*CreateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateResponse)
 	err := c.cc.Invoke(ctx, TicketService_CreateConnectServiceTicket_FullMethodName, in, out, cOpts...)
@@ -108,8 +108,8 @@ func (c *ticketServiceClient) UpdateTicketStatus(ctx context.Context, in *Update
 // All implementations must embed UnimplementedTicketServiceServer
 // for forward compatibility.
 type TicketServiceServer interface {
-	CreateAccountTicket(context.Context, *TicketAccount) (*CreateResponse, error)
-	CreateConnectServiceTicket(context.Context, *TicketConnectService) (*CreateResponse, error)
+	CreateAccountTicket(context.Context, *NewTicketAccount) (*CreateResponse, error)
+	CreateConnectServiceTicket(context.Context, *NewTicketConnectService) (*CreateResponse, error)
 	Find(context.Context, *FindRequest) (*FindResponse, error)
 	List(*ListRequest, grpc.ServerStreamingServer[Ticket]) error
 	UpdateTicketStatus(context.Context, *UpdateTicketStatusRequest) (*UpdateTicketStatusResponse, error)
@@ -123,10 +123,10 @@ type TicketServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTicketServiceServer struct{}
 
-func (UnimplementedTicketServiceServer) CreateAccountTicket(context.Context, *TicketAccount) (*CreateResponse, error) {
+func (UnimplementedTicketServiceServer) CreateAccountTicket(context.Context, *NewTicketAccount) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAccountTicket not implemented")
 }
-func (UnimplementedTicketServiceServer) CreateConnectServiceTicket(context.Context, *TicketConnectService) (*CreateResponse, error) {
+func (UnimplementedTicketServiceServer) CreateConnectServiceTicket(context.Context, *NewTicketConnectService) (*CreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateConnectServiceTicket not implemented")
 }
 func (UnimplementedTicketServiceServer) Find(context.Context, *FindRequest) (*FindResponse, error) {
@@ -160,7 +160,7 @@ func RegisterTicketServiceServer(s grpc.ServiceRegistrar, srv TicketServiceServe
 }
 
 func _TicketService_CreateAccountTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TicketAccount)
+	in := new(NewTicketAccount)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -172,13 +172,13 @@ func _TicketService_CreateAccountTicket_Handler(srv interface{}, ctx context.Con
 		FullMethod: TicketService_CreateAccountTicket_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TicketServiceServer).CreateAccountTicket(ctx, req.(*TicketAccount))
+		return srv.(TicketServiceServer).CreateAccountTicket(ctx, req.(*NewTicketAccount))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TicketService_CreateConnectServiceTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TicketConnectService)
+	in := new(NewTicketConnectService)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func _TicketService_CreateConnectServiceTicket_Handler(srv interface{}, ctx cont
 		FullMethod: TicketService_CreateConnectServiceTicket_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TicketServiceServer).CreateConnectServiceTicket(ctx, req.(*TicketConnectService))
+		return srv.(TicketServiceServer).CreateConnectServiceTicket(ctx, req.(*NewTicketConnectService))
 	}
 	return interceptor(ctx, in, info, handler)
 }

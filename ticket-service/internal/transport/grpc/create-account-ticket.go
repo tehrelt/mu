@@ -8,13 +8,13 @@ import (
 )
 
 // CreateAccountTicket implements ticketpb.TicketServiceServer.
-func (s *Server) CreateAccountTicket(ctx context.Context, req *ticketpb.TicketAccount) (*ticketpb.CreateResponse, error) {
+func (s *Server) CreateAccountTicket(ctx context.Context, req *ticketpb.NewTicketAccount) (*ticketpb.CreateResponse, error) {
 	ticket := models.NewAccountTicket{
 		TicketHeader: models.TicketHeader{
 			TicketType: models.TicketTypeAccount,
 			Status:     models.TicketStatusPending,
+			CreatedBy:  req.CreatedBy,
 		},
-		UserId:  req.UserId,
 		Address: req.HouseAdress,
 	}
 

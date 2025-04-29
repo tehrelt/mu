@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { rateColumns } from "./columns";
+import { ticketColumns } from "./columns";
 import { TicketHeader } from "@/shared/types/ticket";
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 const TicketTable = ({ data }: Props) => {
   return (
     <div>
-      <DataTable data={data} columns={rateColumns} />
+      <DataTable data={data} columns={ticketColumns} />
     </div>
   );
 };

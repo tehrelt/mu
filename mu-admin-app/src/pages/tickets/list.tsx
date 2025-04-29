@@ -53,10 +53,7 @@ export const TicketListPage = () => {
   }, [debouncedLimit, page, setSp, debouncedSearch]);
 
   const data = useQuery({
-    queryKey: [
-      "users",
-      { limit: debouncedLimit, page, [fieldName]: debouncedSearch },
-    ],
+    queryKey: ["tickets"],
     queryFn: async () => await ticketService.list({}),
   });
 

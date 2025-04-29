@@ -25,5 +25,6 @@ export const routes = {
   tickets: {
     index: "/",
     list: "/tickets",
+    detail: (id?: string) => (id ? `/tickets/${id}` : "/tickets/:id"),
   },
 };

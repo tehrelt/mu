@@ -37,7 +37,23 @@ export const localizeTicketStatus = (t: TicketStatusEnum): string => {
 
 export const ticketHeaderSchema = z.object({
   id: z.string(),
-  ticket_type: ticketTypeEnum,
-  ticket_status: ticketStatusEnum,
+  ticketType: ticketTypeEnum,
+  ticketStatus: ticketStatusEnum,
+  createdBy: z.string(),
 });
 export type TicketHeader = z.infer<typeof ticketHeaderSchema>;
+
+export const ticketNewAccount = ticketHeaderSchema.extend({
+  ticketType: z.literal("TicketTypeAccount"),
+  address: z.string(),
+});
+export type TicketNewAccount = z.infer<typeof ticketNewAccount>;
+
+export const ticketConnectService = ticketHeaderSchema.extend({
+  ticketType: z.literal("TicketTypeConnectService"),
+  serviceId: z.string(),
+  accountId: z.string(),
+});
+export type TicketConnectService = z.infer<typeof ticketConnectService>;
+
+export type Ticket = TicketNewAccount | TicketConnectService;

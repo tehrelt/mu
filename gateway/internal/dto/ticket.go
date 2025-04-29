@@ -8,8 +8,9 @@ type Ticket interface {
 
 type TicketHeader struct {
 	Id           string `json:"id"`
-	TicketType   string `json:"ticket_type"`
-	TicketStatus string `json:"ticket_status"`
+	TicketType   string `json:"ticketType"`
+	TicketStatus string `json:"ticketStatus"`
+	CreatedBy    string `json:"createdBy"`
 }
 
 type ticketNewAccount struct {
@@ -21,9 +22,8 @@ func (t *ticketNewAccount) isTicket() {}
 
 type ticketConnectService struct {
 	TicketHeader
-	ServiceId string `json:"service_id"`
-	UserId    string `json:"user_id"`
-	AccountId string `json:"account_id"`
+	ServiceId string `json:"serviceId"`
+	AccountId string `json:"accountId"`
 }
 
 func (t *ticketConnectService) isTicket() {}
@@ -33,6 +33,7 @@ func marshalHeader(src *ticketpb.TicketHeader) TicketHeader {
 		Id:           src.Id,
 		TicketType:   src.Type.String(),
 		TicketStatus: src.Status.String(),
+		CreatedBy:    src.CreatedBy,
 	}
 }
 
@@ -50,7 +51,6 @@ func MarshalTicket(header *ticketpb.TicketHeader, payload any) Ticket {
 		return &ticketConnectService{
 			TicketHeader: h,
 			ServiceId:    src.ConnectService.ServiceId,
-			UserId:       src.ConnectService.UserId,
 			AccountId:    src.ConnectService.AccountId,
 		}
 	default:

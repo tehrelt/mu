@@ -12,6 +12,7 @@ import { routes } from "@/shared/routes";
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "../layouts/protected-route";
 import { UserDetailsPage } from "@/pages/users/detail";
+import { TicketDetailsPage } from "@/pages/tickets/detail";
 
 export const RoutesConfig = () => {
   return (
@@ -34,6 +35,10 @@ export const RoutesConfig = () => {
 
           <Route path={routes.tickets.index}>
             <Route path={routes.tickets.list} element={<TicketListPage />} />
+            <Route
+              path={routes.tickets.detail()}
+              element={<TicketDetailsPage />}
+            />
           </Route>
 
           <Route path={routes.accounts.index}>

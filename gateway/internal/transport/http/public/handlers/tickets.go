@@ -5,9 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http"
 	"github.com/tehrelt/mu/gateway/internal/transport/http/middlewares"
-	"github.com/tehrelt/mu/gateway/internal/transport/http/public/handlers/dto"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -35,8 +35,8 @@ func TicketNewAccountHandler(ticketer ticketpb.TicketServiceClient) fiber.Handle
 			return err
 		}
 
-		res, err := ticketer.CreateAccountTicket(ctx, &ticketpb.TicketAccount{
-			UserId:      profile.Id.String(),
+		res, err := ticketer.CreateAccountTicket(ctx, &ticketpb.NewTicketAccount{
+			CreatedBy:   profile.Id.String(),
 			HouseAdress: req.Address,
 		})
 		if err != nil {
@@ -67,8 +67,8 @@ func TicketConnectServiceHandler(ticketer ticketpb.TicketServiceClient) fiber.Ha
 			return err
 		}
 
-		res, err := ticketer.CreateConnectServiceTicket(ctx, &ticketpb.TicketConnectService{
-			UserId:    profile.Id.String(),
+		res, err := ticketer.CreateConnectServiceTicket(ctx, &ticketpb.NewTicketConnectService{
+			CreatedBy: profile.Id.String(),
 			AccountId: req.AccountId,
 			ServiceId: req.ServiceId,
 		})

@@ -1,8 +1,10 @@
 import { api } from "@/app/api";
-import { RateCreate, rateListSchema, rateSchema } from "../types/rate";
 import { z } from "zod";
 import {
+  Ticket,
+  ticketConnectService,
   ticketHeaderSchema,
+  ticketNewAccount,
   TicketStatusEnum,
   TicketTypeEnum,
 } from "../types/ticket";
@@ -17,16 +19,20 @@ const listResponseSchema = z.object({
 });
 
 class TicketService {
-  // async create(data: RateCreate) {
-  //   const response = await api.post("/rates", data);
-  //   return response.data;
-  // }
+  async find(id: string): Promise<Ticket> {
+    const response = await api.get("/tickets/" + id);
 
-  // async find(id: string) {
-  //   const response = await api.get("/rates/" + id);
-  //   const parsed = rateSchema.parse(response.data);
-  //   return parsed;
-  // }
+    const header = ticketHeaderSchema.parse(response.data);
+    if (header.ticketType === "TicketTypeAccount") {
+      const data = ticketNewAccount.parse(response.data);
+      return data;
+    } else if (header.ticketType === "TicketTypeConnectService") {
+      const data = ticketConnectService.parse(response.data);
+      return data;
+    }
+
+    throw new Error("invalid ticket type");
+  }
 
   async list(params?: TicketListRequest) {
     const response = await api.get("/tickets", {

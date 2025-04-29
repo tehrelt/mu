@@ -5,8 +5,8 @@ package ticket;
 option go_package="github.com/tehrelt/moi-uslugi/proto/ticket;ticketpb";
 
 service TicketService {
-    rpc CreateAccountTicket(TicketAccount) returns (CreateResponse);
-    rpc CreateConnectServiceTicket(TicketConnectService) returns (CreateResponse);
+    rpc CreateAccountTicket(NewTicketAccount) returns (CreateResponse);
+    rpc CreateConnectServiceTicket(NewTicketConnectService) returns (CreateResponse);
     rpc Find(FindRequest) returns (FindResponse);
     rpc List(ListRequest) returns (stream Ticket);
     rpc UpdateTicketStatus(UpdateTicketStatusRequest) returns (UpdateTicketStatusResponse);
@@ -29,17 +29,27 @@ message TicketHeader {
     string id = 1;
     TicketType type = 2;
     TicketStatus status = 3;
+    string created_by = 4;
 }
 
-message TicketAccount {
-    string user_id = 1;
+message NewTicketAccount {
+    string created_by = 1;
     string house_adress = 2;
 }
 
-message TicketConnectService {
-    string user_id = 1;
+message TicketAccount {
+    string house_adress = 2;
+}
+
+message NewTicketConnectService {
+    string created_by = 1;
     string account_id = 2;
     string service_id = 3;
+}
+
+message TicketConnectService {
+    string account_id = 1;
+    string service_id = 2;
 }
 
 message Ticket {

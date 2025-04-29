@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tehrelt/mu/gateway/internal/dto"
 	"github.com/tehrelt/mu/gateway/internal/transport/http"
-	"github.com/tehrelt/mu/gateway/internal/transport/http/public/handlers/dto"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -60,5 +60,24 @@ func TicketListHandler(ticketer ticketpb.TicketServiceClient) fiber.Handler {
 		}
 
 		return c.JSON(res)
+	}
+}
+
+func TicketDetailsHandler(ticketer ticketpb.TicketServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		ctx := c.UserContext()
+
+		id := c.Params("id")
+		if id == "" {
+			return fiber.ErrBadRequest
+		}
+
+		ticket, err := ticketer.Find(ctx, &ticketpb.FindRequest{Id: id})
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(dto.MarshalTicket(ticket.Ticket.Header, ticket.Ticket.Payload))
 	}
 }
