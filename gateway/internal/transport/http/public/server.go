@@ -18,6 +18,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 )
 
@@ -35,6 +36,7 @@ type Server struct {
 	rater     ratepb.RateServiceClient
 	userapi   userpb.UserServiceClient
 	biller    billingpb.BillingServiceClient
+	ticketer  ticketpb.TicketServiceClient
 }
 
 func New(
@@ -45,6 +47,7 @@ func New(
 	rater ratepb.RateServiceClient,
 	userapi userpb.UserServiceClient,
 	biller billingpb.BillingServiceClient,
+	ticketer ticketpb.TicketServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -55,6 +58,7 @@ func New(
 		rater:     rater,
 		userapi:   userapi,
 		biller:    biller,
+		ticketer:  ticketer,
 	}
 }
 
@@ -106,6 +110,11 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
+
+	tickets := root.Group("/tickets")
+	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))
+	tickets.Post("/new-account", token, authmw(), handlers.TicketNewAccountHandler(s.ticketer))
+	tickets.Get("/", token, authmw(), handlers.TicketListHandler(s.ticketer))
 }
 
 func (s *Server) Run(ctx context.Context) error {

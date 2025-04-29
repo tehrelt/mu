@@ -7,6 +7,7 @@ include:
   - billing-service.yaml
   - register-service.yaml
   - account-service.yaml
+  - ticket-service.yaml
 
 services:
   pgadmin:

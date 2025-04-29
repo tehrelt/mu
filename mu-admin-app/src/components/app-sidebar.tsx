@@ -12,6 +12,7 @@ import {
 import { routes } from "@/shared/routes";
 
 import Logo from "@/assets/logo.png";
+import { title } from "process";
 
 const data = {
   navMain: [
@@ -43,6 +44,17 @@ const data = {
         {
           title: "Список",
           url: routes.users.list,
+        },
+      ],
+    },
+    {
+      title: "Заявки",
+      url: "#",
+      icon: Bot,
+      items: [
+        {
+          title: "Список",
+          url: routes.tickets.list,
         },
       ],
     },

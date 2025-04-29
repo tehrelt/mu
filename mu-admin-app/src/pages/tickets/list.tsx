@@ -1,4 +1,4 @@
-import { UserTable } from "@/components/tables/users";
+import TicketTable from "@/components/tables/tickets";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -20,13 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/shared/hooks/use-debounce";
-import { userService } from "@/shared/services/users.service";
+import { ticketService } from "@/shared/services/tickets.service";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-export const UserListPage = () => {
+export const TicketListPage = () => {
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
@@ -57,8 +57,7 @@ export const UserListPage = () => {
       "users",
       { limit: debouncedLimit, page, [fieldName]: debouncedSearch },
     ],
-    queryFn: async () =>
-      await userService.list({ page, limit, [fieldName]: debouncedSearch }),
+    queryFn: async () => await ticketService.list({}),
   });
 
   const onSearchChange = (val: string) => setSearch(val);
@@ -68,7 +67,7 @@ export const UserListPage = () => {
       <div className="flex justify-between items-center sticky top-4 rounded-md shadow-md bg-background py-2 px-2 z-999 outline mx-2">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbPage>Пользователи</BreadcrumbPage>
+            <BreadcrumbPage>Заявки</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
 
@@ -129,7 +128,9 @@ export const UserListPage = () => {
       <div>
         {data.isError && <p>Error with fetching users: {data.error.message}</p>}
         {data.isLoading && <p>Loading users</p>}
-        {data.isSuccess && data.data && <UserTable data={data.data.users} />}
+        {data.isSuccess && data.data && (
+          <TicketTable data={data.data.tickets} />
+        )}
       </div>
     </div>
   );

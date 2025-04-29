@@ -18,6 +18,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
@@ -33,6 +34,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		adminapi.New,
 		publicapi.New,
 
+		_ticketpb,
 		_billingpb,
 		_userpb,
 		_ratepb,
@@ -42,6 +44,19 @@ func New(ctx context.Context) (*App, func(), error) {
 		_tracer,
 		config.New,
 	))
+}
+func _ticketpb(cfg *config.Config) (ticketpb.TicketServiceClient, error) {
+	host := cfg.TicketService.Host
+	port := cfg.TicketService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return ticketpb.NewTicketServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(ticketpb.TicketServiceClient), nil
 }
 
 func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {

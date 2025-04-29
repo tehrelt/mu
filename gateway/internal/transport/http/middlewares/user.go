@@ -76,3 +76,10 @@ func Auth(auther authpb.AuthServiceClient) RoleHandler {
 		}
 	}
 }
+
+func UserFromLocals(c *fiber.Ctx) (*dto.UserProfile, error) {
+	if profile, ok := c.Locals(ProfileLocalKey).(*dto.UserProfile); ok {
+		return profile, nil
+	}
+	return nil, fiber.ErrUnauthorized
+}

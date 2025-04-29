@@ -19,6 +19,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 )
 
@@ -36,6 +37,7 @@ type Server struct {
 	rater     ratepb.RateServiceClient
 	userapi   userpb.UserServiceClient
 	biller    billingpb.BillingServiceClient
+	ticketer  ticketpb.TicketServiceClient
 }
 
 func New(
@@ -46,6 +48,7 @@ func New(
 	rater ratepb.RateServiceClient,
 	userapi userpb.UserServiceClient,
 	biller billingpb.BillingServiceClient,
+	ticketer ticketpb.TicketServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -56,6 +59,7 @@ func New(
 		rater:     rater,
 		userapi:   userapi,
 		biller:    biller,
+		ticketer:  ticketer,
 	}
 }
 
@@ -117,6 +121,9 @@ func (s *Server) setup() {
 	users.Get("/", token, authmw, handlers.UserListHandler(s.userapi))
 	users.Get("/:id", token, authmw, handlers.UserDetailHandler(s.userapi))
 	users.Get("/:id/accounts", token, authmw, handlers.UserAccountsList(s.accounter))
+
+	tickets := root.Group("/tickets")
+	tickets.Get("/", token, authmw, handlers.TicketListHandler(s.ticketer))
 }
 
 func (s *Server) Run(ctx context.Context) error {
