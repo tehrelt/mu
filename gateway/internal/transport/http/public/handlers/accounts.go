@@ -70,3 +70,38 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 		return c.JSON(resp)
 	}
 }
+
+func Account(svc accountpb.AccountServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		profile, ok := c.Locals(middlewares.ProfileLocalKey).(*dto.UserProfile)
+		if !ok {
+			return c.SendStatus(401)
+		}
+
+		id := c.Params("id", "")
+		if id == "" {
+			return c.SendStatus(400)
+		}
+
+		response, err := svc.Find(c.UserContext(), &accountpb.FindRequest{
+			Id: id,
+		})
+		if err != nil {
+			slog.Error("failed to list users accounts", sl.UUID("userId", profile.Id))
+			return err
+		}
+
+		account := response.Account
+		resp := UserAccount{
+			Id:     account.Id,
+			UserId: account.UserId,
+			House: HouseInfo{
+				Id:      account.House.Id,
+				Address: account.House.Address,
+			},
+			Balance: account.Balance,
+		}
+
+		return c.JSON(resp)
+	}
+}

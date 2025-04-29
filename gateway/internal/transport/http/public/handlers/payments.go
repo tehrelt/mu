@@ -86,3 +86,77 @@ func PaymentListHandler(biller billingpb.BillingServiceClient) fiber.Handler {
 		return c.JSON(resp)
 	}
 }
+
+func PaymentFindHandler(biller billingpb.BillingServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		ctx := c.UserContext()
+
+		id := c.Params("id")
+		if id == "" {
+			return fiber.NewError(400, "invalid id")
+		}
+
+		req := &billingpb.FindRequest{
+			Id: id,
+		}
+
+		bill, err := biller.Find(ctx, req)
+		if err != nil {
+			return err
+		}
+
+		payment := dto.Payment{
+			Id:        bill.Payment.Id,
+			Status:    bill.Payment.Status.String(),
+			Amount:    float64(bill.Payment.Amount) / 100,
+			CreatedAt: time.Unix(bill.Payment.CreatedAt, 0),
+		}
+
+		return c.JSON(payment)
+	}
+}
+
+func PaymentPayHandler(biller billingpb.BillingServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		ctx := c.UserContext()
+
+		id := c.Params("id")
+		if id == "" {
+			return fiber.NewError(400, "invalid id")
+		}
+
+		req := &billingpb.PayRequest{
+			PaymentId: id,
+		}
+
+		if _, err := biller.Pay(ctx, req); err != nil {
+			return err
+		}
+
+		return c.SendStatus(fiber.StatusOK)
+	}
+}
+
+func PaymentCancelHandler(biller billingpb.BillingServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		ctx := c.UserContext()
+
+		id := c.Params("id")
+		if id == "" {
+			return fiber.NewError(400, "invalid id")
+		}
+
+		req := &billingpb.CancelRequest{
+			PaymentId: id,
+		}
+
+		if _, err := biller.Cancel(ctx, req); err != nil {
+			return err
+		}
+
+		return c.SendStatus(fiber.StatusOK)
+	}
+}

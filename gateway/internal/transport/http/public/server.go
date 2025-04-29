@@ -110,6 +110,7 @@ func (s *Server) setup() {
 
 	accounts := root.Group("/accounts")
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
+	accounts.Get("/:id", token, authmw(), handlers.Account(s.accounter))
 	accounts.Get("/:id/payments", token, authmw(), handlers.PaymentListHandler(s.biller))
 
 	tickets := root.Group("/tickets")
@@ -122,6 +123,9 @@ func (s *Server) setup() {
 
 	billing := root.Group("/billing")
 	billing.Post("/", token, authmw(), handlers.PaymentCreateHandler(s.biller))
+	billing.Get("/:id", token, authmw(), handlers.PaymentFindHandler(s.biller))
+	billing.Post("/:id/pay", token, authmw(), handlers.PaymentPayHandler(s.biller))
+	billing.Post("/:id/cancel", token, authmw(), handlers.PaymentCancelHandler(s.biller))
 }
 
 func (s *Server) Run(ctx context.Context) error {

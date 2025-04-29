@@ -41,6 +41,11 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 		return err
 	}
 
+	if unmarshaled.NewStatus != dto.PaymentStatusPaid {
+		slog.Info("incoming payment status change is not paid, skipping...")
+		return
+	}
+
 	accId, err := uuid.Parse(unmarshaled.AccountId)
 	if err != nil {
 		slog.Error("failed to parse account id", sl.Err(err))

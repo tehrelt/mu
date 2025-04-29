@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { accountStore } from "@/shared/store/account-store";
 
 export const Dashboard = () => {
-  const account = accountStore((s) => s.account);
+  const accountId = accountStore((s) => s.account!.id);
 
   return (
     <div className="flex gap-6">

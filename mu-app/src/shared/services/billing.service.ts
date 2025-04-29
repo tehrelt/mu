@@ -13,7 +13,11 @@ const createPaymentOutput = z.object({
   id: z.string().uuid(),
 });
 
+type ProcessOutcome = "pay" | "cancel";
 class BillingService {
+  async process(id: string, outcome: ProcessOutcome) {
+    await api.post(`/billing/${id}/${outcome}`);
+  }
   async create(input: CreatePaymentInput) {
     const res = await api.post("/billing/", input);
     return createPaymentOutput.parse(res.data);
