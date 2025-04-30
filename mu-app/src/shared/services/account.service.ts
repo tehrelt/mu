@@ -2,7 +2,7 @@ import { api } from "@/app/api";
 import { z } from "zod";
 import { houseAccountSchema } from "../types/account";
 import { paymentSchema, PaymentStatus } from "../types/payment";
-import { rateSchema } from "../types/rate";
+import { rateSchemaWithCabinetId } from "../types/rate";
 
 export const getUserAccountsResponse = z.object({
   accounts: z.array(houseAccountSchema),
@@ -13,7 +13,7 @@ const accountPaymentsResponseSchema = z.object({
 });
 
 const accountServicesResponseSchema = z.object({
-  services: z.array(rateSchema),
+  services: z.array(rateSchemaWithCabinetId),
 });
 
 class AccountService {

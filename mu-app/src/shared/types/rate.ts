@@ -16,6 +16,10 @@ export const rateSchema = z.object({
   serviceType: serviceTypeSchema,
 });
 
+export const rateSchemaWithCabinetId = rateSchema.extend({
+  cabinetId: z.string().uuid(),
+});
+
 export type Rate = z.infer<typeof rateSchema>;
 
 export const rateListSchema = z.object({

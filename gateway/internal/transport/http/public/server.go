@@ -16,6 +16,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
@@ -37,6 +38,7 @@ type Server struct {
 	userapi   userpb.UserServiceClient
 	biller    billingpb.BillingServiceClient
 	ticketer  ticketpb.TicketServiceClient
+	consumer  consumptionpb.ConsumptionServiceClient
 }
 
 func New(
@@ -48,6 +50,7 @@ func New(
 	userapi userpb.UserServiceClient,
 	biller billingpb.BillingServiceClient,
 	ticketer ticketpb.TicketServiceClient,
+	consumer consumptionpb.ConsumptionServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -59,6 +62,7 @@ func New(
 		userapi:   userapi,
 		biller:    biller,
 		ticketer:  ticketer,
+		consumer:  consumer,
 	}
 }
 
@@ -112,7 +116,11 @@ func (s *Server) setup() {
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
 	accounts.Get("/:id", token, authmw(), handlers.Account(s.accounter))
 	accounts.Get("/:id/payments", token, authmw(), handlers.PaymentListHandler(s.biller))
-	accounts.Get("/:id/services", token, authmw(), handlers.AccountServicesListHandler(s.accounter, s.rater))
+	accounts.Get("/:id/services", token, authmw(), handlers.AccountServicesListHandler(s.accounter, s.rater, s.consumer))
+
+	cabinets := root.Group("/cabinets")
+	cabinets.Post("/:cabinetId/consume", token, authmw(), handlers.NewConsume(s.consumer, s.accounter))
+	cabinets.Get("/:cabinetId", token, authmw(), handlers.FindCabinet(s.consumer))
 
 	tickets := root.Group("/tickets")
 	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))
@@ -121,6 +129,7 @@ func (s *Server) setup() {
 
 	rates := root.Group("/rates")
 	rates.Get("/", token, authmw(), handlers.RateListHandler(s.rater))
+	rates.Get("/:rateId", token, authmw(), handlers.RateDetailsHandler(s.rater))
 
 	billing := root.Group("/billing")
 	billing.Post("/", token, authmw(), handlers.PaymentCreateHandler(s.biller))

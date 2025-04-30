@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"io"
 	"log/slog"
 
@@ -27,6 +28,41 @@ type UserAccount struct {
 	Balance float64   `json:"balance"`
 }
 
+func listAccounts(ctx context.Context, svc accountpb.AccountServiceClient, userId string) ([]UserAccount, error) {
+
+	stream, err := svc.List(ctx, &accountpb.ListRequest{
+		UserId: userId,
+	})
+	if err != nil {
+		slog.Error("failed to list users accounts", slog.String("userId", userId))
+		return nil, err
+	}
+
+	accounts := make([]UserAccount, 0)
+
+	for {
+		account, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		accounts = append(accounts, UserAccount{
+			Id:     account.Id,
+			UserId: account.UserId,
+			House: HouseInfo{
+				Id:      account.House.Id,
+				Address: account.House.Address,
+			},
+			Balance: float64(account.Balance) / 100,
+		})
+	}
+
+	return accounts, nil
+}
+
 func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -35,39 +71,14 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 			return c.SendStatus(401)
 		}
 
-		stream, err := svc.List(c.UserContext(), &accountpb.ListRequest{
-			UserId: profile.Id.String(),
-		})
+		accounts, err := listAccounts(c.UserContext(), svc, profile.Id.String())
 		if err != nil {
-			slog.Error("failed to list users accounts", sl.UUID("userId", profile.Id))
 			return err
 		}
 
-		resp := &UserAccountsResponse{
-			Accounts: make([]UserAccount, 0),
-		}
-
-		for {
-			account, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			resp.Accounts = append(resp.Accounts, UserAccount{
-				Id:     account.Id,
-				UserId: account.UserId,
-				House: HouseInfo{
-					Id:      account.House.Id,
-					Address: account.House.Address,
-				},
-				Balance: float64(account.Balance) / 100,
-			})
-		}
-
-		return c.JSON(resp)
+		return c.JSON(&UserAccountsResponse{
+			Accounts: accounts,
+		})
 	}
 }
 

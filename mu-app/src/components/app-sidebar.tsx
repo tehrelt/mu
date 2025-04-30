@@ -21,6 +21,7 @@ import { title } from "process";
 import { accountStore } from "@/shared/store/account-store";
 import { useQuery } from "@tanstack/react-query";
 import { accountService } from "@/shared/services/account.service";
+import { useConnectedServices } from "@/shared/hooks/use-services";
 
 // This is sample data.
 const data = {
@@ -58,17 +59,11 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const accountId = accountStore((s) => s.account!.id);
-
-  const servicesQuery = useQuery({
-    queryKey: ["account", "services"],
-    queryFn: async () => await accountService.services(accountId),
-  });
-
+  const servicesQuery = useConnectedServices();
   if (servicesQuery.data) {
     data.navMain[1].items = servicesQuery.data.services.map((svc) => ({
       title: svc.name,
-      url: routes.dashboard.service.dashboard(svc.id),
+      url: routes.dashboard.cabinet.dashboard(svc.cabinetId),
     }));
   }
   return (

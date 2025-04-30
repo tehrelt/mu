@@ -1,6 +1,6 @@
 import { api } from "@/app/api";
 import { TicketType } from "../types/ticket";
-import { rateListSchema } from "../types/rate";
+import { rateListSchema, rateSchema } from "../types/rate";
 
 export type RateFilters = {
   type?: string[];
@@ -14,6 +14,12 @@ class RateService {
 
     const data = rateListSchema.parse(res.data);
 
+    return data;
+  }
+
+  async find(id: string) {
+    const res = await api.get(`/rates/${id}`);
+    const data = rateSchema.parse(res.data);
     return data;
   }
 }

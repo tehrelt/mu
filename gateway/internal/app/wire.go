@@ -16,6 +16,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
@@ -34,6 +35,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		adminapi.New,
 		publicapi.New,
 
+		_consumptionpb,
 		_ticketpb,
 		_billingpb,
 		_userpb,
@@ -44,6 +46,19 @@ func New(ctx context.Context) (*App, func(), error) {
 		_tracer,
 		config.New,
 	))
+}
+func _consumptionpb(cfg *config.Config) (consumptionpb.ConsumptionServiceClient, error) {
+	host := cfg.ConsumptionService.Host
+	port := cfg.ConsumptionService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return consumptionpb.NewConsumptionServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(consumptionpb.ConsumptionServiceClient), nil
 }
 func _ticketpb(cfg *config.Config) (ticketpb.TicketServiceClient, error) {
 	host := cfg.TicketService.Host

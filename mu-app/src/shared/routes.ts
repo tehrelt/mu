@@ -1,4 +1,6 @@
 export const routes = {
+  unmatched: "*",
+
   home: "/",
   signIn: "/sign-in",
   signUp: "/sign-up",
@@ -8,8 +10,8 @@ export const routes = {
     index: "/dashboard",
     newTicket: "/dashboard/new-ticket",
     addFunds: "/dashboard/add-funds",
-    service: {
-      dashboard: (id: string = ":id") => `/dashboard/service/${id}`,
+    cabinet: {
+      dashboard: (id: string = ":id") => `/dashboard/cabinets/${id}`,
     },
     account: {
       transactionHistory: "/dashboard/account/transaction-history",

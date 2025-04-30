@@ -56,13 +56,14 @@ type Config struct {
 	PublicHttpApi HttpConfig `env-prefix:"PUBLIC_HTTP_"`
 	AdminHttpApi  HttpConfig `env-prefix:"ADMIN_HTTP_"`
 
-	RegisterService ExternalServiceConfig `env-prefix:"REGISTER_SERVICE_"`
-	BillingService  ExternalServiceConfig `env-prefix:"BILLING_SERVICE_"`
-	RateService     ExternalServiceConfig `env-prefix:"RATE_SERVICE_"`
-	AccountService  ExternalServiceConfig `env-prefix:"ACCOUNT_SERVICE_"`
-	UserService     ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
-	AuthService     ExternalServiceConfig `env-prefix:"AUTH_SERVICE_"`
-	TicketService   ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
+	RegisterService    ExternalServiceConfig `env-prefix:"REGISTER_SERVICE_"`
+	BillingService     ExternalServiceConfig `env-prefix:"BILLING_SERVICE_"`
+	RateService        ExternalServiceConfig `env-prefix:"RATE_SERVICE_"`
+	AccountService     ExternalServiceConfig `env-prefix:"ACCOUNT_SERVICE_"`
+	UserService        ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	AuthService        ExternalServiceConfig `env-prefix:"AUTH_SERVICE_"`
+	TicketService      ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
+	ConsumptionService ExternalServiceConfig `env-prefix:"CONSUMPTION_SERVICE_"`
 
 	Jaeger struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`

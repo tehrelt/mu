@@ -74,7 +74,15 @@ message FindConsumptionResponse {
 }
 
 message FindCabinetRequest {
-    string id = 1;
+    oneof criteria {
+        string id = 1;
+        FindCabinetCriteria via_account = 2;
+    }
+}
+
+message FindCabinetCriteria {
+    string account_id = 1;
+    string service_id = 2;
 }
 
 message FindCabinetResponse {

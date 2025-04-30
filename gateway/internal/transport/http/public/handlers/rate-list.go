@@ -14,6 +14,7 @@ type Rate struct {
 	Rate        float64 `json:"rate"`
 	MeasureUnit string  `json:"measureUnit"`
 	ServiceType string  `json:"serviceType"`
+	CabinetId   string  `json:"cabinetId"`
 }
 
 type RateListResponse struct {
