@@ -1,9 +1,11 @@
 import { DataTable } from "@/components/data-table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Balance } from "@/components/ui/balance";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -18,7 +20,7 @@ import { accountStore } from "@/shared/store/account-store";
 import { Payment, PaymentStatus } from "@/shared/types/payment";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Rows } from "lucide-react";
+import { AlertCircle, Rows } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Dashboard = () => {
@@ -27,8 +29,14 @@ export const Dashboard = () => {
   const limit = 3;
 
   const paymentsQuery = useQuery({
-    queryKey: ["payments"],
+    queryKey: ["account", "payments"],
     queryFn: async () => await accountService.payments(accountId, { limit }),
+  });
+
+  const pendingPaymentsQuery = useQuery({
+    queryKey: ["account", "payments", { status: "pending" }],
+    queryFn: async () =>
+      await accountService.payments(accountId, { status: "pending" }),
   });
 
   return (
@@ -43,8 +51,20 @@ export const Dashboard = () => {
               Последние {Math.min(limit, paymentsQuery.data?.payments.length)}{" "}
               платежа
             </CardTitle>
+            {pendingPaymentsQuery.data &&
+              pendingPaymentsQuery.data.payments.length != 0 && (
+                <Alert variant="warn">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>У вас есть неоплаченные платежи</AlertTitle>
+                  <AlertDescription>
+                    <Link to={routes.dashboard.addFunds}>
+                      <Button variant={"outline"}>Перейти к оплате</Button>
+                    </Link>
+                  </AlertDescription>
+                </Alert>
+              )}
           </CardHeader>
-          <CardContent className="">
+          <CardContent className="space-y-2">
             <div>
               {paymentsQuery.data && (
                 <DataTable

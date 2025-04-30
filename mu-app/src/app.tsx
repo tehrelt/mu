@@ -11,10 +11,10 @@ function App() {
     new QueryClient({
       defaultOptions: {
         queries: {
-          gcTime: 0,
+          retry: false,
         },
       },
-    }),
+    })
   );
 
   return (

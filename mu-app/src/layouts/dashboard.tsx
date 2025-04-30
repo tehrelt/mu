@@ -5,16 +5,21 @@ import { accountStore } from "@/shared/store/account-store";
 import { Outlet } from "react-router-dom";
 
 export const DashboardLayout = () => {
-  const account = accountStore((s) => s.account);
-
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="p-6">{account ? <Outlet /> : <NoAccount />}</div>
+        <div className="p-6">
+          <Outlet />
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
+};
+export const AccountCheck = () => {
+  const account = accountStore((s) => s.account);
+
+  return account ? <Outlet /> : <NoAccount />;
 };
 
 const NoAccount = () => {

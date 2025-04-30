@@ -17,6 +17,10 @@ import { AccountSwitcher } from "@/components/version-switcher";
 import { routes } from "@/shared/routes";
 import { NavUser } from "./nav-user";
 import { NewTicketButton } from "./new-ticket-button";
+import { title } from "process";
+import { accountStore } from "@/shared/store/account-store";
+import { useQuery } from "@tanstack/react-query";
+import { accountService } from "@/shared/services/account.service";
 
 // This is sample data.
 const data = {
@@ -36,6 +40,11 @@ const data = {
       ],
     },
     {
+      title: "Услуги",
+      url: "#",
+      items: [],
+    },
+    {
       title: "Настройки",
       url: "#",
       items: [
@@ -49,6 +58,19 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const accountId = accountStore((s) => s.account!.id);
+
+  const servicesQuery = useQuery({
+    queryKey: ["account", "services"],
+    queryFn: async () => await accountService.services(accountId),
+  });
+
+  if (servicesQuery.data) {
+    data.navMain[1].items = servicesQuery.data.services.map((svc) => ({
+      title: svc.name,
+      url: routes.dashboard.service.dashboard(svc.id),
+    }));
+  }
   return (
     <Sidebar {...props}>
       <SidebarHeader className="justify-center">

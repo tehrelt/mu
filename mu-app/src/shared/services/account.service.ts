@@ -2,6 +2,7 @@ import { api } from "@/app/api";
 import { z } from "zod";
 import { houseAccountSchema } from "../types/account";
 import { paymentSchema, PaymentStatus } from "../types/payment";
+import { rateSchema } from "../types/rate";
 
 export const getUserAccountsResponse = z.object({
   accounts: z.array(houseAccountSchema),
@@ -10,6 +11,11 @@ export const getUserAccountsResponse = z.object({
 const accountPaymentsResponseSchema = z.object({
   payments: z.array(paymentSchema),
 });
+
+const accountServicesResponseSchema = z.object({
+  services: z.array(rateSchema),
+});
+
 class AccountService {
   async getUserAccounts(): Promise<z.infer<typeof getUserAccountsResponse>> {
     const response = await api.get("/accounts");
@@ -28,6 +34,11 @@ class AccountService {
     const res = await api.get(`/accounts/${id}/payments`, { params: f });
     const data = accountPaymentsResponseSchema.parse(res.data);
     return data;
+  }
+
+  async services(accountId: string) {
+    const response = await api.get(`/accounts/${accountId}/services`);
+    return accountServicesResponseSchema.parse(response.data);
   }
 }
 

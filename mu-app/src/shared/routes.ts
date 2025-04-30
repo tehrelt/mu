@@ -8,6 +8,9 @@ export const routes = {
     index: "/dashboard",
     newTicket: "/dashboard/new-ticket",
     addFunds: "/dashboard/add-funds",
+    service: {
+      dashboard: (id: string = ":id") => `/dashboard/service/${id}`,
+    },
     account: {
       transactionHistory: "/dashboard/account/transaction-history",
     },
