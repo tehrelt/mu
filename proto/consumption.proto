@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package consumption;
+
+option go_package="github.com/tehrelt/moi-uslugi/proto/consumption;consumptionpb";
+
+service ConsumptionService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Consume(ConsumeRequest) returns (ConsumeResponse);
+    rpc FindConsumption(FindConsumptionRequest) returns (FindConsumptionResponse);
+    rpc FindCabinet(FindCabinetRequest) returns (FindCabinetResponse);
+
+    rpc ListConsumptions(ListConsumptionsRequest) returns (stream Consumption);
+    rpc ListCabinets(ListCabinetsRequest) returns (stream Cabinet);
+}
+
+message Cabinet {
+    string id = 1;
+    string account_id = 2;
+    string service_id = 3;
+    uint64 consumed = 4;
+    int64 created_at = 5;
+    int64 updated_at = 6;
+}
+
+message Consumption {
+    string id = 1;
+    uint64 consumed = 2;
+    string cabinet_id = 3;
+    string account_id = 4;
+    string service_id = 5;
+    int64 created_at = 6;
+    int64 updated_at = 7;
+}
+
+message CreateRequest {
+    string account_id = 1;
+    string service_id = 2;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message Range {
+    int64 min = 1;
+    int64 max = 2;
+}
+
+message Pagination {
+    uint64 page = 1;
+    uint64 limit = 2;
+}
+
+message ListConsumptionsRequest {
+    Pagination pagination = 1;
+    string cabinet_id = 2;
+    string account_id = 3;
+    string service_id = 4;
+}
+
+message ListCabinetsRequest {
+    Pagination pagination = 1;
+    string account_id = 2;
+    string service_id = 3;
+}
+
+message FindConsumptionRequest {
+    string id = 1;
+}
+
+message FindConsumptionResponse {
+    Consumption consumption = 1;
+}
+
+message FindCabinetRequest {
+    string id = 1;
+}
+
+message FindCabinetResponse {
+    Cabinet cabinet = 1;
+}
+
+message ConsumeRequest {
+    string cabinet_id = 1;
+    uint64 consumed = 2;
+}
+
+message ConsumeResponse {
+    string id = 1;
+}

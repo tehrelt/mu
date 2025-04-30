@@ -42,7 +42,7 @@ func (uc *UseCase) Consume(ctx context.Context, in *dto.NewConsume) (*dto.Consum
 		return nil, ErrPaymentServiceUnavailable
 	}
 	newLog := &dto.NewConsumeLog{
-		Amount:    amount,
+		Consumed:  in.Consumed,
 		PaymentId: paymentId,
 		CabinetId: cabinet.Id,
 	}
@@ -54,8 +54,8 @@ func (uc *UseCase) Consume(ctx context.Context, in *dto.NewConsume) (*dto.Consum
 	}
 
 	updateIn := &dto.UpdateCabinet{
-		Id:          cabinet.Id,
-		AmountDelta: charge.Amount,
+		Id:            cabinet.Id,
+		ConsumedDelta: in.Consumed,
 	}
 	logger.Debug("updating cabinet", slog.Any("updateDto", updateIn))
 	if _, err := uc.storage.Update(ctx, updateIn); err != nil {

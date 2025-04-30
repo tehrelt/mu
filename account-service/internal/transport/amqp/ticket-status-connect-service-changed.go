@@ -74,6 +74,7 @@ func (c *AmqpConsumer) handleTicketConnectServiceStatusChanged(ctx context.Conte
 	}
 
 	if err := c.broker.PublishConnectServiceRequest(ctx, &dto.EventServiceConnect{
+		AccountId: account.Id,
 		HouseId:   account.HouseId,
 		ServiceId: ticket.ConnectService.ServiceId,
 	}); err != nil {

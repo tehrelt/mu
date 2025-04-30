@@ -20,6 +20,7 @@ type EventBalanceChanged struct {
 }
 
 type EventServiceConnect struct {
+	AccountId string `json:"accountId"`
 	HouseId   string `json:"houseId"`
 	ServiceId string `json:"serviceId"`
 }

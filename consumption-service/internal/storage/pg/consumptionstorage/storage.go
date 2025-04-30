@@ -40,6 +40,7 @@ func (s *Storage) Create(ctx context.Context, in *dto.NewCabinet) (*models.Cabin
 		return nil, err
 	}
 
+	log.Debug("executing query", sl.Query(query), sl.Args(args))
 	row := s.pool.QueryRow(ctx, query, args...)
 	var out models.Cabinet
 	err = row.Scan(&out.Id, &out.AccountId, &out.ServiceId, &out.Consumed, &out.CreatedAt, &out.UpdatedAt)
@@ -98,7 +99,7 @@ func (s *Storage) Log(ctx context.Context, in *dto.NewConsumeLog) (*models.Consu
 	query, args, err := sq.
 		Insert(pg.ConsumptionLogTable).
 		Columns("cabinet_id", "amount", "payment_id").
-		Values(in.CabinetId, in.Amount, in.PaymentId).
+		Values(in.CabinetId, in.Consumed, in.PaymentId).
 		Suffix("RETURNING *").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -131,8 +132,8 @@ func (s *Storage) Update(ctx context.Context, in *dto.UpdateCabinet) (*models.Ca
 		Suffix("RETURNING *").
 		PlaceholderFormat(sq.Dollar)
 
-	if in.AmountDelta != 0 {
-		builder = builder.Set("consumed", sq.Expr("consumed + ?", in.AmountDelta))
+	if in.ConsumedDelta != 0 {
+		builder = builder.Set("consumed", sq.Expr("consumed + ?", in.ConsumedDelta))
 	}
 
 	query, args, err := builder.ToSql()

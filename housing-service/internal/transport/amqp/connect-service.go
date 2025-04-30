@@ -47,7 +47,7 @@ func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg amqp09
 		return err
 	}
 
-	event, err := models.ParseEventConnectService(unmarshaled.HouseId, unmarshaled.ServiceId)
+	event, err := models.ParseEventConnectService(unmarshaled.HouseId, unmarshaled.ServiceId, unmarshaled.AccountId)
 	if err != nil {
 		slog.Error("failed to parse uuids", sl.Err(err))
 		return err
@@ -76,7 +76,7 @@ func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg amqp09
 	}
 
 	if err := c.broker.PublishServiceConnectedEvent(ctx, &dto.EventServiceConnected{
-		HouseId:   event.HouseId.String(),
+		AccountId: event.AccountId.String(),
 		ServiceId: event.ServiceId.String(),
 	}); err != nil {
 		slog.Error("failed to publish service connected event", sl.Err(err))

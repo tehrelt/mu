@@ -19,6 +19,7 @@ import (
 	"github.com/tehrelt/mu/consumption-service/internal/storage/api/billingapi"
 	"github.com/tehrelt/mu/consumption-service/internal/storage/api/rateapi"
 	"github.com/tehrelt/mu/consumption-service/internal/storage/pg/consumptionstorage"
+	"github.com/tehrelt/mu/consumption-service/internal/transport/amqp"
 	tgrpc "github.com/tehrelt/mu/consumption-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/consumption-service/internal/usecase"
 	"go.opentelemetry.io/otel/trace"
@@ -30,6 +31,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		_servers,
 
 		tgrpc.New,
+		amqp.New,
 
 		usecase.New,
 		wire.Bind(new(usecase.AccountProvider), new(*accountapi.Api)),
@@ -41,8 +43,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		billingapi.New,
 		accountapi.New,
 
-		// rmq.New,
-		// _amqp,
+		_amqp,
 
 		consumptionstorage.New,
 		_pg,
@@ -88,12 +89,10 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		defer channel.Close()
 	}
 
-	// if err := amqp_setup_exchange(
-	// 	channel,
-	// ); err != nil {
-	// 	slog.Error("failed to setup notifications exchange", sl.Err(err))
-	// 	return nil, closefn, err
-	// }
+	if err := amqp_setup_exchange(channel, cfg.ServiceConnectedQueue.Exchange, cfg.ServiceConnectedQueue.Routing); err != nil {
+		slog.Error("failed to setup notifications exchange", sl.Err(err))
+		return nil, closefn, err
+	}
 
 	return channel, closefn, nil
 }
@@ -124,8 +123,8 @@ func amqp_setup_exchange(channel *amqp091.Channel, exchange string, queues ...st
 	return nil
 }
 
-func _servers(g *tgrpc.Server) []Server {
-	return []Server{g}
+func _servers(g *tgrpc.Server, c *amqp.AmqpConsumer) []Server {
+	return []Server{g, c}
 }
 
 func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {

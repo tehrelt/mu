@@ -75,6 +75,11 @@ type Config struct {
 		User string `env:"AMQP_USER"`
 		Pass string `env:"AMQP_PASS"`
 	}
+
+	ServiceConnectedQueue struct {
+		Exchange string `env:"SERVICE_CONNECTED_QUEUE_EXCHANGE"`
+		Routing  string `env:"SERVICE_CONNECTED_QUEUE_ROUTING"`
+	}
 }
 
 func New() *Config {

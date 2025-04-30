@@ -21,7 +21,7 @@ type ConsumeCreated struct {
 }
 
 type NewConsumeLog struct {
-	Amount    uint64
+	Consumed  uint64
 	PaymentId uuid.UUID
 	CabinetId uuid.UUID
 }
@@ -39,6 +39,6 @@ type Charge struct {
 }
 
 type UpdateCabinet struct {
-	Id          uuid.UUID
-	AmountDelta uint64
+	Id            uuid.UUID
+	ConsumedDelta uint64
 }
