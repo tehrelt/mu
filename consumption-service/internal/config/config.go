@@ -26,7 +26,7 @@ type Database struct {
 	Port     int    `env:"PORT" env-required:"true"`
 	User     string `env:"USER"`
 	Pass     string `env:"PASS"`
-	Database string `env:"DATABASE" env-required:"true"`
+	Database string `env:"NAME" env-required:"true"`
 }
 
 type ApiConfig struct {

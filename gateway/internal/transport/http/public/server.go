@@ -112,6 +112,7 @@ func (s *Server) setup() {
 	accounts.Get("/", token, authmw(), handlers.Accounts(s.accounter))
 	accounts.Get("/:id", token, authmw(), handlers.Account(s.accounter))
 	accounts.Get("/:id/payments", token, authmw(), handlers.PaymentListHandler(s.biller))
+	accounts.Get("/:id/services", token, authmw(), handlers.AccountServicesListHandler(s.accounter, s.rater))
 
 	tickets := root.Group("/tickets")
 	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))

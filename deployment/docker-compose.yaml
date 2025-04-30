@@ -8,6 +8,7 @@ include:
   - register-service.yaml
   - account-service.yaml
   - ticket-service.yaml
+  - consumption-service.yaml
 
 services:
   pgadmin:

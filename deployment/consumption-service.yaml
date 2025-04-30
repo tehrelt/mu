@@ -1,0 +1,54 @@
+services:
+  consumption-service:
+    container_name: consumption-service
+    restart: unless-stopped
+    build:
+      context: ../consumption-service
+    env_file:
+      - .env
+    environment:
+      APP_NAME: MU Consumption Service
+      WAIT_HOSTS: consumption-pg:5432, rmq:5672
+
+      PG_HOST: consumption-pg
+      PG_PORT: 5432
+
+      PG_NAME: ${CONSUMPTION_PG_NAME}
+      PG_USER: ${CONSUMPTION_PG_USER}
+      PG_PASS: ${CONSUMPTION_PG_PASS}
+
+      BILLING_SERVICE_HOST: billing-service
+      BILLING_SERVICE_PORT: 4000
+
+      ACCOUNT_SERVICE_HOST: account-service
+      ACCOUNT_SERVICE_PORT: 4000
+
+      RATE_SERVICE_HOST: rate-service
+      RATE_SERVICE_PORT: 4000
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      GRPC_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+      ENV: prod
+    depends_on:
+      - rate-service-pg
+      - rmq
+    ports:
+      - "${CONSUMPTION_GRPC_PORT}:4000"
+
+  consumption-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${CONSUMPTION_PG_NAME}
+      POSTGRES_USER: ${CONSUMPTION_PG_USER}
+      POSTGRES_PASSWORD: ${CONSUMPTION_PG_PASS}
+    volumes:
+      - consumption-service-pg-data:/var/lib/postgresql/data
+
+volumes:
+  consumption-service-pg-data:
+    name: mu-consumption-service-pg

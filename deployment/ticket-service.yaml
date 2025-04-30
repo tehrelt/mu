@@ -11,7 +11,7 @@ services:
       APP_NAME: MU Ticket Service
       GRPC_PORT: 4000
 
-      MONGO_HOST: mongo
+      MONGO_HOST: ticket-mongo
       MONGO_PORT: 27017
       MONGO_DATABASE: tickets-db
 
@@ -19,11 +19,11 @@ services:
       AMQP_PORT: 5672
 
       JAEGER_ENDPOINT: http://jaeger:4317
-      WAIT_HOSTS: mongo:27017
+      WAIT_HOSTS: ticket-mongo:27017
     ports:
       - "4008:4000"
 
-  mongo:
+  ticket-mongo:
     image: mongo
     restart: unless-stopped
     volumes:
