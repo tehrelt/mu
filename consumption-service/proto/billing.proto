@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package billing;
+
+option go_package="github.com/tehrelt/moi-uslugi/proto/billing;billingpb";
+
+service BillingService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc List(ListRequest) returns (stream ListResponse);
+    rpc Find(FindRequest) returns (FindResponse);
+
+    rpc Pay(PayRequest) returns (PayResponse);
+    rpc Cancel(CancelRequest) returns (CancelResponse);
+}
+
+enum PaymentStatus {
+    nil = 0;
+    pending = 1;
+    success = 2;
+    canceled = 3;
+}
+
+message Payment {
+    string id = 1;
+    string account_id = 2;
+    PaymentStatus status = 3;
+    int64 amount = 4;
+    int64 created_at = 5;
+    int64 updated_at = 6;
+}
+
+message CreateRequest {
+    string account_id = 1;
+    int64 amount = 2;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message Range {
+    int64 min = 1;
+    int64 max = 2;
+}
+
+message Pagination {
+    uint64 limit = 1;
+    uint64 offset = 2;
+}
+
+message ListRequest {
+    string account_id = 1;
+    PaymentStatus status = 2;
+    Range amount_range = 3;
+    Pagination pagination = 4;
+}
+
+message ListResponse {
+    Payment payment = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindResponse {
+    Payment payment = 1;
+}
+
+message PayRequest {
+    string payment_id = 1;
+}
+
+message PayResponse {}
+
+message CancelRequest {
+    string payment_id = 1;
+}
+
+message CancelResponse {}
