@@ -27,7 +27,7 @@ func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, 
 
 	builder := sq.
 		Select("*").
-		From(pg.PAYMENTS_TABLE)
+		From(pg.PAYMENTS_TABLE).OrderBy("created_at DESC")
 
 	if filters.AccountId != uuid.Nil {
 		builder = builder.Where(sq.Eq{"account_id": filters.AccountId})
@@ -35,7 +35,7 @@ func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, 
 	if filters.Status != models.PaymentStatusNil {
 		builder = builder.Where(sq.Eq{"status": filters.Status})
 	}
-	if filters.AmountRange.Nil() {
+	if !filters.AmountRange.Nil() {
 		if filters.AmountRange.Max != 0 {
 			builder = builder.Where(sq.Lt{"amount": filters.AmountRange.Max})
 		}
@@ -43,7 +43,15 @@ func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, 
 			builder = builder.Where(sq.Gt{"amount": filters.AmountRange.Min})
 		}
 	}
+	if !filters.Pagination.Nil() {
+		if filters.Pagination.Limit != 0 {
+			builder = builder.Limit(filters.Pagination.Limit)
+		}
 
+		if filters.Pagination.Offset != 0 {
+			builder = builder.Offset(filters.Pagination.Offset)
+		}
+	}
 	query, args, err := builder.
 		PlaceholderFormat(sq.Dollar).
 		ToSql()

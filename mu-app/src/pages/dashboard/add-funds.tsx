@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PaymentStatusBadge } from "@/components/ui/payment-status-badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -161,32 +162,6 @@ const cols: ColumnDef<Payment>[] = [
   },
 ];
 
-const PaymentStatusBadge = ({ status }: { status: PaymentStatus }) => {
-  const variant =
-    status === "pending"
-      ? "pending"
-      : status === "success"
-      ? "success"
-      : "destructive";
-
-  const tooltip =
-    status === "pending"
-      ? "Ожидание платежа"
-      : status === "success"
-      ? "Платёж принят"
-      : "Платёж отклонен";
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <Badge className="p-1" variant={variant} />
-        </TooltipTrigger>
-        <TooltipContent>{tooltip}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
 const PendingPayments = ({ payments }: { payments: Payment[] }) => {
   return (
     <Card>

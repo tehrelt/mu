@@ -8,6 +8,9 @@ export const routes = {
     index: "/dashboard",
     newTicket: "/dashboard/new-ticket",
     addFunds: "/dashboard/add-funds",
+    account: {
+      transactionHistory: "/dashboard/account/transaction-history",
+    },
     settings: {
       integrations: "/dashboard/settings/integrations",
     },

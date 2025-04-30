@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"io"
+	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -52,9 +54,22 @@ func PaymentListHandler(biller billingpb.BillingServiceClient) fiber.Handler {
 			AccountId: id,
 		}
 
+		limit := c.QueryInt("limit", 50)
+		if limit < 0 {
+			return fiber.NewError(400, "invalid limit")
+		}
+
+		unsignedlimit, _ := strconv.ParseUint(c.Query("limit", ""), 10, 64)
+
+		req.Pagination = &billingpb.Pagination{
+			Limit: unsignedlimit,
+		}
+
 		if status != "" {
 			req.Status = billingpb.PaymentStatus(billingpb.PaymentStatus_value[status])
 		}
+
+		slog.Info("request list bills", slog.Any("req", req))
 
 		stream, err := biller.List(ctx, req)
 		if err != nil {

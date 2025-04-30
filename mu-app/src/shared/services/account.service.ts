@@ -13,11 +13,18 @@ const accountPaymentsResponseSchema = z.object({
 class AccountService {
   async getUserAccounts(): Promise<z.infer<typeof getUserAccountsResponse>> {
     const response = await api.get("/accounts");
-
-    return response.data;
+    return getUserAccountsResponse.parse(response.data);
   }
 
-  async payments(id: string, f?: { status: PaymentStatus }) {
+  async find(id: string) {
+    const response = await api.get(`/accounts/${id}`);
+    return houseAccountSchema.parse(response.data);
+  }
+
+  async payments(
+    id: string,
+    f?: Partial<{ status: PaymentStatus; limit: number }>
+  ) {
     const res = await api.get(`/accounts/${id}/payments`, { params: f });
     const data = accountPaymentsResponseSchema.parse(res.data);
     return data;

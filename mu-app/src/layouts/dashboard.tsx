@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useAccount } from "@/shared/hooks/use-account";
 import { accountStore } from "@/shared/store/account-store";
 import { Outlet } from "react-router-dom";
 

@@ -43,14 +43,20 @@ message Range {
     int64 max = 2;
 }
 
+message Pagination {
+    uint64 limit = 1;
+    uint64 offset = 2;
+}
+
 message ListRequest {
     string account_id = 1;
     PaymentStatus status = 2;
     Range amount_range = 3;
+    Pagination pagination = 4;
 }
 
 message ListResponse {
-    Payment payment = 1; 
+    Payment payment = 1;
 }
 
 message FindRequest {

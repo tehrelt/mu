@@ -24,7 +24,7 @@ type UserAccount struct {
 	Id      string    `json:"id"`
 	UserId  string    `json:"userId"`
 	House   HouseInfo `json:"house"`
-	Balance int64     `json:"balance"`
+	Balance float64   `json:"balance"`
 }
 
 func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
@@ -63,7 +63,7 @@ func Accounts(svc accountpb.AccountServiceClient) fiber.Handler {
 					Id:      account.House.Id,
 					Address: account.House.Address,
 				},
-				Balance: account.Balance,
+				Balance: float64(account.Balance) / 100,
 			})
 		}
 
@@ -99,7 +99,7 @@ func Account(svc accountpb.AccountServiceClient) fiber.Handler {
 				Id:      account.House.Id,
 				Address: account.House.Address,
 			},
-			Balance: account.Balance,
+			Balance: float64(account.Balance) / 100,
 		}
 
 		return c.JSON(resp)
