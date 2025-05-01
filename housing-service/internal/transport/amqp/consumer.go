@@ -33,19 +33,20 @@ func New(cfg *config.Config, ch *amqp091.Channel, s *housestorage.HouseStorage, 
 
 func (c *AmqpConsumer) Run(ctx context.Context) error {
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.ConsumeConnectServiceEvent(ctx); err != nil {
-					slog.Error("failed to consume connec service event", sl.Err(err))
-				}
+	connectServiceQueue, err := c.manager.Consume(ctx, c.cfg.ConnectServiceQueue.Routing)
+	if err != nil {
+		slog.Error("failed to consume connect service event", sl.Err(err))
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case msg := <-connectServiceQueue:
+			if err := c.handleConnectServiceEvent(ctx, msg); err != nil {
+				slog.Error("failed to consume connect service event", sl.Err(err))
 			}
 		}
-	}()
-
-	<-ctx.Done()
-	return nil
+	}
 }

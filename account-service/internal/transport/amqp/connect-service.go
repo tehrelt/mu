@@ -7,14 +7,14 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/rabbitmq/amqp091-go"
 	"github.com/tehrelt/mu/account-service/internal/dto"
 	"github.com/tehrelt/mu/account-service/pkg/pb/ticketpb"
 
+	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu-lib/sl"
 )
 
-func (c *AmqpConsumer) handleTicketConnectServiceStatusChanged(ctx context.Context, msg amqp091.Delivery) (err error) {
+func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg *rmqmanager.TracedDelivery) (err error) {
 
 	defer func() {
 		if err != nil && !errors.Is(err, errTicketNotFound) {

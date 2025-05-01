@@ -157,3 +157,6 @@ func _ratepb(cfg *config.Config) (ratepb.RateServiceClient, func(), error) {
 	client := ratepb.NewRateServiceClient(conn)
 	return client, func() { conn.Close() }, nil
 }
+
+
+curl https://proxy.golang.org/github.com/tehrelt/mu-lib/@v0.4/v0.4.info

@@ -31,19 +31,21 @@ func New(
 
 func (c *AmqpConsumer) Run(ctx context.Context) error {
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.ConsumeServiceConnected(ctx); err != nil {
-					slog.Error("failed to consume connec service event", sl.Err(err))
-				}
+	serviceConnectedMessages, err := c.manager.Consume(ctx, c.cfg.ServiceConnectedQueue.Routing)
+	if err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case msg := <-serviceConnectedMessages:
+			if err := c.handleServiceConnectedEvent(ctx, msg); err != nil {
+				slog.Error("failed to handle service connected event", sl.Err(err))
 			}
 		}
-	}()
 
-	<-ctx.Done()
-	return nil
+	}
+
 }

@@ -27,5 +27,13 @@ func (a *Api) Charge(ctx context.Context, bill *dto.Charge) (uuid.UUID, error) {
 	}
 	logger.Debug("payment created", slog.Any("payment", res))
 
+	logger.Debug("pay that bill", slog.Any("bill", res))
+	if _, err := a.client.Pay(ctx, &billingpb.PayRequest{
+		PaymentId: res.Id,
+	}); err != nil {
+		logger.Error("failed to pay", sl.Err(err))
+		return uuid.Nil, err
+	}
+
 	return uuid.MustParse(res.Id), nil
 }

@@ -1,4 +1,14 @@
+import { datef } from "@/shared/lib/utils";
+import { cabinetService } from "@/shared/services/cabinet.service";
+import { rateService } from "@/shared/services/rate.service";
 import { Cabinet } from "@/shared/types/cabinet";
+import { Rate } from "@/shared/types/rate";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
+import { Balance } from "../ui/balance";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -7,17 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { rateService } from "@/shared/services/rate.service";
-import { Balance } from "../ui/balance";
-import { Rate } from "@/shared/types/rate";
-import { datef } from "@/shared/lib/utils";
 import { InputOTP, InputOTPSlot } from "../ui/input-otp";
-import React from "react";
-import { Button } from "../ui/button";
-import { ArrowDown, ArrowDownLeft, ArrowUp } from "lucide-react";
-import { cabinetService } from "@/shared/services/cabinet.service";
-import { toast } from "sonner";
+import { ConsumptionHistory } from "./cabinet-logs";
+import MasonryLayout from "../ui/masonry-layout";
+import { LogsChart } from "./cabinet-logs-chart";
 
 type Props = {
   cabinet: Cabinet;
@@ -32,48 +35,49 @@ export const CabinetViewer = ({ cabinet }: Props) => {
     ],
     queryFn: async () => {
       const service = await rateService.find(cabinet.serviceId);
-      return { service };
+      const history = await cabinetService.logs(cabinet.id);
+      return { service, history };
     },
   });
 
   return (
-    <div className="flex gap-6">
-      <div>
-        <Card className="w-[380px]">
+    <div>
+      <MasonryLayout>
+        <Card>
           <CardHeader>
             <CardTitle>Потреблено</CardTitle>
           </CardHeader>
-          <CardContent className="flex">
+          <CardContent className="flex justify-end">
             <div>
               {cabinet.consumed} {query.data?.service.measureUnit}
             </div>
           </CardContent>
         </Card>
-      </div>
-      {query.data && (
-        <>
-          <div>
-            <Card className="w-[380px]">
-              <CardHeader>
-                <CardTitle>Поставщик {query.data.service.name}</CardTitle>
-                <CardDescription></CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-2">
-                  <Balance balance={query.data.service.rate} />
-                  <span>за {query.data.service.measureUnit}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div>
-            <ConsumptionRegister
-              cabinet={cabinet}
-              service={query.data.service}
-            />
-          </div>
-        </>
-      )}
+        {query.data && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Поставщик {query.data.service.name}</CardTitle>
+              <CardDescription></CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Balance balance={query.data.service.rate} />
+                <span>за {query.data.service.measureUnit}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {query.data && (
+          <ConsumptionRegister cabinet={cabinet} service={query.data.service} />
+        )}
+        {query.data && (
+          <ConsumptionHistory
+            logs={query.data.history.logs}
+            unit={query.data.service.measureUnit}
+          />
+        )}
+        {query.data && <LogsChart records={query.data.history.logs} />}
+      </MasonryLayout>
     </div>
   );
 };
@@ -121,41 +125,43 @@ const ConsumptionRegister = ({
       <CardHeader>
         <CardTitle>Отправить показания</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-2">
-        <div className="grid grid-cols-8">
-          {[...Array(8)].map((v, i) => (
-            <Button
-              className="row-1"
-              variant={"ghost"}
-              onClick={() => deltaValue(Math.pow(10, 8 - i - 1))}
-            >
-              <ArrowUp />
-            </Button>
-          ))}
-          <div className="row-2 col-span-8 w-full">
-            <InputOTP
-              inputMode="numeric"
-              maxLength={8}
-              value={value.toString().padStart(8)}
-              className="grid grid-cols-8"
-            >
-              {[...Array(8)].map((v, i) => (
-                <InputOTPSlot index={i} className="" />
-              ))}
-            </InputOTP>
+      <CardContent className="grid gap-2 justify-center">
+        <div className="w-fit">
+          <div className="grid grid-cols-8 w-full">
+            {[...Array(8)].map((v, i) => (
+              <Button
+                className="row-1"
+                variant={"ghost"}
+                onClick={() => deltaValue(Math.pow(10, 8 - i - 1))}
+              >
+                <ArrowUp />
+              </Button>
+            ))}
+            <div className="row-2 col-span-8 w-full">
+              <InputOTP
+                inputMode="numeric"
+                maxLength={8}
+                value={value.toString().padStart(8)}
+                className="grid grid-cols-8 w-full"
+              >
+                {[...Array(8)].map((v, i) => (
+                  <InputOTPSlot index={i} className="" />
+                ))}
+              </InputOTP>
+            </div>
+            {[...Array(8)].map((v, i) => (
+              <Button
+                className="row-3"
+                variant={"ghost"}
+                onClick={() => deltaValue(-Math.pow(10, 8 - i - 1))}
+              >
+                <ArrowDown />
+              </Button>
+            ))}
           </div>
-          {[...Array(8)].map((v, i) => (
-            <Button
-              className="row-3"
-              variant={"ghost"}
-              onClick={() => deltaValue(-Math.pow(10, 8 - i - 1))}
-            >
-              <ArrowDown />
-            </Button>
-          ))}
         </div>
 
-        <div className="flex">
+        <div className="flex w-full">
           <Button
             className="w-full"
             disabled={submitDisabled}

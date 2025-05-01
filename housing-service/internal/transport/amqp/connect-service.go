@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	amqp091 "github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu/housing-service/internal/dto"
 	"github.com/tehrelt/mu/housing-service/internal/models"
 	ratepb "github.com/tehrelt/mu/housing-service/pkg/pb/ratespb"
@@ -14,26 +14,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *AmqpConsumer) ConsumeConnectServiceEvent(ctx context.Context) error {
+func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg *rmqmanager.TracedDelivery) (err error) {
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			if err := c.manager.Consume(ctx, c.cfg.ConnectServiceQueue.Routing, c.handleConnectServiceEvent); err != nil {
-				slog.Error("failed to consume", sl.Err(err))
-				return err
-			}
-		}
-	}
-}
-
-func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg amqp091.Delivery) (err error) {
-
+	unmarshaled := dto.EventServiceConnect{}
 	defer func() {
 		if err != nil {
-			msg.Nack(false, true)
+			slog.Info("reject event", slog.Any("event", unmarshaled))
+			msg.Reject(false)
 			return
 		}
 
@@ -41,7 +28,6 @@ func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg amqp09
 	}()
 
 	body := msg.Body
-	unmarshaled := dto.EventServiceConnect{}
 	if err := json.Unmarshal(body, &unmarshaled); err != nil {
 		slog.Error("failed to unmarshal body", sl.Err(err))
 		return err

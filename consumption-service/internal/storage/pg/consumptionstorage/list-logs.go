@@ -31,7 +31,7 @@ func (s *Storage) Logs(ctx context.Context, filters *dto.LogsFilters) ([]*models
 		From(fmt.Sprintf("%s as l", pg.ConsumptionLogTable)).
 		Join(fmt.Sprintf("%s as c ON l.cabinet_id = c.id", pg.CabinetTable)).
 		PlaceholderFormat(sq.Dollar).
-		OrderBy("c.created_at DESC").
+		OrderBy("l.created_at DESC").
 		Limit(100)
 
 	if filters != nil {

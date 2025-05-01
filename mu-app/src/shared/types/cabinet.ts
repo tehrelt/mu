@@ -14,5 +14,14 @@ export const cabinetSchema = z.object({
     }, z.date())
     .optional(),
 });
-
 export type Cabinet = z.infer<typeof cabinetSchema>;
+
+export const cabinetLog = z.object({
+  id: z.string().uuid(),
+  cabinetId: z.string().uuid(),
+  consumed: z.number().default(0),
+  createdAt: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+  }, z.date()),
+});
+export type CabinetLog = z.infer<typeof cabinetLog>;

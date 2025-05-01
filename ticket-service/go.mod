@@ -3,7 +3,7 @@ module github.com/tehrelt/mu/ticket-service
 go 1.24.0
 
 require (
-	github.com/tehrelt/mu-lib v0.3.15
+	github.com/tehrelt/mu-lib v0.4.1
 	go.mongodb.org/mongo-driver v1.17.3
 	go.opentelemetry.io/otel v1.35.0
 	go.opentelemetry.io/otel/trace v1.35.0

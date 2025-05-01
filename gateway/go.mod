@@ -8,7 +8,7 @@ require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/joho/godotenv v1.5.1
-	github.com/tehrelt/mu-lib v0.3.15
+	github.com/tehrelt/mu-lib v0.4.1
 	go.opentelemetry.io/otel/trace v1.35.0
 	google.golang.org/grpc v1.71.0
 	google.golang.org/protobuf v1.36.6

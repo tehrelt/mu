@@ -64,23 +64,13 @@ type Log struct {
 
 type LogsListResponse struct {
 	Logs  []Log  `json:"logs"`
-	total uint64 `json:"total"`
+	Total uint64 `json:"total"`
 }
 
 func LogsList(consumer consumptionpb.ConsumptionServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := c.UserContext()
-		cabinetId, err := validateUuid(c.Query("cabinetId", ""))
-		if err != nil {
-			return c.SendStatus(fiber.StatusBadRequest)
-		}
-
-		accountId, err := validateUuid(c.Query("accountId", ""))
-		if err != nil {
-			return c.SendStatus(fiber.StatusBadRequest)
-		}
-
-		serviceId, err := validateUuid(c.Query("serviceId", ""))
+		cabinetId, err := validateUuid(c.Params("cabinetId", ""))
 		if err != nil {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
@@ -94,8 +84,6 @@ func LogsList(consumer consumptionpb.ConsumptionServiceClient) fiber.Handler {
 				Limit:  uint64(limit),
 			},
 			CabinetId: cabinetId.String(),
-			AccountId: accountId.String(),
-			ServiceId: serviceId.String(),
 		})
 		if err != nil {
 			return c.SendStatus(fiber.StatusNotFound)
@@ -129,6 +117,9 @@ func LogsList(consumer consumptionpb.ConsumptionServiceClient) fiber.Handler {
 			}
 		}
 
-		return c.JSON(logs)
+		return c.JSON(&LogsListResponse{
+			Logs:  logs,
+			Total: metaResp.Meta.Total,
+		})
 	}
 }

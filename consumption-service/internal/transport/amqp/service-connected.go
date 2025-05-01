@@ -6,27 +6,12 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	amqp091 "github.com/rabbitmq/amqp091-go"
+	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/consumption-service/internal/dto"
 )
 
-func (c *AmqpConsumer) ConsumeServiceConnected(ctx context.Context) error {
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			if err := c.manager.Consume(ctx, c.cfg.ServiceConnectedQueue.Routing, c.handleServiceConnectedEvent); err != nil {
-				slog.Error("failed to consume", sl.Err(err))
-				return err
-			}
-		}
-	}
-}
-
-func (c *AmqpConsumer) handleServiceConnectedEvent(ctx context.Context, msg amqp091.Delivery) (err error) {
+func (c *AmqpConsumer) handleServiceConnectedEvent(ctx context.Context, msg *rmqmanager.TracedDelivery) (err error) {
 
 	defer func() {
 		if err != nil {

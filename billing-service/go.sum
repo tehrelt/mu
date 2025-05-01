@@ -146,6 +146,8 @@ github.com/tehrelt/mu-lib v0.3.13 h1:VakHBI2nuIfDO0M7ovBRnFaPd6xOczK1ZIOx1uI1m9E
 github.com/tehrelt/mu-lib v0.3.13/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/tehrelt/mu-lib v0.3.15 h1:AsLm1lETbu75gBKK6BvQVSndNZjjq9fzX91hUOmEUDk=
 github.com/tehrelt/mu-lib v0.3.15/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.4.1 h1:yM8ZgqJGLQhaexDw0MA4Lkdo98kFZCPdh2/ioOYwgJs=
+github.com/tehrelt/mu-lib v0.4.1/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/tel-io/instrumentation/module/otelgrpc v1.0.5 h1:hRy90pSlCwS7Zpy3NGKena8eVBv3+jdb0XqJEDa9z6Q=
 github.com/tel-io/instrumentation/module/otelgrpc v1.0.5/go.mod h1:R7fjHq58gsjpvoYvGKQwWOjNMRyDGjhuWzTbeQAu6M8=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=

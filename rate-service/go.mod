@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/rabbitmq/amqp091-go v1.10.0
-	github.com/tehrelt/mu-lib v0.3.15
+	github.com/tehrelt/mu-lib v0.4.1
 	go.opentelemetry.io/otel/trace v1.35.0
 	google.golang.org/protobuf v1.36.5
 )

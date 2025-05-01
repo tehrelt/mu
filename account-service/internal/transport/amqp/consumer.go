@@ -46,55 +46,41 @@ func New(
 }
 
 func (c *AmqpConsumer) Run(ctx context.Context) error {
-	err := c.handleEvents(ctx)
+
+	paymentStatusChangedQueue, err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing)
 	if err != nil {
-		slog.Error("failed to consume connec service event", sl.Err(err))
+		slog.Error("failed to consume payment status changed event", sl.Err(err))
+		return err
 	}
 
-	return err
-}
+	newAccountQueue, err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.NewAccountRoute)
+	if err != nil {
+		slog.Error("failed to consume ticket status changed event", sl.Err(err))
+		return err
+	}
 
-func (c *AmqpConsumer) handleEvents(ctx context.Context) error {
+	ConnectServiceQueue, err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.ConnectServiceRoute)
+	if err != nil {
+		slog.Error("failed to consume ticket status changed event", sl.Err(err))
+		return err
+	}
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing, c.handlePaymentStatusChangedEvent); err != nil {
-					slog.Error("failed to consume payment status changed event", sl.Err(err))
-				}
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case msg := <-paymentStatusChangedQueue:
+			if err := c.handlePaymentStatusChangedEvent(ctx, msg); err != nil {
+				slog.Error("failed to consume payment status changed event", sl.Err(err))
+			}
+		case msg := <-newAccountQueue:
+			if err := c.handleNewAccountEvent(ctx, msg); err != nil {
+				slog.Error("failed to consume ticket status changed event", sl.Err(err))
+			}
+		case msg := <-ConnectServiceQueue:
+			if err := c.handleConnectServiceEvent(ctx, msg); err != nil {
+				slog.Error("failed to consume ticket status changed event", sl.Err(err))
 			}
 		}
-	}()
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.NewAccountRoute, c.handleTicketStatusChanged); err != nil {
-					slog.Error("failed to consume payment status changed event", sl.Err(err))
-				}
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.ConnectServiceRoute, c.handleTicketConnectServiceStatusChanged); err != nil {
-					slog.Error("failed to consume payment status changed event", sl.Err(err))
-				}
-			}
-		}
-	}()
-
-	<-ctx.Done()
-	return nil
+	}
 }

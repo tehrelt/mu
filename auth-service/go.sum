@@ -148,6 +148,8 @@ github.com/tehrelt/mu-lib v0.3.13 h1:VakHBI2nuIfDO0M7ovBRnFaPd6xOczK1ZIOx1uI1m9E
 github.com/tehrelt/mu-lib v0.3.13/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/tehrelt/mu-lib v0.3.15 h1:AsLm1lETbu75gBKK6BvQVSndNZjjq9fzX91hUOmEUDk=
 github.com/tehrelt/mu-lib v0.3.15/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
+github.com/tehrelt/mu-lib v0.4.1 h1:yM8ZgqJGLQhaexDw0MA4Lkdo98kFZCPdh2/ioOYwgJs=
+github.com/tehrelt/mu-lib v0.4.1/go.mod h1:c7AOtpZATtfZTCjo4Vu1LZcsTiSI5WgiilGvBJ67lZw=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasttemplate v1.2.2 h1:lxLXG0uE3Qnshl9QyaK6XJxMXlQZELvChBOCmQD0Loo=
