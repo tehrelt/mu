@@ -17,8 +17,10 @@ type Cabinet struct {
 
 type ConsumptionLog struct {
 	Id            uuid.UUID
-	Amount        uint64
+	Consumed      uint64
 	CabinetId     uuid.UUID
+	AccountId     uuid.UUID
+	ServiceId     uuid.UUID
 	PaymentId     uuid.UUID
 	ConsumptionId uuid.UUID
 	CreatedAt     time.Time

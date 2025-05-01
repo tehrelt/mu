@@ -14,14 +14,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { AccountSwitcher } from "@/components/version-switcher";
+import { useConnectedServices } from "@/shared/hooks/use-services";
 import { routes } from "@/shared/routes";
 import { NavUser } from "./nav-user";
 import { NewTicketButton } from "./new-ticket-button";
-import { title } from "process";
-import { accountStore } from "@/shared/store/account-store";
-import { useQuery } from "@tanstack/react-query";
-import { accountService } from "@/shared/services/account.service";
-import { useConnectedServices } from "@/shared/hooks/use-services";
 
 // This is sample data.
 const data = {

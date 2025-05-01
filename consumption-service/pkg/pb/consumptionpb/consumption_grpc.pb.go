@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ConsumptionService_Create_FullMethodName           = "/consumption.ConsumptionService/Create"
-	ConsumptionService_Consume_FullMethodName          = "/consumption.ConsumptionService/Consume"
-	ConsumptionService_FindConsumption_FullMethodName  = "/consumption.ConsumptionService/FindConsumption"
-	ConsumptionService_FindCabinet_FullMethodName      = "/consumption.ConsumptionService/FindCabinet"
-	ConsumptionService_ListConsumptions_FullMethodName = "/consumption.ConsumptionService/ListConsumptions"
-	ConsumptionService_ListCabinets_FullMethodName     = "/consumption.ConsumptionService/ListCabinets"
+	ConsumptionService_Create_FullMethodName          = "/consumption.ConsumptionService/Create"
+	ConsumptionService_Consume_FullMethodName         = "/consumption.ConsumptionService/Consume"
+	ConsumptionService_FindConsumption_FullMethodName = "/consumption.ConsumptionService/FindConsumption"
+	ConsumptionService_FindCabinet_FullMethodName     = "/consumption.ConsumptionService/FindCabinet"
+	ConsumptionService_ListCabinets_FullMethodName    = "/consumption.ConsumptionService/ListCabinets"
+	ConsumptionService_Logs_FullMethodName            = "/consumption.ConsumptionService/Logs"
 )
 
 // ConsumptionServiceClient is the client API for ConsumptionService service.
@@ -35,8 +35,8 @@ type ConsumptionServiceClient interface {
 	Consume(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (*ConsumeResponse, error)
 	FindConsumption(ctx context.Context, in *FindConsumptionRequest, opts ...grpc.CallOption) (*FindConsumptionResponse, error)
 	FindCabinet(ctx context.Context, in *FindCabinetRequest, opts ...grpc.CallOption) (*FindCabinetResponse, error)
-	ListConsumptions(ctx context.Context, in *ListConsumptionsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Consumption], error)
 	ListCabinets(ctx context.Context, in *ListCabinetsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Cabinet], error)
+	Logs(ctx context.Context, in *LogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[LogsResponse], error)
 }
 
 type consumptionServiceClient struct {
@@ -87,28 +87,9 @@ func (c *consumptionServiceClient) FindCabinet(ctx context.Context, in *FindCabi
 	return out, nil
 }
 
-func (c *consumptionServiceClient) ListConsumptions(ctx context.Context, in *ListConsumptionsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Consumption], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ConsumptionService_ServiceDesc.Streams[0], ConsumptionService_ListConsumptions_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[ListConsumptionsRequest, Consumption]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ConsumptionService_ListConsumptionsClient = grpc.ServerStreamingClient[Consumption]
-
 func (c *consumptionServiceClient) ListCabinets(ctx context.Context, in *ListCabinetsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Cabinet], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ConsumptionService_ServiceDesc.Streams[1], ConsumptionService_ListCabinets_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &ConsumptionService_ServiceDesc.Streams[0], ConsumptionService_ListCabinets_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +106,25 @@ func (c *consumptionServiceClient) ListCabinets(ctx context.Context, in *ListCab
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ConsumptionService_ListCabinetsClient = grpc.ServerStreamingClient[Cabinet]
 
+func (c *consumptionServiceClient) Logs(ctx context.Context, in *LogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[LogsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ConsumptionService_ServiceDesc.Streams[1], ConsumptionService_Logs_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[LogsRequest, LogsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ConsumptionService_LogsClient = grpc.ServerStreamingClient[LogsResponse]
+
 // ConsumptionServiceServer is the server API for ConsumptionService service.
 // All implementations must embed UnimplementedConsumptionServiceServer
 // for forward compatibility.
@@ -133,8 +133,8 @@ type ConsumptionServiceServer interface {
 	Consume(context.Context, *ConsumeRequest) (*ConsumeResponse, error)
 	FindConsumption(context.Context, *FindConsumptionRequest) (*FindConsumptionResponse, error)
 	FindCabinet(context.Context, *FindCabinetRequest) (*FindCabinetResponse, error)
-	ListConsumptions(*ListConsumptionsRequest, grpc.ServerStreamingServer[Consumption]) error
 	ListCabinets(*ListCabinetsRequest, grpc.ServerStreamingServer[Cabinet]) error
+	Logs(*LogsRequest, grpc.ServerStreamingServer[LogsResponse]) error
 	mustEmbedUnimplementedConsumptionServiceServer()
 }
 
@@ -157,11 +157,11 @@ func (UnimplementedConsumptionServiceServer) FindConsumption(context.Context, *F
 func (UnimplementedConsumptionServiceServer) FindCabinet(context.Context, *FindCabinetRequest) (*FindCabinetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindCabinet not implemented")
 }
-func (UnimplementedConsumptionServiceServer) ListConsumptions(*ListConsumptionsRequest, grpc.ServerStreamingServer[Consumption]) error {
-	return status.Errorf(codes.Unimplemented, "method ListConsumptions not implemented")
-}
 func (UnimplementedConsumptionServiceServer) ListCabinets(*ListCabinetsRequest, grpc.ServerStreamingServer[Cabinet]) error {
 	return status.Errorf(codes.Unimplemented, "method ListCabinets not implemented")
+}
+func (UnimplementedConsumptionServiceServer) Logs(*LogsRequest, grpc.ServerStreamingServer[LogsResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method Logs not implemented")
 }
 func (UnimplementedConsumptionServiceServer) mustEmbedUnimplementedConsumptionServiceServer() {}
 func (UnimplementedConsumptionServiceServer) testEmbeddedByValue()                            {}
@@ -256,17 +256,6 @@ func _ConsumptionService_FindCabinet_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ConsumptionService_ListConsumptions_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListConsumptionsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(ConsumptionServiceServer).ListConsumptions(m, &grpc.GenericServerStream[ListConsumptionsRequest, Consumption]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ConsumptionService_ListConsumptionsServer = grpc.ServerStreamingServer[Consumption]
-
 func _ConsumptionService_ListCabinets_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ListCabinetsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -277,6 +266,17 @@ func _ConsumptionService_ListCabinets_Handler(srv interface{}, stream grpc.Serve
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ConsumptionService_ListCabinetsServer = grpc.ServerStreamingServer[Cabinet]
+
+func _ConsumptionService_Logs_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(LogsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ConsumptionServiceServer).Logs(m, &grpc.GenericServerStream[LogsRequest, LogsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ConsumptionService_LogsServer = grpc.ServerStreamingServer[LogsResponse]
 
 // ConsumptionService_ServiceDesc is the grpc.ServiceDesc for ConsumptionService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -304,13 +304,13 @@ var ConsumptionService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ListConsumptions",
-			Handler:       _ConsumptionService_ListConsumptions_Handler,
+			StreamName:    "ListCabinets",
+			Handler:       _ConsumptionService_ListCabinets_Handler,
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "ListCabinets",
-			Handler:       _ConsumptionService_ListCabinets_Handler,
+			StreamName:    "Logs",
+			Handler:       _ConsumptionService_Logs_Handler,
 			ServerStreams: true,
 		},
 	},

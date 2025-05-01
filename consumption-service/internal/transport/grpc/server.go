@@ -27,8 +27,6 @@ type Server struct {
 	consumptionpb.UnimplementedConsumptionServiceServer
 }
 
-// FindCabinet implements consumptionpb.ConsumptionServiceServer.
-
 // FindConsumption implements consumptionpb.ConsumptionServiceServer.
 func (s *Server) FindConsumption(context.Context, *consumptionpb.FindConsumptionRequest) (*consumptionpb.FindConsumptionResponse, error) {
 	panic("unimplemented")
@@ -36,11 +34,6 @@ func (s *Server) FindConsumption(context.Context, *consumptionpb.FindConsumption
 
 // ListCabinets implements consumptionpb.ConsumptionServiceServer.
 func (s *Server) ListCabinets(*consumptionpb.ListCabinetsRequest, grpc.ServerStreamingServer[consumptionpb.Cabinet]) error {
-	panic("unimplemented")
-}
-
-// ListConsumptions implements consumptionpb.ConsumptionServiceServer.
-func (s *Server) ListConsumptions(*consumptionpb.ListConsumptionsRequest, grpc.ServerStreamingServer[consumptionpb.Consumption]) error {
 	panic("unimplemented")
 }
 

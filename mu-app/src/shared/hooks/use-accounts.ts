@@ -9,6 +9,7 @@ export const useAccounts = () => {
   });
 
   const selectedAccount = accountStore((s) => s.account);
+  const selectAccount = accountStore((s) => s.select);
   const clearAccount = accountStore((s) => s.clear);
 
   if (query.isError) clearAccount();
@@ -16,6 +17,7 @@ export const useAccounts = () => {
   if (query.isSuccess && query.data && selectedAccount) {
     const acc = query.data.accounts.find((a) => a.id === selectedAccount.id);
     if (!acc) clearAccount();
+    else selectAccount(acc);
   }
 
   return { ...query, accounts: query.data };

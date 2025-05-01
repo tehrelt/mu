@@ -25,6 +25,8 @@ type ConsumptionStorage interface {
 	Find(ctx context.Context, criteria *dto.FindCabinet) (*models.Cabinet, error)
 	Update(ctx context.Context, in *dto.UpdateCabinet) (*models.Cabinet, error)
 	Log(ctx context.Context, log *dto.NewConsumeLog) (*models.ConsumptionLog, error)
+	Logs(ctx context.Context, filters *dto.LogsFilters) ([]*models.ConsumptionLog, error)
+	CountLogs(ctx context.Context, filters *dto.LogsFilters) (uint64, error)
 }
 
 //go:generate mockgen -destination=mocks/mock_billing_provider.go -package=mocks github.com/tehrelt/mu/consumption-service/internal/usecase BillingProvider

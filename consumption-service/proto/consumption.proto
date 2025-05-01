@@ -10,8 +10,9 @@ service ConsumptionService {
     rpc FindConsumption(FindConsumptionRequest) returns (FindConsumptionResponse);
     rpc FindCabinet(FindCabinetRequest) returns (FindCabinetResponse);
 
-    rpc ListConsumptions(ListConsumptionsRequest) returns (stream Consumption);
     rpc ListCabinets(ListCabinetsRequest) returns (stream Cabinet);
+
+    rpc Logs(LogsRequest) returns (stream LogsResponse); // first chunk meta, after list
 }
 
 message Cabinet {
@@ -48,15 +49,25 @@ message Range {
 }
 
 message Pagination {
-    uint64 page = 1;
+    uint64 offset = 1;
     uint64 limit = 2;
 }
 
-message ListConsumptionsRequest {
+message LogsRequest {
     Pagination pagination = 1;
     string cabinet_id = 2;
     string account_id = 3;
     string service_id = 4;
+}
+
+message LogsResponseMeta {
+    uint64 total = 1;
+    uint32 batchsize = 2;
+}
+
+message LogsResponse {
+    LogsResponseMeta meta = 1;
+    repeated Consumption consumptions = 2;
 }
 
 message ListCabinetsRequest {

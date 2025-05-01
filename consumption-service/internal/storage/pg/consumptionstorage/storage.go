@@ -111,7 +111,7 @@ func (s *Storage) Log(ctx context.Context, in *dto.NewConsumeLog) (*models.Consu
 	log.Debug("executing query", sl.Query(query), sl.Args(args))
 	row := s.pool.QueryRow(ctx, query, args...)
 	var out models.ConsumptionLog
-	err = row.Scan(&out.Id, &out.Amount, &out.PaymentId, &out.CabinetId, &out.CreatedAt)
+	err = row.Scan(&out.Id, &out.Consumed, &out.PaymentId, &out.CabinetId, &out.CreatedAt)
 	if err != nil {
 		log.Error("failed scan row", sl.Err(err))
 		return nil, err

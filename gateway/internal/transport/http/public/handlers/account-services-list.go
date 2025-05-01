@@ -68,7 +68,7 @@ func AccountServicesListHandler(
 			})
 			if err != nil {
 				slog.Error("failed to find cabinet", sl.Err(err))
-				// return fiber.ErrInternalServerError
+				return fiber.ErrInternalServerError
 			}
 
 			rate := Rate{

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rateService } from "@/shared/services/rate.service";
 import { Balance } from "../ui/balance";
 import { Rate } from "@/shared/types/rate";
@@ -16,6 +16,8 @@ import { InputOTP, InputOTPSlot } from "../ui/input-otp";
 import React from "react";
 import { Button } from "../ui/button";
 import { ArrowDown, ArrowDownLeft, ArrowUp } from "lucide-react";
+import { cabinetService } from "@/shared/services/cabinet.service";
+import { toast } from "sonner";
 
 type Props = {
   cabinet: Cabinet;
@@ -84,16 +86,35 @@ const ConsumptionRegister = ({
   service: Rate;
 }) => {
   const [value, setValue] = React.useState(cabinet.consumed);
+  const queryClient = useQueryClient();
 
   const deltaValue = (delta: number) => {
     const res = value + delta;
-    console.log("delta value", { delta, value });
     if (res < cabinet.consumed) return setValue(cabinet.consumed);
 
     setValue(res);
   };
 
-  const submitDisabled = value === cabinet.consumed || value < cabinet.consumed;
+  const { mutate: consume, isPending } = useMutation({
+    mutationFn: async (val: { id: string; value: number }) => {
+      await cabinetService.consume(val.id, val.value);
+    },
+    onSuccess: () => {
+      toast.success("Показания отправлены");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["cabinet"],
+      });
+    },
+  });
+
+  const handleSubmit = async () => {
+    consume({ id: cabinet.id, value: value - cabinet.consumed });
+  };
+
+  const submitDisabled =
+    value === cabinet.consumed || value < cabinet.consumed || isPending;
 
   return (
     <Card className="">
@@ -135,11 +156,17 @@ const ConsumptionRegister = ({
         </div>
 
         <div className="flex">
-          <Button className="w-full" disabled={submitDisabled}>
+          <Button
+            className="w-full"
+            disabled={submitDisabled}
+            onClick={() => handleSubmit()}
+          >
             {!submitDisabled ? (
               <span>
                 Отправить {value - cabinet.consumed} {service.measureUnit}
               </span>
+            ) : isPending ? (
+              <span>Отправка...</span>
             ) : (
               <span>Введите новые показания</span>
             )}

@@ -122,6 +122,9 @@ func (s *Server) setup() {
 	cabinets.Post("/:cabinetId/consume", token, authmw(), handlers.NewConsume(s.consumer, s.accounter))
 	cabinets.Get("/:cabinetId", token, authmw(), handlers.FindCabinet(s.consumer))
 
+	logs := root.Group("/logs")
+	logs.Get("/", token, authmw(), handlers.LogsList(s.consumer))
+
 	tickets := root.Group("/tickets")
 	tickets.Post("/connect-service", token, authmw(), handlers.TicketConnectServiceHandler(s.ticketer))
 	tickets.Post("/new-account", token, authmw(), handlers.TicketNewAccountHandler(s.ticketer))

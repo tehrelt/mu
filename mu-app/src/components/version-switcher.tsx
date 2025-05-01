@@ -59,7 +59,7 @@ export function AccountSwitcher() {
                 .filter(
                   (acc) =>
                     (selectedAccount && selectedAccount.id !== acc.id) ||
-                    !selectedAccount
+                    !selectedAccount,
                 )
                 .map((acc) => (
                   <DropdownMenuItem
@@ -87,6 +87,11 @@ export function AccountSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      {selectedAccount && (
+        <SidebarMenuItem className="flex justify-end items-center gap-2">
+          Баланс: <Balance balance={selectedAccount.balance} />
+        </SidebarMenuItem>
+      )}
     </SidebarMenu>
   );
 }

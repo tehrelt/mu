@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/google/uuid"
+
 type Range struct {
 	Min int64
 	Max int64
@@ -16,4 +18,11 @@ type Pagination struct {
 
 func (p *Pagination) Nil() bool {
 	return p.Limit == 0 && p.Offset == 0
+}
+
+type LogsFilters struct {
+	Pagination Pagination
+	CabinetId  uuid.UUID
+	AccountId  uuid.UUID
+	ServiceId  uuid.UUID
 }
