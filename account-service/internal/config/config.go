@@ -7,6 +7,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/account-service/pkg/prettyslog"
 )
 
@@ -105,6 +106,8 @@ func New() *Config {
 	}
 
 	setupLogger(config)
+
+	interceptors.SetDebug(false)
 
 	slog.Debug("config", slog.Any("c", config))
 	return config

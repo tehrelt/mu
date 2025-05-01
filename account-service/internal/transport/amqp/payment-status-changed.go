@@ -29,6 +29,9 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 		err = msg.Ack(false)
 	}()
 
+	fn := "handlePaymentStatusChangedEvent"
+	log := slog.With(sl.Method(fn))
+
 	body := msg.Body
 	unmarshaled := struct {
 		AccountId string            `json:"accountId"`
@@ -40,6 +43,8 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 		slog.Error("failed to unmarshal body", sl.Err(err))
 		return err
 	}
+
+	log.Debug("incoming event", slog.Any("event", unmarshaled))
 
 	if unmarshaled.NewStatus != dto.PaymentStatusPaid {
 		slog.Info("incoming payment status change is not paid, skipping...")
@@ -64,17 +69,14 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 		NewStatus: unmarshaled.NewStatus,
 	}
 
-	if event.NewStatus != dto.PaymentStatusPaid {
-		slog.Info("incoming payment status change is not paid, skipping...")
-		return
-	}
-
+	log.Debug("looking for account", slog.String("accId", event.AccountId.String()))
 	acc, err := c.storage.Find(ctx, event.AccountId)
 	if err != nil {
 		slog.Error("failed to find account", sl.Err(err))
 		return err
 	}
 
+	log.Debug("looking for bill", sl.UUID("paymentId", event.PaymentId))
 	bill, err := c.billingApi.Find(ctx, &billingpb.FindRequest{Id: event.PaymentId.String()})
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
@@ -89,16 +91,20 @@ func (c *AmqpConsumer) handlePaymentStatusChangedEvent(ctx context.Context, msg 
 
 	oldBalance := acc.Balance
 	acc.DeltaBalance(bill.Payment.Amount)
+	log.Debug(
+		"applying delta to balance",
+		slog.Int64("old_balance", oldBalance),
+		slog.Int64("new_balance", acc.Balance),
+	)
 
-	if _, err := c.storage.Update(ctx, &dto.UpdateAccount{
-		Id:         event.AccountId,
-		NewBalance: acc.Balance,
-	}); err != nil {
+	updated := dto.NewUpdateAccount(event.AccountId).WithNewBalance(acc.Balance)
+
+	if _, err := c.storage.Update(ctx, updated); err != nil {
 		slog.Error("failed to update account", sl.Err(err))
 		return err
 	}
 
-	slog.Info("account balance updated", sl.UUID("account_id", accId))
+	log.Info("account balance updated", sl.UUID("account_id", accId), slog.Any("acc", acc))
 
 	if err := c.broker.PublishBalanceChanged(ctx, &dto.EventBalanceChanged{
 		AccountId:  acc.Id,

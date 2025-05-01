@@ -34,8 +34,8 @@ func (s *AccountStorage) Update(ctx context.Context, in *dto.UpdateAccount) (*mo
 		Where(sq.Eq{"id": in.Id}).
 		Set("updated_at", time.Now())
 
-	if in.NewBalance != 0 {
-		builder = builder.Set("balance", in.NewBalance)
+	if in.NewBalance != nil {
+		builder = builder.Set("balance", *in.NewBalance)
 	}
 
 	query, args, err := builder.
