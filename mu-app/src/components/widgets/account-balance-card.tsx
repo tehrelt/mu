@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 export const AccountBalanceCard = ({ id }: { id: string }) => {
   const accountQuery = useAccount(id);
   return (
-    <Card className="w-[180px]">
+    <Card>
       <CardHeader>
         <CardTitle>Баланс счёта</CardTitle>
       </CardHeader>

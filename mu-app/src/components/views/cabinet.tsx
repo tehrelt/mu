@@ -76,7 +76,13 @@ export const CabinetViewer = ({ cabinet }: Props) => {
             unit={query.data.service.measureUnit}
           />
         )}
-        {query.data && <LogsChart records={query.data.history.logs} />}
+        {query.data && (
+          <LogsChart
+            services={[
+              { logs: query.data.history.logs, name: query.data.service.name },
+            ]}
+          />
+        )}
       </MasonryLayout>
     </div>
   );

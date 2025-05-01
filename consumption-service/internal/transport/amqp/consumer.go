@@ -41,7 +41,7 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case msg := <-serviceConnectedMessages:
-			if err := c.handleServiceConnectedEvent(ctx, msg); err != nil {
+			if err := c.handleServiceConnectedEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to handle service connected event", sl.Err(err))
 			}
 		}

@@ -44,7 +44,7 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case msg := <-connectServiceQueue:
-			if err := c.handleConnectServiceEvent(ctx, msg); err != nil {
+			if err := c.handleConnectServiceEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to consume connect service event", sl.Err(err))
 			}
 		}

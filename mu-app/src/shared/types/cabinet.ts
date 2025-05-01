@@ -24,4 +24,7 @@ export const cabinetLog = z.object({
     if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
   }, z.date()),
 });
+export const cabinetLogs = z.array(cabinetLog);
+
 export type CabinetLog = z.infer<typeof cabinetLog>;
+export type CabinetLogs = z.infer<typeof cabinetLogs>;

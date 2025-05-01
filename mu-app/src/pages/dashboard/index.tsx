@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import MasonryLayout from "@/components/ui/masonry-layout";
 import { PaymentStatusBadge } from "@/components/ui/payment-status-badge";
+import { LogsChart } from "@/components/views/cabinet-logs-chart";
 import { AccountBalanceCard } from "@/components/widgets/account-balance-card";
-import { useAccount } from "@/shared/hooks/use-account";
 import { datef } from "@/shared/lib/utils";
 import { routes } from "@/shared/routes";
 import { accountService } from "@/shared/services/account.service";
@@ -20,7 +20,7 @@ import { accountStore } from "@/shared/store/account-store";
 import { Payment, PaymentStatus } from "@/shared/types/payment";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, Rows } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Dashboard = () => {
@@ -39,55 +39,57 @@ export const Dashboard = () => {
       await accountService.payments(accountId, { status: "pending" }),
   });
 
+  const logsQuery = useQuery({
+    queryKey: ["account", "logs"],
+    queryFn: async () => await accountService.logs(accountId),
+  });
+
   return (
-    <div className="flex gap-6">
-      <div>
-        <AccountBalanceCard id={accountId} />
-      </div>
-      <div>
-        <Card className="">
-          <CardHeader>
-            <CardTitle>
-              Последние {Math.min(limit, paymentsQuery.data?.payments.length)}{" "}
-              платежа
-            </CardTitle>
-            {pendingPaymentsQuery.data &&
-              pendingPaymentsQuery.data.payments.length != 0 && (
-                <Alert variant="warn">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>У вас есть неоплаченные платежи</AlertTitle>
-                  <AlertDescription>
-                    <Link to={routes.dashboard.addFunds}>
-                      <Button variant={"outline"}>Перейти к оплате</Button>
-                    </Link>
-                  </AlertDescription>
-                </Alert>
-              )}
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              {paymentsQuery.data && (
-                <DataTable
-                  data={paymentsQuery.data.payments}
-                  columns={cols}
-                  className="h-[200px]"
-                />
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="flex w-full">
-            <Link
-              to={routes.dashboard.account.transactionHistory}
-              className="w-full"
-            >
-              <Button className="w-full" variant={"outline"}>
-                Показать полную историю транзакции
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
+    <MasonryLayout>
+      <AccountBalanceCard id={accountId} />
+      <Card className="">
+        <CardHeader>
+          <CardTitle>
+            Последние {Math.min(limit, paymentsQuery.data?.payments.length)}{" "}
+            платежа
+          </CardTitle>
+          {pendingPaymentsQuery.data &&
+            pendingPaymentsQuery.data.payments.length != 0 && (
+              <Alert variant="warn">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>У вас есть неоплаченные платежи</AlertTitle>
+                <AlertDescription>
+                  <Link to={routes.dashboard.addFunds}>
+                    <Button variant={"outline"}>Перейти к оплате</Button>
+                  </Link>
+                </AlertDescription>
+              </Alert>
+            )}
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div>
+            {paymentsQuery.data && (
+              <DataTable
+                data={paymentsQuery.data.payments}
+                columns={cols}
+                className="h-[200px]"
+              />
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="flex w-full">
+          <Link
+            to={routes.dashboard.account.transactionHistory}
+            className="w-full"
+          >
+            <Button className="w-full" variant={"outline"}>
+              Показать полную историю транзакции
+            </Button>
+          </Link>
+        </CardFooter>
+      </Card>
+      {logsQuery.data && <LogsChart services={logsQuery.data.items} />}
+    </MasonryLayout>
   );
 };
 

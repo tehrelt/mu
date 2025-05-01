@@ -47,7 +47,7 @@ export const NewTicketForm = (props: Props) => {
       });
     },
     onSettled: () => {
-      navigate(routes.dashboard);
+      navigate(routes.dashboard.index);
     },
   });
 

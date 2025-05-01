@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 )
 
 type Cabinet struct {
@@ -121,5 +124,98 @@ func LogsList(consumer consumptionpb.ConsumptionServiceClient) fiber.Handler {
 			Logs:  logs,
 			Total: metaResp.Meta.Total,
 		})
+	}
+}
+
+type AggregateLogsList struct {
+	Name string `json:"name"`
+	id   string
+	Logs []Log `json:"logs"`
+}
+
+func (a *AggregateLogsList) AddLog(log Log) {
+	a.Logs = append(a.Logs, log)
+}
+
+type MultipleLogsList struct {
+	Items []AggregateLogsList `json:"items"`
+}
+
+func LogsListByAccount(consumer consumptionpb.ConsumptionServiceClient, rater ratepb.RateServiceClient) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx := c.UserContext()
+		accountId, err := validateUuid(c.Params("id", ""))
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		limit := c.QueryInt("limit", 10000)
+		page := c.QueryInt("page", 1)
+
+		stream, err := consumer.Logs(ctx, &consumptionpb.LogsRequest{
+			Pagination: &consumptionpb.Pagination{
+				Offset: uint64((page - 1) * limit),
+				Limit:  uint64(limit),
+			},
+			AccountId: accountId.String(),
+		})
+		if err != nil {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+
+		// meta response
+		if _, err := stream.Recv(); err != nil {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+
+		resp := MultipleLogsList{
+			Items: make([]AggregateLogsList, 0),
+		}
+
+		for {
+			batch, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return c.SendStatus(fiber.StatusNotFound)
+			}
+
+			for _, log := range batch.Consumptions {
+
+				_, idx, found := lo.FindIndexOf(resp.Items, func(item AggregateLogsList) bool {
+					return item.id == log.ServiceId
+				})
+
+				log := Log{
+					Id:        log.Id,
+					Consumed:  log.Consumed,
+					CabinetId: log.CabinetId,
+					AccountId: log.AccountId,
+					ServiceId: log.ServiceId,
+					CreatedAt: time.Unix(log.CreatedAt, 0),
+				}
+
+				if !found {
+					service, err := rater.Find(ctx, &ratepb.FindRequest{
+						Id: log.ServiceId,
+					})
+					if err != nil {
+						slog.Error("failed to find service, skipping...", slog.String("serviceId", log.ServiceId))
+						continue
+					}
+
+					resp.Items = append(resp.Items, AggregateLogsList{
+						Name: service.Name,
+						id:   log.ServiceId,
+						Logs: []Log{log},
+					})
+				} else {
+					resp.Items[idx].AddLog(log)
+				}
+			}
+		}
+
+		return c.JSON(resp)
 	}
 }

@@ -17,7 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { CabinetLog } from "@/shared/types/cabinet";
+import { CabinetLog, CabinetLogs } from "@/shared/types/cabinet";
 import { datef } from "@/shared/lib/utils";
 
 const chartConfig = {
@@ -31,15 +31,51 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Props = {
-  records: CabinetLog[];
+type Service = {
+  name: string;
+  logs: CabinetLog[];
 };
 
-export function LogsChart({ records }: Props) {
+type Props = {
+  services: Service[];
+};
+
+type AggregatedLog = {
+  [serviceName: string]: number;
+} & { date: string | Date };
+
+function aggregateLogsByDate(services: Service[]): AggregatedLog[] {
+  const dateMap: Map<string, AggregatedLog> = new Map();
+
+  for (const service of services) {
+    for (const log of service.logs) {
+      const dateKey = new Date(log.createdAt).toISOString().split("T")[0]; // только дата, без времени
+
+      if (!dateMap.has(dateKey)) {
+        dateMap.set(dateKey, { date: dateKey });
+      }
+
+      const aggregated = dateMap.get(dateKey)!;
+      aggregated[service.name] = (aggregated[service.name] || 0) + log.consumed;
+    }
+  }
+
+  return Array.from(dateMap.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+}
+
+export function LogsChart({ services }: Props) {
+  const data = aggregateLogsByDate(services);
+
+  console.log(data);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Потребление по дням</CardTitle>
+        <CardTitle>
+          Потребление по дням ({services.map((s) => s.name).join(", ")})
+        </CardTitle>
         <CardDescription>
           Показывает потребление по дням за последний месяц
         </CardDescription>
@@ -48,7 +84,7 @@ export function LogsChart({ records }: Props) {
         <ChartContainer config={chartConfig}>
           <AreaChart
             accessibilityLayer
-            data={[...records].reverse()}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -56,7 +92,7 @@ export function LogsChart({ records }: Props) {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="createdAt"
+              dataKey="date"
               tickLine={true}
               axisLine={false}
               tickMargin={8}
@@ -66,14 +102,16 @@ export function LogsChart({ records }: Props) {
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
-            <Area
-              dataKey="consumed"
-              type="natural"
-              fill="var(--color-mobile)"
-              fillOpacity={0.4}
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
+            {services.map((s) => (
+              <Area
+                dataKey={`${s.name}`}
+                type="natural"
+                fill="var(--color-mobile)"
+                fillOpacity={0.4}
+                stroke="var(--color-mobile)"
+                stackId={s.name}
+              />
+            ))}
           </AreaChart>
         </ChartContainer>
       </CardContent>

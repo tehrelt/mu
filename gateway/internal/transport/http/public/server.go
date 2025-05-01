@@ -117,6 +117,7 @@ func (s *Server) setup() {
 	accounts.Get("/:id", token, authmw(), handlers.Account(s.accounter))
 	accounts.Get("/:id/payments", token, authmw(), handlers.PaymentListHandler(s.biller))
 	accounts.Get("/:id/services", token, authmw(), handlers.AccountServicesListHandler(s.accounter, s.rater, s.consumer))
+	accounts.Get("/:id/logs", token, authmw(), handlers.LogsListByAccount(s.consumer, s.rater))
 
 	cabinets := root.Group("/cabinets")
 	cabinets.Post("/:cabinetId/consume", token, authmw(), handlers.NewConsume(s.consumer, s.accounter))

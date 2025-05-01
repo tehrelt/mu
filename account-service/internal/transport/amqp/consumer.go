@@ -70,15 +70,15 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case msg := <-paymentStatusChangedQueue:
-			if err := c.handlePaymentStatusChangedEvent(ctx, msg); err != nil {
+			if err := c.handlePaymentStatusChangedEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to consume payment status changed event", sl.Err(err))
 			}
 		case msg := <-newAccountQueue:
-			if err := c.handleNewAccountEvent(ctx, msg); err != nil {
+			if err := c.handleNewAccountEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to consume ticket status changed event", sl.Err(err))
 			}
 		case msg := <-ConnectServiceQueue:
-			if err := c.handleConnectServiceEvent(ctx, msg); err != nil {
+			if err := c.handleConnectServiceEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to consume ticket status changed event", sl.Err(err))
 			}
 		}

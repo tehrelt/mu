@@ -3,6 +3,7 @@ import { z } from "zod";
 import { houseAccountSchema } from "../types/account";
 import { paymentSchema, PaymentStatus } from "../types/payment";
 import { rateSchemaWithCabinetId } from "../types/rate";
+import { cabinetLog } from "../types/cabinet";
 
 export const getUserAccountsResponse = z.object({
   accounts: z.array(houseAccountSchema),
@@ -29,7 +30,7 @@ class AccountService {
 
   async payments(
     id: string,
-    f?: Partial<{ status: PaymentStatus; limit: number }>
+    f?: Partial<{ status: PaymentStatus; limit: number }>,
   ) {
     const res = await api.get(`/accounts/${id}/payments`, { params: f });
     const data = accountPaymentsResponseSchema.parse(res.data);
@@ -39,6 +40,21 @@ class AccountService {
   async services(accountId: string) {
     const response = await api.get(`/accounts/${accountId}/services`);
     return accountServicesResponseSchema.parse(response.data);
+  }
+
+  async logs(accountId: string) {
+    const response = await api.get(`/accounts/${accountId}/logs`);
+
+    const schema = z.object({
+      items: z.array(
+        z.object({
+          name: z.string(),
+          logs: z.array(cabinetLog),
+        }),
+      ),
+    });
+
+    return schema.parse(response.data);
   }
 }
 
