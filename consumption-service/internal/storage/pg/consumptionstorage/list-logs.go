@@ -2,10 +2,13 @@ package consumptionstorage
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgconn"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/consumption-service/internal/dto"
@@ -26,9 +29,9 @@ func (s *Storage) Logs(ctx context.Context, filters *dto.LogsFilters) ([]*models
 	builder := sq.
 		Select("l.id", "l.amount", "l.payment_id", "l.cabinet_id", "l.created_at", "c.account_id", "c.service_id").
 		From(fmt.Sprintf("%s as l", pg.ConsumptionLogTable)).
-		Join(fmt.Sprintf("%s as c", pg.CabinetTable), "l.cabinet_id = c.id").
+		Join(fmt.Sprintf("%s as c ON l.cabinet_id = c.id", pg.CabinetTable)).
 		PlaceholderFormat(sq.Dollar).
-		OrderBy("created_at DESC").
+		OrderBy("c.created_at DESC").
 		Limit(100)
 
 	if filters != nil {
@@ -66,7 +69,12 @@ func (s *Storage) Logs(ctx context.Context, filters *dto.LogsFilters) ([]*models
 
 	rows, err := s.pool.Query(ctx, query, args...)
 	if err != nil {
-		log.Error("failed to execute query", sl.Err(err))
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			log.Error("failed to execute query", sl.Err(err), slog.Any("pgerr", pgErr))
+		} else {
+			log.Error("failed to execute query", sl.Err(err))
+		}
 		return nil, err
 	}
 	defer rows.Close()
@@ -103,8 +111,7 @@ func (s *Storage) CountLogs(ctx context.Context, filters *dto.LogsFilters) (uint
 	builder := sq.
 		Select("count(*)").
 		From(pg.ConsumptionLogTable).
-		PlaceholderFormat(sq.Dollar).
-		OrderBy("created_at DESC")
+		PlaceholderFormat(sq.Dollar)
 
 	if filters != nil {
 		if filters.CabinetId != uuid.Nil {

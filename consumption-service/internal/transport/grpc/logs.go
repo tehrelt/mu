@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"log/slog"
 	"math"
 
 	"github.com/google/uuid"
@@ -40,6 +41,8 @@ func (s *Server) Logs(req *consumptionpb.LogsRequest, stream grpc.ServerStreamin
 		return status.Errorf(codes.Internal, "failed to get logs: %v", err)
 	}
 
+	slog.Debug("receieved logs", slog.Any("log", logs), slog.Any("total", total))
+
 	batchsize := 20
 
 	span.AddEvent("sending meta response",
@@ -54,8 +57,16 @@ func (s *Server) Logs(req *consumptionpb.LogsRequest, stream grpc.ServerStreamin
 			Batchsize: uint32(batchsize),
 		},
 	})
+	q := float64(len(logs)) / float64(batchsize)
+	iters := int(math.Ceil(q))
 
-	iters := int(math.Floor(float64(len(logs)) / float64(batchsize)))
+	slog.Debug(
+		"iters count",
+		slog.Int("len", len(logs)),
+		slog.Int("batchsize", batchsize),
+		slog.Int("iters", iters),
+		slog.Float64("q", q),
+	)
 
 	for i := range iters {
 		start := i * batchsize
