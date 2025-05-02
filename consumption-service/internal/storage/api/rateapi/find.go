@@ -29,5 +29,7 @@ func (a *Api) Find(ctx context.Context, id uuid.UUID) (*models.Service, error) {
 	return &models.Service{
 		Id:   uuid.MustParse(res.Id),
 		Rate: uint64(res.Rate),
+		Name: res.Name,
+		Unit: res.MeasureUnit,
 	}, nil
 }

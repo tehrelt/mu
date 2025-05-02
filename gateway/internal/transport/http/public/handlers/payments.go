@@ -91,6 +91,7 @@ func PaymentListHandler(biller billingpb.BillingServiceClient) fiber.Handler {
 			payment := dto.Payment{
 				Id:        bill.Payment.Id,
 				Status:    bill.Payment.Status.String(),
+				Message:   bill.Payment.Message,
 				Amount:    float64(bill.Payment.Amount) / 100,
 				CreatedAt: time.Unix(bill.Payment.CreatedAt, 0),
 			}
@@ -124,6 +125,7 @@ func PaymentFindHandler(biller billingpb.BillingServiceClient) fiber.Handler {
 		payment := dto.Payment{
 			Id:        bill.Payment.Id,
 			Status:    bill.Payment.Status.String(),
+			Message:   bill.Payment.Message,
 			Amount:    float64(bill.Payment.Amount) / 100,
 			CreatedAt: time.Unix(bill.Payment.CreatedAt, 0),
 		}

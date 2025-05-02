@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/tehrelt/mu-lib/sl"
@@ -34,6 +35,7 @@ func (uc *UseCase) Consume(ctx context.Context, in *dto.NewConsume) (*dto.Consum
 		AccountId: cabinet.AccountId,
 		ServiceId: service.Id,
 		Amount:    amount,
+		Message:   fmt.Sprintf("Оплата потребления %d %s. Поставщик - %s", in.Consumed, service.Unit, service.Name),
 	}
 
 	logger.Debug("creating charge", slog.Any("charge", charge))

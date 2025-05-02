@@ -28,7 +28,9 @@ type ConsumptionLog struct {
 
 type Service struct {
 	Id   uuid.UUID
+	Name string
 	Rate uint64
+	Unit string
 }
 
 type Account struct {
@@ -38,4 +40,5 @@ type Account struct {
 type Charge struct {
 	PaymentId uuid.UUID
 	Amount    uint64
+	Message   string
 }

@@ -26,8 +26,9 @@ func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, 
 	log.Debug("list payments", slog.Any("filters", filters))
 
 	builder := sq.
-		Select("*").
-		From(pg.PAYMENTS_TABLE).OrderBy("created_at DESC")
+		Select("id", "account_id", "amount", "message", "status", "created_at", "updated_at").
+		From(pg.PAYMENTS_TABLE).
+		OrderBy("created_at DESC")
 
 	if filters.AccountId != uuid.Nil {
 		builder = builder.Where(sq.Eq{"account_id": filters.AccountId})
@@ -75,6 +76,7 @@ func (s *PaymentStorage) List(ctx context.Context, filters *dto.PaymentFilters, 
 			&payment.Id,
 			&payment.AccountId,
 			&payment.Amount,
+			&payment.Message,
 			&payment.Status,
 			&payment.CreatedAt,
 			&payment.UpdatedAt,

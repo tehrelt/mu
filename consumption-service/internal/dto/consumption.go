@@ -36,6 +36,7 @@ type Charge struct {
 	AccountId uuid.UUID
 	ServiceId uuid.UUID
 	Amount    uint64
+	Message   string
 }
 
 type UpdateCabinet struct {

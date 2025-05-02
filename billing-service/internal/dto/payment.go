@@ -9,6 +9,7 @@ import (
 type CreatePayment struct {
 	AccountId uuid.UUID
 	Amount    int64
+	Message   string
 }
 
 func (cp *CreatePayment) FromProto(pb *billingpb.CreateRequest) (err error) {
@@ -18,6 +19,7 @@ func (cp *CreatePayment) FromProto(pb *billingpb.CreateRequest) (err error) {
 	}
 
 	cp.Amount = pb.Amount
+	cp.Message = pb.Message
 
 	return nil
 }

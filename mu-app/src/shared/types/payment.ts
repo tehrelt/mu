@@ -7,6 +7,7 @@ export const paymentSchema = z.object({
   id: z.string().uuid(),
   amount: z.number(),
   status: paymentStatusSchema,
+  message: z.string(),
   createdAt: z.preprocess((arg) => {
     if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
   }, z.date()),

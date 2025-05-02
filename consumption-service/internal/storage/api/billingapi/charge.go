@@ -17,6 +17,7 @@ func (a *Api) Charge(ctx context.Context, bill *dto.Charge) (uuid.UUID, error) {
 	req := &billingpb.CreateRequest{
 		AccountId: bill.AccountId.String(),
 		Amount:    -int64(bill.Amount),
+		Message:   bill.Message,
 	}
 
 	logger.Debug("creating payment", slog.Any("req", req))

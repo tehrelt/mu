@@ -15,7 +15,7 @@ const cols = (unit?: string): ColumnDef<CabinetLog>[] => [
   },
   {
     accessorKey: "consumed",
-    header: `Сколько потреблено ${unit && `(${unit})`}`,
+    header: `Сколько потреблено ${unit ? `(${unit})` : ""}`,
     cell: ({ getValue }) => {
       const consumed = getValue() as number;
       return <p>{consumed}</p>;

@@ -1,5 +1,4 @@
 import { DataTable } from "@/components/data-table";
-import { Badge } from "@/components/ui/badge";
 import { Balance } from "@/components/ui/balance";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import MasonryLayout from "@/components/ui/masonry-layout";
 import { PaymentStatusBadge } from "@/components/ui/payment-status-badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useAccounts } from "@/shared/hooks/use-accounts";
 import { datef } from "@/shared/lib/utils";
 import { routes } from "@/shared/routes";
 import { accountService } from "@/shared/services/account.service";
@@ -76,8 +68,8 @@ export function AddFundsPage() {
   });
 
   return (
-    <div className="flex gap-8">
-      <Card className="w-[420px]">
+    <MasonryLayout>
+      <Card className="">
         <CardHeader>
           <CardTitle>Пополнить счёт</CardTitle>
           <CardDescription>
@@ -115,7 +107,7 @@ export function AddFundsPage() {
       {paymentsQuery.data && (
         <PendingPayments payments={paymentsQuery.data?.payments} />
       )}
-    </div>
+    </MasonryLayout>
   );
 }
 
