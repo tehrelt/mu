@@ -1,20 +1,4 @@
 services:
-  billing-service:
-    container_name: mu-billing-service
-    build:
-      context: .
-    env_file:
-      - .env
-    environment:
-      WAIT_HOSTS: pg:${PG_PORT}
-      PG_HOST: pg
-      PG_PORT: ${PG_PORT}
-      ENV: prod
-    depends_on:
-      - pg
-    ports:
-      - "${GRPC_PORT}:${GRPC_PORT}"
-
   pg:
     image: postgres:17.4-alpine3.21
     restart: unless-stopped
@@ -25,8 +9,20 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
-      - "5433:${PG_PORT}"
+      - "${PG_PORT}:5432"
+
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis-data:/data
 
 volumes:
   pg_data:
-    name: mu-billing-service-pg
+    name: mu-notification-service-pg
+  redis-data:
+    name: mu-notification-service-redis

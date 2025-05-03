@@ -10,7 +10,7 @@ run: build
 	./bin/app -env .env
 
 PB=pkg/pb
-PROTO=proto/account.proto
+PROTO=proto/notification.proto
 USER_PROTO=proto/user.proto
 HOUSE_PROTO=proto/house.proto
 BILLING_PROTO=proto/billing.proto
@@ -20,9 +20,9 @@ protobuf:
 
 	protoc  \
 		--go_out=. \
-		--go_opt=M$(PROTO)=$(PB)/accountpb \
+		--go_opt=M$(PROTO)=$(PB)/notificationpb \
 		--go-grpc_out=. \
-		--go-grpc_opt=M$(PROTO)=$(PB)/accountpb \
+		--go-grpc_opt=M$(PROTO)=$(PB)/notificationpb \
 		$(PROTO)
 
 	protoc  \

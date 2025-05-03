@@ -10,20 +10,25 @@ import (
 	"time"
 
 	"github.com/google/wire"
-	"github.com/jmoiron/sqlx"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/notification-service/internal/config"
+	"github.com/tehrelt/mu/notification-service/internal/storage/pg/integrationstorage"
+	"github.com/tehrelt/mu/notification-service/internal/storage/redis/otpstorage"
 	"github.com/tehrelt/mu/notification-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/notification-service/internal/transport/amqp"
+	tgrpc "github.com/tehrelt/mu/notification-service/internal/transport/grpc"
+	"github.com/tehrelt/mu/notification-service/internal/usecase"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func New(ctx context.Context) (*App, func(), error) {
@@ -32,42 +37,63 @@ func New(ctx context.Context) (*App, func(), error) {
 		_servers,
 
 		amqp.New,
+		tgrpc.New,
+
+		usecase.New,
 
 		rmq.New,
 
-		// _ticketpb,
+		otpstorage.NewStorage,
+		integrationstorage.NewStorage,
+
 		_amqp,
-		// _pg,
+		_pg,
+		_redis,
 		_tracer,
 		config.New,
 	))
 }
 
-func _pg(cfg *config.Config) (*sqlx.DB, func(), error) {
-	host := cfg.Postgres.Host
-	port := cfg.Postgres.Port
-	user := cfg.Postgres.User
-	pass := cfg.Postgres.Pass
-	name := cfg.Postgres.Name
+func _redis(ctx context.Context, cfg *config.Config) (*redis.Client, func(), error) {
 
-	cs := fmt.Sprintf(`postgres://%s:%s@%s:%d/%s?sslmode=disable`, user, pass, host, port, name)
+	log := slog.With()
 
-	db, err := sqlx.Connect("pgx", cs)
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+		Password: cfg.Redis.Pass,
+		DB:       0,
+	})
+
+	log.Debug("connecting to redis", slog.String("conn", cfg.Redis.ConnectionString()))
+	t := time.Now()
+	if err := client.Ping(ctx).Err(); err != nil {
+		slog.Error("failed to connect to redis", slog.String("err", err.Error()), slog.String("conn", cfg.Redis.ConnectionString()))
+		return nil, func() { client.Close() }, err
+	}
+	log.Info("connected to redis", slog.String("ping", fmt.Sprintf("%2.fs", time.Since(t).Seconds())))
+
+	return client, func() { client.Close() }, nil
+}
+func _pg(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, func(), error) {
+
+	slog.Info("connecting to database", slog.String("connection", cfg.Postgres.ConnectionString()))
+
+	pool, err := pgxpool.Connect(ctx, "postgres://"+cfg.Postgres.ConnectionString())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	slog.Debug("connecting to database", slog.String("conn", cs))
+	log := slog.With(slog.String("connection", cfg.Postgres.ConnectionString()))
+	log.Debug("connecting to database")
 	t := time.Now()
-	if err := db.Ping(); err != nil {
-		slog.Error("failed to connect to database", slog.String("err", err.Error()), slog.String("conn", cs))
-		return nil, func() { db.Close() }, err
+	if err := pool.Ping(ctx); err != nil {
+		log.Error("failed to connect to database", sl.Err(err))
+		return nil, func() { pool.Close() }, err
 	}
-	slog.Info("connected to database", slog.String("ping", fmt.Sprintf("%2.fs", time.Since(t).Seconds())))
+	log.Info("connected to database", slog.String("ping", fmt.Sprintf("%2.fs", time.Since(t).Seconds())))
 
-	return db, func() { db.Close() }, nil
+	return pool, func() { pool.Close() }, nil
 }
-
 func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 	cs := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.Amqp.User, cfg.Amqp.Pass, cfg.Amqp.Host, cfg.Amqp.Port)
 
@@ -118,8 +144,8 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 	return channel, closefn, nil
 }
 
-func _servers(c *amqp.AmqpConsumer) []Server {
-	return []Server{c}
+func _servers(g *tgrpc.Server, c *amqp.AmqpConsumer) []Server {
+	return []Server{c, g}
 }
 
 func _tracer(ctx context.Context, cfg *config.Config) (trace.Tracer, error) {

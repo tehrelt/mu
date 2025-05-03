@@ -21,12 +21,16 @@ type Grpc struct {
 	Port int    `env:"GRPC_PORT" env-default:"8080"`
 }
 
-type Postgres struct {
-	Host string `env:"PG_HOST" env-required:"true"`
-	Port int    `env:"PG_PORT" env-required:"true"`
-	User string `env:"PG_USER" env-required:"true"`
-	Pass string `env:"PG_PASS" env-required:"true"`
-	Name string `env:"PG_NAME" env-required:"true"`
+type Database struct {
+	Host string `env:"HOST" env-required:"true"`
+	Port int    `env:"PORT" env-required:"true"`
+	User string `env:"USER"`
+	Pass string `env:"PASS"`
+	Name string `env:"NAME"`
+}
+
+func (m *Database) ConnectionString() string {
+	return fmt.Sprintf("%s:%s@%s:%d/%s", m.User, m.Pass, m.Host, m.Port, m.Name)
 }
 
 type Env string
@@ -46,7 +50,8 @@ type Config struct {
 	Env      Env `env:"ENV"`
 	App      App
 	Grpc     Grpc
-	Postgres Postgres
+	Postgres Database `env-prefix:"PG_"`
+	Redis    Database `env-prefix:"REDIS_"`
 
 	Jaeger struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
