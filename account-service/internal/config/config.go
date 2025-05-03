@@ -86,10 +86,9 @@ type Config struct {
 		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
 	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
 
-	ConnectServiceQueue struct {
-		Exchange string `env:"CONNECT_SERVICE_QUEUE_EXCHANGE"`
-		Routing  string `env:"CONNECT_SERVICE_QUEUE_ROUTING"`
-	}
+	ConnectServiceExchange struct {
+		Exchange string `env:"EXCHANGE"`
+	} `env-prefix:"RMQ_CONNECT_SERVICE_"`
 }
 
 func New() *Config {

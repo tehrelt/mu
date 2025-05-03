@@ -31,7 +31,7 @@ func New(
 
 func (c *AmqpConsumer) Run(ctx context.Context) error {
 
-	serviceConnectedMessages, err := c.manager.Consume(ctx, c.cfg.ServiceConnectedQueue.Routing)
+	serviceConnectedMessages, err := c.manager.Consume(ctx, c.cfg.ConnectServiceExchange.Queue)
 	if err != nil {
 		return err
 	}

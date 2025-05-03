@@ -40,5 +40,5 @@ func (b *Broker) PublishConnectServiceRequest(ctx context.Context, event *dto.Ev
 		return err
 	}
 
-	return b.manager.Publish(ctx, b.cfg.ConnectServiceQueue.Exchange, b.cfg.ConnectServiceQueue.Routing, j)
+	return b.manager.Publish(ctx, b.cfg.ConnectServiceExchange.Exchange, "", j)
 }

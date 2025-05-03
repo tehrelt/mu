@@ -61,13 +61,5 @@ func (c *AmqpConsumer) handleConnectServiceEvent(ctx context.Context, msg *rmqma
 		return err
 	}
 
-	if err := c.broker.PublishServiceConnectedEvent(ctx, &dto.EventServiceConnected{
-		AccountId: event.AccountId.String(),
-		ServiceId: event.ServiceId.String(),
-	}); err != nil {
-		slog.Error("failed to publish service connected event", sl.Err(err))
-		return err
-	}
-
 	return nil
 }

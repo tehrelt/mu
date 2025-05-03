@@ -15,7 +15,6 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/housing-service/internal/config"
 	"github.com/tehrelt/mu/housing-service/internal/storage/pg/housestorage"
-	"github.com/tehrelt/mu/housing-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/housing-service/internal/transport/amqp"
 	tgrpc "github.com/tehrelt/mu/housing-service/internal/transport/grpc"
 	ratepb "github.com/tehrelt/mu/housing-service/pkg/pb/ratespb"
@@ -37,7 +36,6 @@ func New(ctx context.Context) (*App, func(), error) {
 		amqp.New,
 
 		housestorage.New,
-		rmq.New,
 
 		_tracer,
 		_ratepb,
@@ -101,43 +99,31 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		defer channel.Close()
 	}
 
-	if err := amqp_setup_exchange(channel, cfg.ConnectServiceQueue.Exchange, cfg.ConnectServiceQueue.Routing); err != nil {
-		slog.Error("failed to setup notifications exchange", sl.Err(err))
+	exchange := cfg.ConnectServiceExchange.Exchange
+	queueName := cfg.ConnectServiceExchange.Queue
+	rk := cfg.ConnectServiceExchange.Routing
+
+	log := slog.With(slog.String("exchange", exchange))
+	log.Info("declaring exchange")
+	if err := channel.ExchangeDeclare(exchange, "fanout", true, false, false, false, nil); err != nil {
+		slog.Error("failed to declare exchange", sl.Err(err))
 		return nil, closefn, err
 	}
 
-	if err := amqp_setup_exchange(channel, cfg.ServiceConnectedQueue.Exchange, cfg.ServiceConnectedQueue.Routing); err != nil {
-		slog.Error("failed to setup notifications exchange", sl.Err(err))
+	log.Info("declaring queue", slog.String("queue", queueName))
+	queue, err := channel.QueueDeclare(queueName, true, false, false, false, nil)
+	if err != nil {
+		log.Error("failed to declare queue", sl.Err(err), slog.String("queue", queueName))
+		return nil, closefn, err
+	}
+
+	log.Info("binding queue", slog.String("queue", queueName))
+	if err := channel.QueueBind(queue.Name, rk, exchange, false, nil); err != nil {
+		log.Error("failed to bind queue", sl.Err(err), slog.String("queue", queueName))
 		return nil, closefn, err
 	}
 
 	return channel, closefn, nil
-}
-func amqp_setup_exchange(channel *amqp091.Channel, exchange string, queues ...string) error {
-
-	log := slog.With(slog.String("exchange", exchange))
-	log.Info("declaring exchange")
-	if err := channel.ExchangeDeclare(exchange, "direct", true, false, false, false, nil); err != nil {
-		slog.Error("failed to declare notifications queue", sl.Err(err))
-		return err
-	}
-
-	for _, queueName := range queues {
-		log.Info("declaring queue", slog.String("queue", queueName))
-		queue, err := channel.QueueDeclare(queueName, true, false, false, false, nil)
-		if err != nil {
-			log.Error("failed to declare queue", sl.Err(err), slog.String("queue", queueName))
-			return err
-		}
-
-		log.Info("binding queue", slog.String("queue", queueName))
-		if err := channel.QueueBind(queue.Name, queueName, exchange, false, nil); err != nil {
-			log.Error("failed to bind queue", sl.Err(err), slog.String("queue", queueName))
-			return err
-		}
-	}
-
-	return nil
 }
 
 func _servers(g *tgrpc.Server, c *amqp.AmqpConsumer) []Server {
@@ -157,6 +143,3 @@ func _ratepb(cfg *config.Config) (ratepb.RateServiceClient, func(), error) {
 	client := ratepb.NewRateServiceClient(conn)
 	return client, func() { conn.Close() }, nil
 }
-
-
-curl https://proxy.golang.org/github.com/tehrelt/mu-lib/@v0.4/v0.4.info
