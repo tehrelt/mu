@@ -12,5 +12,14 @@ class IntegrationService {
       })
       .parse(response.data);
   }
+
+  async settings() {
+    const response = await api.get("/integrations");
+    return z
+      .object({
+        hasTelegram: z.boolean(),
+      })
+      .parse(response.data);
+  }
 }
 export const integrationService = new IntegrationService();

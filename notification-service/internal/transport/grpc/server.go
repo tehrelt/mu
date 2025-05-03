@@ -6,15 +6,18 @@ import (
 	"log/slog"
 	"net"
 
+	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/notification-service/internal/config"
 	"github.com/tehrelt/mu/notification-service/internal/usecase"
-	notificationlpb "github.com/tehrelt/mu/notification-service/pkg/pb/notificationpb"
+	"github.com/tehrelt/mu/notification-service/pkg/pb/notificationpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
@@ -22,7 +25,33 @@ type Server struct {
 	uc     *usecase.UseCase
 	tracer trace.Tracer
 
-	notificationlpb.UnimplementedNotificationServiceServer
+	notificationpb.UnimplementedNotificationServiceServer
+}
+
+// Integrations implements notificationpb.NotificationServiceServer.
+func (s *Server) Integrations(ctx context.Context, req *notificationpb.IntegrationsRequest) (*notificationpb.IntegrationsResponse, error) {
+
+	userid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id=%s", req.UserId)
+	}
+
+	settings, err := s.uc.Find(ctx, userid)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to find user settings")
+	}
+
+	if settings == nil {
+		return nil, status.Errorf(codes.NotFound, "user settings not found")
+	}
+
+	resp := &notificationpb.IntegrationsResponse{}
+
+	if settings.TelegramChatId != nil {
+		resp.TelegramChatId = *settings.TelegramChatId
+	}
+
+	return resp, nil
 }
 
 func New(cfg *config.Config, uc *usecase.UseCase, t trace.Tracer) *Server {
@@ -48,7 +77,7 @@ func (s *Server) Run(ctx context.Context) error {
 	slog.Info("enabling reflection")
 	reflection.Register(server)
 
-	notificationlpb.RegisterNotificationServiceServer(server, s)
+	notificationpb.RegisterNotificationServiceServer(server, s)
 
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {

@@ -12,17 +12,10 @@ type Props = {};
 export const IntegrationsSettingsPage = (props: Props) => {
   const profileQuery = useProfile();
 
-  const mutation = useMutation({
-    mutationKey: ["integrations", "link-telegram"],
-    mutationFn: async () => {
-      const { otp, userId } = await integrationService.getOtpCode();
-      window.open(`https://t.me/mu_myservices_bot?start=${otp}_${userId}`);
-    },
+  const settingsQuery = useQuery({
+    queryKey: ["profile", "integrations", "settings"],
+    queryFn: async () => await integrationService.settings(),
   });
-
-  const handleConnectClick = () => {
-    mutation.mutate();
-  };
 
   return (
     <div>
@@ -37,13 +30,36 @@ export const IntegrationsSettingsPage = (props: Props) => {
           <div className="grid gap-2">
             <Label>Telegram</Label>
             <div>
-              <Button onClick={() => handleConnectClick()}>
-                <Send /> Подключить
-              </Button>
+              {settingsQuery.data &&
+                (settingsQuery.data.hasTelegram ? (
+                  <Button disabled>Телеграм подключен</Button>
+                ) : (
+                  <ConnectTelegramButton />
+                ))}
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const ConnectTelegramButton = () => {
+  const mutation = useMutation({
+    mutationKey: ["integrations", "link-telegram"],
+    mutationFn: async () => {
+      const { otp, userId } = await integrationService.getOtpCode();
+      window.open(`https://t.me/mu_myservices_bot?start=${otp}_${userId}`);
+    },
+  });
+
+  const handleConnectClick = () => {
+    mutation.mutate();
+  };
+
+  return (
+    <Button onClick={() => handleConnectClick()}>
+      <Send /> Подключить
+    </Button>
   );
 };

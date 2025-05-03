@@ -6,9 +6,20 @@ option go_package="github.com/tehrelt/mu/proto/notification;notificationpb";
 
 service NotificationService {
 
+    rpc Integrations(IntegrationsRequest) returns (IntegrationsResponse);
+
     rpc TelegramOtp(TelegramOtpRequest) returns (TelegramOtpResponse);
     rpc LinkTelegram(LinkTelegramRequest) returns (LinkTelegramResponse);
     rpc UnlinkTelegram(UnlinkTelegramRequest) returns (UnlinkTelegramResponse);
+}
+
+
+message IntegrationsRequest {
+    string user_id = 1;
+}
+
+message IntegrationsResponse {
+    string telegram_chat_id = 1;
 }
 
 message LinkTelegramRequest {
