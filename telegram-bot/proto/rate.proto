@@ -1,0 +1,62 @@
+syntax = "proto3";
+package rate;
+option go_package="github.com/tehrelt/moi-uslugi/proto/rate;ratepb";
+
+service RateService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Find(FindRequest) returns (Service);
+    rpc List(ListRequest) returns (stream Service);
+    rpc ListIds(ListIdsRequest) returns (stream Service);
+    rpc UpdateServiceRate(UpdateServiceRateRequest) returns (UpdateServiceRateResponse);
+}
+
+enum ServiceType {
+    UNKNOWN = 0;
+    WATER_SUPPLY = 1;
+    HEATING = 2;
+    POWER_SUPPLY = 3;
+    GAS_SUPPLY = 4;
+}
+
+message Service {
+    string id = 1;
+    string name = 2;
+    string measure_unit = 3;
+    int64 rate = 4;
+    ServiceType type = 5;
+}
+
+message CreateRequest {
+    string name = 1;
+    int64 initial_rate = 2;
+    string measure_unit = 3;
+    ServiceType type = 4;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindResponse {
+    Service service = 1;
+}
+
+message UpdateServiceRateRequest {
+    string id = 1;
+    int64 new_rate = 2;
+}
+
+message UpdateServiceRateResponse {
+}
+
+message ListRequest {
+    ServiceType type = 1;
+}
+
+message ListIdsRequest {
+    repeated string ids = 1;
+}

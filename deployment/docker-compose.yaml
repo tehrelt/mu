@@ -9,6 +9,8 @@ include:
   - account-service.yaml
   - ticket-service.yaml
   - consumption-service.yaml
+  - notification-service.yaml
+  - telegram-bot.yaml
 
 services:
   pgadmin:

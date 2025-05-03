@@ -17,6 +17,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/notificationpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
@@ -35,6 +36,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		adminapi.New,
 		publicapi.New,
 
+		_notificationpb,
 		_consumptionpb,
 		_ticketpb,
 		_billingpb,
@@ -47,6 +49,21 @@ func New(ctx context.Context) (*App, func(), error) {
 		config.New,
 	))
 }
+
+func _notificationpb(cfg *config.Config) (notificationpb.NotificationServiceClient, error) {
+	host := cfg.NotificationService.Host
+	port := cfg.NotificationService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return notificationpb.NewNotificationServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(notificationpb.NotificationServiceClient), nil
+}
+
 func _consumptionpb(cfg *config.Config) (consumptionpb.ConsumptionServiceClient, error) {
 	host := cfg.ConsumptionService.Host
 	port := cfg.ConsumptionService.Port

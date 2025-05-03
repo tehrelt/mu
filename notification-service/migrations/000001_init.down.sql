@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS integrations;
+
+DROP EXTENSION IF EXISTS "uuid-ossp";

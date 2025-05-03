@@ -17,6 +17,7 @@ import (
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/notificationpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
@@ -39,6 +40,7 @@ type Server struct {
 	biller    billingpb.BillingServiceClient
 	ticketer  ticketpb.TicketServiceClient
 	consumer  consumptionpb.ConsumptionServiceClient
+	notifier  notificationpb.NotificationServiceClient
 }
 
 func New(
@@ -51,6 +53,7 @@ func New(
 	biller billingpb.BillingServiceClient,
 	ticketer ticketpb.TicketServiceClient,
 	consumer consumptionpb.ConsumptionServiceClient,
+	notifier notificationpb.NotificationServiceClient,
 ) *Server {
 	return &Server{
 		cfg:       cfg,
@@ -63,6 +66,7 @@ func New(
 		biller:    biller,
 		ticketer:  ticketer,
 		consumer:  consumer,
+		notifier:  notifier,
 	}
 }
 
@@ -138,6 +142,10 @@ func (s *Server) setup() {
 	billing.Get("/:id", token, authmw(), handlers.PaymentFindHandler(s.biller))
 	billing.Post("/:id/pay", token, authmw(), handlers.PaymentPayHandler(s.biller))
 	billing.Post("/:id/cancel", token, authmw(), handlers.PaymentCancelHandler(s.biller))
+
+	integrations := root.Group("/integrations")
+	integrations.Get("/", token, authmw(), handlers.GetIntegrationsSettings(s.notifier))
+	integrations.Post("/link-telegram", token, authmw(), handlers.GetTelegramOTP(s.notifier))
 }
 
 func (s *Server) Run(ctx context.Context) error {
