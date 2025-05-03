@@ -35,8 +35,8 @@ func (b *Broker) PublishStatusNewAccount(ctx context.Context, event *dto.EventTi
 		return err
 	}
 
-	exchange := b.cfg.TicketStatusChangedQueue.Exchange
-	rk := b.cfg.TicketStatusChangedQueue.NewAccountRoute
+	exchange := b.cfg.TicketStatusChangedExchange.Exchange
+	rk := b.cfg.TicketStatusChangedExchange.NewAccountRoute
 
 	return b.publish(ctx, exchange, rk, j)
 }
@@ -50,8 +50,8 @@ func (b *Broker) PublishStatusConnectService(ctx context.Context, event *dto.Eve
 		return err
 	}
 
-	exchange := b.cfg.TicketStatusChangedQueue.Exchange
-	rk := b.cfg.TicketStatusChangedQueue.ConnectServiceRoute
+	exchange := b.cfg.TicketStatusChangedExchange.Exchange
+	rk := b.cfg.TicketStatusChangedExchange.ConnectServiceRoute
 
 	return b.publish(ctx, exchange, rk, j)
 }

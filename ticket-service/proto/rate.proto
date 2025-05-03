@@ -6,6 +6,7 @@ service RateService {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Find(FindRequest) returns (Service);
     rpc List(ListRequest) returns (stream Service);
+    rpc ListIds(ListIdsRequest) returns (stream Service);
     rpc UpdateServiceRate(UpdateServiceRateRequest) returns (UpdateServiceRateResponse);
 }
 
@@ -56,3 +57,6 @@ message ListRequest {
     ServiceType type = 1;
 }
 
+message ListIdsRequest {
+    repeated string ids = 1;
+}

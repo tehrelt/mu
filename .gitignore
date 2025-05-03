@@ -3,3 +3,4 @@ __debug*
 update-lib.sh
 count.py
 output.txt
+__tests/

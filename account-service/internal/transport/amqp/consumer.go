@@ -15,6 +15,11 @@ import (
 	"github.com/tehrelt/mu/account-service/pkg/pb/ticketpb"
 )
 
+const (
+	ConnectServiceQueue = "account_service.connect_service"
+	NewAccountQueue     = "account_service.new_account"
+)
+
 type AmqpConsumer struct {
 	cfg        *config.Config
 	manager    *rmqmanager.RabbitMqManager
@@ -53,13 +58,13 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		return err
 	}
 
-	newAccountQueue, err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.NewAccountRoute)
+	newAccountQueue, err := c.manager.Consume(ctx, NewAccountQueue)
 	if err != nil {
 		slog.Error("failed to consume ticket status changed event", sl.Err(err))
 		return err
 	}
 
-	ConnectServiceQueue, err := c.manager.Consume(ctx, c.cfg.TicketStatusChanged.ConnectServiceRoute)
+	ConnectServiceQueue, err := c.manager.Consume(ctx, ConnectServiceQueue)
 	if err != nil {
 		slog.Error("failed to consume ticket status changed event", sl.Err(err))
 		return err

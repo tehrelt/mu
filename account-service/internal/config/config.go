@@ -80,11 +80,11 @@ type Config struct {
 		Routing  string `env:"BALANCE_CHANGED_ROUTING"`
 	}
 
-	TicketStatusChanged struct {
+	TicketStatusChangedExchange struct {
 		Exchange            string `env:"EXCHANGE"`
-		NewAccountRoute     string `env:"NEW_ACCOUNT_ROUTE"`
-		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
-	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
+		NewAccountRoute     string `env-default:"new_account"`
+		ConnectServiceRoute string `env-default:"connect_service"`
+	} `env-prefix:"RMQ_TICKET_STATUS_CHANGED_"`
 
 	ConnectServiceExchange struct {
 		Exchange string `env:"EXCHANGE"`

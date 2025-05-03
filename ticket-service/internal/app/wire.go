@@ -91,43 +91,15 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		defer channel.Close()
 	}
 
-	if err := amqp_setup_exchange(
-		channel,
-		cfg.TicketStatusChangedQueue.Exchange,
-		cfg.TicketStatusChangedQueue.NewAccountRoute,
-		cfg.TicketStatusChangedQueue.ConnectServiceRoute,
-	); err != nil {
-		slog.Error("failed to setup notifications exchange", sl.Err(err))
+	exchange := cfg.TicketStatusChangedExchange.Exchange
+	log := slog.With(slog.String("exchange", exchange))
+	log.Info("declaring exchange")
+	if err := channel.ExchangeDeclare(exchange, "topic", true, false, false, false, nil); err != nil {
+		slog.Error("failed to declare notifications queue", sl.Err(err))
 		return nil, closefn, err
 	}
 
 	return channel, closefn, nil
-}
-func amqp_setup_exchange(channel *amqp091.Channel, exchange string, queues ...string) error {
-
-	log := slog.With(slog.String("exchange", exchange))
-	log.Info("declaring exchange")
-	if err := channel.ExchangeDeclare(exchange, "direct", true, false, false, false, nil); err != nil {
-		slog.Error("failed to declare notifications queue", sl.Err(err))
-		return err
-	}
-
-	for _, queueName := range queues {
-		log.Info("declaring queue", slog.String("queue", queueName))
-		queue, err := channel.QueueDeclare(queueName, true, false, false, false, nil)
-		if err != nil {
-			log.Error("failed to declare queue", sl.Err(err), slog.String("queue", queueName))
-			return err
-		}
-
-		log.Info("binding queue", slog.String("queue", queueName))
-		if err := channel.QueueBind(queue.Name, queueName, exchange, false, nil); err != nil {
-			log.Error("failed to bind queue", sl.Err(err), slog.String("queue", queueName))
-			return err
-		}
-	}
-
-	return nil
 }
 
 func _servers(g *tgrpc.Server) []Server {

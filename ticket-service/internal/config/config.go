@@ -61,16 +61,11 @@ type Config struct {
 		Pass string `env:"AMQP_PASS"`
 	}
 
-	TicketStatusChangedQueue struct {
+	TicketStatusChangedExchange struct {
 		Exchange            string `env:"EXCHANGE"`
-		NewAccountRoute     string `env:"NEW_ACCOUNT_ROUTE"`
-		ConnectServiceRoute string `env:"CONNECT_SERVICE_ROUTE"`
-	} `env-prefix:"TICKET_STATUS_CHANGED_QUEUE_"`
-}
-
-type QueueConfig struct {
-	RoutingKey string `env:"ROUTING_KEY"`
-	Exchange   string `env:"EXCHANGE"`
+		NewAccountRoute     string `env-default:"new_account"`
+		ConnectServiceRoute string `env-default:"connect_service"`
+	} `env-prefix:"RMQ_TICKET_STATUS_CHANGED_"`
 }
 
 func New() *Config {

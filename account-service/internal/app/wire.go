@@ -80,6 +80,8 @@ func _pg(cfg *config.Config) (*sqlx.DB, func(), error) {
 func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 	cs := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.Amqp.User, cfg.Amqp.Pass, cfg.Amqp.Host, cfg.Amqp.Port)
 
+	log := slog.With(slog.String("cfg", "_amqp"))
+
 	conn, err := amqp091.Dial(cs)
 	if err != nil {
 		return nil, nil, err
@@ -106,14 +108,37 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		slog.Error("failed to setup notifications exchange", sl.Err(err))
 		return nil, closefn, err
 	}
-	if err := amqp_setup_exchange(channel, cfg.TicketStatusChanged.Exchange, cfg.TicketStatusChanged.NewAccountRoute); err != nil {
-		slog.Error("failed to setup notifications exchange", sl.Err(err))
+
+	exchange := cfg.TicketStatusChangedExchange.Exchange
+	log.Info("declaring exchange", slog.String("exchange", exchange))
+	if err := channel.ExchangeDeclare(exchange, "topic", true, false, false, false, nil); err != nil {
+		slog.Error("failed to declare notifications queue", sl.Err(err))
 		return nil, closefn, err
 	}
 
-	log := slog.With(slog.String("exchange", cfg.ConnectServiceExchange.Exchange))
-	log.Info("declaring exchange")
-	if err := channel.ExchangeDeclare(cfg.ConnectServiceExchange.Exchange, "fanout", true, false, false, false, nil); err != nil {
+	rq := map[string]string{
+		cfg.TicketStatusChangedExchange.ConnectServiceRoute: amqp.ConnectServiceQueue,
+		cfg.TicketStatusChangedExchange.NewAccountRoute:     amqp.NewAccountQueue,
+	}
+	for rk, queueName := range rq {
+
+		log.Info("declaring queue", slog.String("queue", queueName))
+		queue, err := channel.QueueDeclare(queueName, true, false, false, false, nil)
+		if err != nil {
+			log.Error("failed to declare queue", sl.Err(err), slog.String("queue", queueName))
+			return nil, closefn, err
+		}
+
+		log.Info("binding queue", slog.String("queue", queue.Name), slog.String("rk", rk))
+		if err := channel.QueueBind(queue.Name, rk, exchange, false, nil); err != nil {
+			log.Error("failed to bind queue", sl.Err(err), slog.String("queue", queueName))
+			return nil, closefn, err
+		}
+	}
+
+	exchange = cfg.ConnectServiceExchange.Exchange
+	log.Info("declaring exchange", slog.String("exchange", exchange))
+	if err := channel.ExchangeDeclare(exchange, "fanout", true, false, false, false, nil); err != nil {
 		slog.Error("failed to declare notifications queue", sl.Err(err))
 		return nil, closefn, err
 	}

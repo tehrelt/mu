@@ -22,6 +22,7 @@ message Account {
 message House {
     string id = 1;
     string address = 2;
+    repeated string connected_service_ids = 3;
 }
 
 message CreateRequest {
