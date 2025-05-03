@@ -1,0 +1,36 @@
+syntax="proto3";
+
+package notification;
+
+option go_package="github.com/tehrelt/mu/proto/notification;notificationpb";
+
+service NotificationService {
+
+    rpc TelegramOtp(TelegramOtpRequest) returns (TelegramOtpResponse);
+    rpc LinkTelegram(LinkTelegramRequest) returns (LinkTelegramResponse);
+    rpc UnlinkTelegram(UnlinkTelegramRequest) returns (UnlinkTelegramResponse);
+}
+
+message LinkTelegramRequest {
+    string user_id = 1;
+    string chat_id = 2;
+    string otp = 3;
+}
+
+message LinkTelegramResponse {
+}
+
+message UnlinkTelegramRequest {
+    string user_id = 1;
+}
+
+message UnlinkTelegramResponse {
+}
+
+message TelegramOtpRequest {
+    string user_id = 1;
+}
+
+message TelegramOtpResponse {
+    string otp = 1;
+}
