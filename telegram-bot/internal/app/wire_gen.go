@@ -35,7 +35,7 @@ func NewApp(ctx context.Context) (*App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	useCase := usecase.New(notificationServiceClient, bot)
+	useCase := usecase.New(configConfig, notificationServiceClient, bot)
 	tgBot := tg.New(configConfig, bot, useCase)
 	consumer, err := amqp.New(configConfig, useCase)
 	if err != nil {

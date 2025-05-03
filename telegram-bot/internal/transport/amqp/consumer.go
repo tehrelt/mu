@@ -2,12 +2,15 @@ package amqp
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
+	"github.com/tehrelt/mu/telegram-bot/internal/events"
 	"github.com/tehrelt/mu/telegram-bot/internal/usecase"
 )
 
@@ -91,7 +94,31 @@ func (c *Consumer) handleMessage(ctx context.Context, msg *rmqmanager.TracedDeli
 
 	body := msg.Body
 
-	c.logger.Info("event ", slog.String("body", string(body)))
+	event, err := parseEventBody(body)
+	if err != nil {
+		return err
+	}
+
+	c.uc.SendNotification(ctx, event)
 
 	return nil
+}
+
+func parseEventBody(body []byte) (events.Event, error) {
+	header := &events.EventHeader{}
+	if err := json.Unmarshal(body, header); err != nil {
+		return nil, err
+	}
+
+	switch header.EventType {
+	case events.EventTicketStatusChanged:
+		e := &events.TicketStatusChanged{}
+		if err := json.Unmarshal(body, e); err != nil {
+			return nil, err
+		}
+
+		return e, nil
+	default:
+		return nil, fmt.Errorf("unknown event type: %s", header.EventType)
+	}
 }

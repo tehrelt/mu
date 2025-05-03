@@ -52,6 +52,8 @@ type Config struct {
 	Jaeger struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
 	}
+
+	FrontendLink string `env:"FRONTEND_LINK"`
 }
 
 func New() *Config {
