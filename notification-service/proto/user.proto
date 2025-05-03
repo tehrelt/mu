@@ -1,0 +1,67 @@
+syntax="proto3";
+
+package user;
+
+option go_package="github.com/tehrelt/mu/proto/user;userpb";
+
+service UserService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Find(FindRequest) returns (FindResponse);
+    rpc List(ListRequest) returns (stream ListResponse);
+}
+
+message FIO {
+    string lastname = 1;
+    string firstname = 2;
+    string middlename = 3;
+}
+
+message User {
+    string id = 1;
+    FIO fio = 2;
+    string email = 3;
+    PersonalData personal_data = 4;
+    int64 created_at = 5;
+    int64 updated_at = 6;
+}
+
+message Passport {
+    int32 series = 1;
+    int32 number = 2;
+}
+
+message PersonalData {
+    Passport passport = 1;
+    string snils = 2;
+    string phone = 3;
+}
+
+message CreateRequest {
+    FIO fio = 1;
+    string email = 2;
+    PersonalData personal_data = 3;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message FindRequest {
+    oneof search_by {
+        string id = 1;
+        string email = 2;
+    }
+}
+
+message FindResponse {
+    User user = 1;
+}
+
+message ListRequest {
+    uint64 offset = 1;
+    uint64 limit = 2;
+}
+
+message ListResponse {
+    repeated User usersChunk = 1;
+}
