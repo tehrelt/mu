@@ -9,21 +9,26 @@ import (
 	"time"
 
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
+	"github.com/tehrelt/mu/telegram-bot/internal/transport/amqp"
 	"github.com/tehrelt/mu/telegram-bot/internal/transport/tg"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type App struct {
-	cfg    *config.Config
-	bot    *tg.Bot
+	cfg *config.Config
+
+	bot      *tg.Bot
+	consumer *amqp.Consumer
+
 	tracer trace.Tracer
 }
 
-func newApp(cfg *config.Config, bot *tg.Bot, tracer trace.Tracer) *App {
+func newApp(cfg *config.Config, bot *tg.Bot, c *amqp.Consumer, tracer trace.Tracer) *App {
 	return &App{
-		cfg:    cfg,
-		bot:    bot,
-		tracer: tracer,
+		cfg:      cfg,
+		bot:      bot,
+		consumer: c,
+		tracer:   tracer,
 	}
 }
 
@@ -39,6 +44,14 @@ func (a *App) Run(ctx context.Context) {
 	go func() {
 		defer wg.Done()
 		a.bot.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := a.consumer.Run(ctx); err != nil {
+			slog.Error("consumer error", slog.String("error", err.Error()))
+		}
 	}()
 
 	<-ctx.Done()

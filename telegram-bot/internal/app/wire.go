@@ -12,6 +12,7 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
+	"github.com/tehrelt/mu/telegram-bot/internal/transport/amqp"
 	"github.com/tehrelt/mu/telegram-bot/internal/transport/tg"
 	"github.com/tehrelt/mu/telegram-bot/internal/usecase"
 	"github.com/tehrelt/mu/telegram-bot/pkg/pb/notificationpb"
@@ -25,6 +26,7 @@ func NewApp(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		tg.New,
+		amqp.New,
 
 		usecase.New,
 

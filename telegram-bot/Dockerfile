@@ -17,4 +17,4 @@ WORKDIR /app
 COPY --from=builder /app /app
 COPY --from=builder /app/wait /app/wait
 
-CMD ./wait && ./migrator && ./app
+CMD ./wait && ./app

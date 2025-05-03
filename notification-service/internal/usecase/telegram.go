@@ -79,6 +79,7 @@ func (u *UseCase) LinkTelegram(ctx context.Context, in *dto.LinkTelegram) error 
 		return err
 	}
 
+	log.Debug("delete otp from redis")
 	if err := u.otpstorage.Delete(ctx, in.UserId.String()); err != nil {
 		log.Error("failed to delete otp", sl.Err(err))
 		return err

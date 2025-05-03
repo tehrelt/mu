@@ -13,6 +13,7 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
+	"github.com/tehrelt/mu/telegram-bot/internal/transport/amqp"
 	"github.com/tehrelt/mu/telegram-bot/internal/transport/tg"
 	"github.com/tehrelt/mu/telegram-bot/internal/usecase"
 	"github.com/tehrelt/mu/telegram-bot/pkg/pb/notificationpb"
@@ -34,14 +35,19 @@ func NewApp(ctx context.Context) (*App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	useCase := usecase.New(notificationServiceClient)
+	useCase := usecase.New(notificationServiceClient, bot)
 	tgBot := tg.New(configConfig, bot, useCase)
+	consumer, err := amqp.New(configConfig, useCase)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	tracer, err := _tracer(ctx, configConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	app := newApp(configConfig, tgBot, tracer)
+	app := newApp(configConfig, tgBot, consumer, tracer)
 	return app, func() {
 		cleanup()
 	}, nil

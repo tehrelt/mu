@@ -22,9 +22,23 @@ const (
 	EnvProd  Env = "prod"
 )
 
+type AMQP struct {
+	Host  string `env:"HOST"`
+	Port  int    `env:"PORT"`
+	User  string `env:"USER"`
+	Pass  string `env:"PASS"`
+	Vhost string `env:"VHOST"`
+}
+
+func (a *AMQP) ConnectionString() string {
+	return fmt.Sprintf("amqp://%s:%s@%s:%d/%s", a.User, a.Pass, a.Host, a.Port, a.Vhost)
+}
+
 type Config struct {
 	Env Env `env:"ENV"`
 	App App
+
+	AMQP AMQP `env-prefix:"AMQP_"`
 
 	BotToken string `env:"BOT_TOKEN"`
 
@@ -32,6 +46,8 @@ type Config struct {
 		Host string `env:"NOTIFICATION_SERVICE_HOST"`
 		Port int    `env:"NOTIFICATION_SERVICE_PORT"`
 	}
+
+	NotificationSendExchange string `env:"RMQ_NOTIFICATION_SEND_EXCHANGE"`
 
 	Jaeger struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`

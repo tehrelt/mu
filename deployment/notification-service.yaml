@@ -1,0 +1,55 @@
+services:
+  notification-service:
+    container_name: notification-service
+    restart: unless-stopped
+    build:
+      context: ../notification-service
+    env_file:
+      - .env
+    environment:
+      ENV: local
+      APP_NAME: MU Notification Service
+      GRPC_PORT: 4000
+
+      WAIT_HOSTS: notification-service-pg:5432, rmq:5672, notification-service-redis:6379
+
+      PG_HOST: notification-service-pg
+      PG_PORT: 5432
+
+      REDIS_HOST: notification-service-redis
+      REDIS_PORT: 6379
+
+      PG_NAME: ${NOTIFICATION_PG_NAME}
+      PG_USER: ${NOTIFICATION_PG_USER}
+      PG_PASS: ${NOTIFICATION_PG_PASS}
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+    ports:
+      - "${NOTIFICATION_GRPC_PORT}:4000"
+
+  notification-service-pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_PG_NAME}
+      POSTGRES_USER: ${NOTIFICATION_PG_USER}
+      POSTGRES_PASSWORD: ${NOTIFICATION_PG_PASS}
+    volumes:
+      - notification-service-pg-data:/var/lib/postgresql/data
+
+  notification-service-redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - notification-service-redis-data:/data
+
+volumes:
+  notification-service-pg-data:
+    name: mu-notification-service-pg
+  notification-service-redis-data:
+    name: mu-notification-service-redis
