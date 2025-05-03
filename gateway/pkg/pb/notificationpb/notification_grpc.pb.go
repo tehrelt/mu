@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	NotificationService_Integrations_FullMethodName   = "/notification.NotificationService/Integrations"
 	NotificationService_TelegramOtp_FullMethodName    = "/notification.NotificationService/TelegramOtp"
 	NotificationService_LinkTelegram_FullMethodName   = "/notification.NotificationService/LinkTelegram"
 	NotificationService_UnlinkTelegram_FullMethodName = "/notification.NotificationService/UnlinkTelegram"
@@ -28,6 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NotificationServiceClient interface {
+	Integrations(ctx context.Context, in *IntegrationsRequest, opts ...grpc.CallOption) (*IntegrationsResponse, error)
 	TelegramOtp(ctx context.Context, in *TelegramOtpRequest, opts ...grpc.CallOption) (*TelegramOtpResponse, error)
 	LinkTelegram(ctx context.Context, in *LinkTelegramRequest, opts ...grpc.CallOption) (*LinkTelegramResponse, error)
 	UnlinkTelegram(ctx context.Context, in *UnlinkTelegramRequest, opts ...grpc.CallOption) (*UnlinkTelegramResponse, error)
@@ -39,6 +41,16 @@ type notificationServiceClient struct {
 
 func NewNotificationServiceClient(cc grpc.ClientConnInterface) NotificationServiceClient {
 	return &notificationServiceClient{cc}
+}
+
+func (c *notificationServiceClient) Integrations(ctx context.Context, in *IntegrationsRequest, opts ...grpc.CallOption) (*IntegrationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IntegrationsResponse)
+	err := c.cc.Invoke(ctx, NotificationService_Integrations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *notificationServiceClient) TelegramOtp(ctx context.Context, in *TelegramOtpRequest, opts ...grpc.CallOption) (*TelegramOtpResponse, error) {
@@ -75,6 +87,7 @@ func (c *notificationServiceClient) UnlinkTelegram(ctx context.Context, in *Unli
 // All implementations must embed UnimplementedNotificationServiceServer
 // for forward compatibility.
 type NotificationServiceServer interface {
+	Integrations(context.Context, *IntegrationsRequest) (*IntegrationsResponse, error)
 	TelegramOtp(context.Context, *TelegramOtpRequest) (*TelegramOtpResponse, error)
 	LinkTelegram(context.Context, *LinkTelegramRequest) (*LinkTelegramResponse, error)
 	UnlinkTelegram(context.Context, *UnlinkTelegramRequest) (*UnlinkTelegramResponse, error)
@@ -88,6 +101,9 @@ type NotificationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNotificationServiceServer struct{}
 
+func (UnimplementedNotificationServiceServer) Integrations(context.Context, *IntegrationsRequest) (*IntegrationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Integrations not implemented")
+}
 func (UnimplementedNotificationServiceServer) TelegramOtp(context.Context, *TelegramOtpRequest) (*TelegramOtpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TelegramOtp not implemented")
 }
@@ -116,6 +132,24 @@ func RegisterNotificationServiceServer(s grpc.ServiceRegistrar, srv Notification
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&NotificationService_ServiceDesc, srv)
+}
+
+func _NotificationService_Integrations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IntegrationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationServiceServer).Integrations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NotificationService_Integrations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationServiceServer).Integrations(ctx, req.(*IntegrationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _NotificationService_TelegramOtp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -179,6 +213,10 @@ var NotificationService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "notification.NotificationService",
 	HandlerType: (*NotificationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Integrations",
+			Handler:    _NotificationService_Integrations_Handler,
+		},
 		{
 			MethodName: "TelegramOtp",
 			Handler:    _NotificationService_TelegramOtp_Handler,

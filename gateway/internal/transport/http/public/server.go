@@ -144,6 +144,7 @@ func (s *Server) setup() {
 	billing.Post("/:id/cancel", token, authmw(), handlers.PaymentCancelHandler(s.biller))
 
 	integrations := root.Group("/integrations")
+	integrations.Get("/", token, authmw(), handlers.GetIntegrationsSettings(s.notifier))
 	integrations.Post("/link-telegram", token, authmw(), handlers.GetTelegramOTP(s.notifier))
 }
 
