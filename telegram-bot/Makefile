@@ -16,14 +16,10 @@ protobuf:
 
 	protoc  \
 		--go_out=. \
-		--go_opt=M$(PROTO)=$(PB)/registerpb \
+		--go_opt=M$(NOTIFICATION_PROTO)=$(PB)/notificationpb \
 		--go-grpc_out=. \
-		--go-grpc_opt=M$(PROTO)=$(PB)/registerpb \
-		$(PROTO)
-
-
-
-
+		--go-grpc_opt=M$(NOTIFICATION_PROTO)=$(PB)/notificationpb \
+		$(NOTIFICATION_PROTO)
 
 gen: protobuf wire
 

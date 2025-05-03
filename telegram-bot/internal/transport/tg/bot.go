@@ -6,6 +6,7 @@ import (
 
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
+	"github.com/tehrelt/mu/telegram-bot/internal/usecase"
 	"gopkg.in/telebot.v4"
 )
 
@@ -13,10 +14,12 @@ type Bot struct {
 	cfg    *config.Config
 	bot    *telebot.Bot
 	logger *slog.Logger
+	uc     *usecase.UseCase
 }
 
-func New(cfg *config.Config, bot *telebot.Bot) *Bot {
+func New(cfg *config.Config, bot *telebot.Bot, uc *usecase.UseCase) *Bot {
 	instance := &Bot{
+		uc:     uc,
 		cfg:    cfg,
 		bot:    bot,
 		logger: slog.With(sl.Module("TgBot")),

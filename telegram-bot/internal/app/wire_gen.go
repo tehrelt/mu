@@ -9,10 +9,16 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/tehrelt/mu-lib/tracer"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/telegram-bot/internal/config"
 	"github.com/tehrelt/mu/telegram-bot/internal/transport/tg"
+	"github.com/tehrelt/mu/telegram-bot/internal/usecase"
+	"github.com/tehrelt/mu/telegram-bot/pkg/pb/notificationpb"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/telebot.v4"
 )
 
@@ -24,13 +30,20 @@ func NewApp(ctx context.Context) (*App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	tgBot := tg.New(configConfig, bot)
+	notificationServiceClient, cleanup, err := _notificationpb(configConfig)
+	if err != nil {
+		return nil, nil, err
+	}
+	useCase := usecase.New(notificationServiceClient)
+	tgBot := tg.New(configConfig, bot, useCase)
 	tracer, err := _tracer(ctx, configConfig)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	app := newApp(configConfig, tgBot, tracer)
 	return app, func() {
+		cleanup()
 	}, nil
 }
 
@@ -56,4 +69,23 @@ func _bot(ctx context.Context, cfg *config.Config) (*telebot.Bot, error) {
 	}
 
 	return bot, nil
+}
+
+func _notificationpb(cfg *config.Config) (notificationpb.NotificationServiceClient,
+
+	func(),
+	error,
+) {
+	host := cfg.NotificationService.Host
+	port := cfg.NotificationService.Port
+	addr := fmt.Sprintf("%s:%d", host, port)
+
+	client, err := grpc.NewClient(
+		addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()), grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return notificationpb.NewNotificationServiceClient(client), func() { client.Close() }, nil
 }

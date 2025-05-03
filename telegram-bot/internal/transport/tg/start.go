@@ -1,9 +1,12 @@
 package tg
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 
+	"github.com/tehrelt/mu/telegram-bot/internal/dto"
 	"gopkg.in/telebot.v4"
 )
 
@@ -24,8 +27,24 @@ func (b *Bot) startHandler() telebot.HandlerFunc {
 			return ctx.Send(fmt.Sprintf("Invalid start message missing token"))
 		}
 
-		token := args[0]
+		payload := args[0]
 
-		return ctx.Send(fmt.Sprintf("Welcome, %s!\nChat Id: %d\nToken: %s", sender.FirstName, chat.ID, token))
+		parts := strings.Split(payload, "_")
+		if len(parts) != 2 {
+			return ctx.Send(fmt.Sprintf("Invalid start message missing token"))
+		}
+
+		token := parts[0]
+		userid := parts[1]
+
+		if err := b.uc.Link(context.Background(), &dto.LinkUser{
+			ChatId: chat.ID,
+			UserId: userid,
+			Code:   token,
+		}); err != nil {
+			return ctx.Send(fmt.Sprintf("Failed to link user: %v", err))
+		}
+
+		return ctx.Send(fmt.Sprintf("Welcome, %s!\nChat Id: %d\nToken: %s\nUser Id: %s", sender.FirstName, chat.ID, token, userid))
 	}
 }
