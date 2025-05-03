@@ -3,5 +3,6 @@ package storage
 import "errors"
 
 var (
-	ErrAccountNotFound error = errors.New("account not found")
+	ErrUserNotFound      error = errors.New("user not found")
+	ErrUserAlreadyExists error = errors.New("user already exists")
 )

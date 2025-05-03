@@ -2,11 +2,9 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/notification-service/internal/dto"
 	"github.com/tehrelt/mu/notification-service/internal/models"
@@ -46,11 +44,11 @@ func (u *UseCase) LinkTelegram(ctx context.Context, in *dto.LinkTelegram) error 
 
 	user, err := u.integrationstorage.Find(ctx, in.UserId)
 	if err != nil {
-		if !errors.Is(err, redis.Nil) {
-			log.Error("failed to find integration", sl.Err(err))
-			return err
-		}
+		log.Error("failed to find integration", sl.Err(err))
+		return err
+	}
 
+	if user == nil {
 		log.Info("user not found, creating new integration", slog.String("userId", in.UserId.String()))
 		user = &models.Integration{
 			UserId: in.UserId,
@@ -78,6 +76,11 @@ func (u *UseCase) LinkTelegram(ctx context.Context, in *dto.LinkTelegram) error 
 	user.SetTelegramChatId(in.TelegramChatId)
 	if err := u.integrationstorage.Update(ctx, user); err != nil {
 		log.Error("failed to update user", sl.Err(err))
+		return err
+	}
+
+	if err := u.otpstorage.Delete(ctx, in.UserId.String()); err != nil {
+		log.Error("failed to delete otp", sl.Err(err))
 		return err
 	}
 
