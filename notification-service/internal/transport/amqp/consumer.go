@@ -2,13 +2,16 @@ package amqp
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/tehrelt/mu-lib/rmqmanager"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/notification-service/internal/config"
+	"github.com/tehrelt/mu/notification-service/internal/events"
 	"github.com/tehrelt/mu/notification-service/internal/storage/rmq"
+	"github.com/tehrelt/mu/notification-service/internal/usecase"
 )
 
 const (
@@ -19,17 +22,20 @@ type AmqpConsumer struct {
 	cfg     *config.Config
 	manager *rmqmanager.RabbitMqManager
 	broker  *rmq.Broker
+	uc      *usecase.UseCase
 }
 
 func New(
 	cfg *config.Config,
 	ch *amqp091.Channel,
 	b *rmq.Broker,
+	uc *usecase.UseCase,
 ) *AmqpConsumer {
 	return &AmqpConsumer{
 		cfg:     cfg,
 		manager: rmqmanager.New(ch),
 		broker:  b,
+		uc:      uc,
 	}
 }
 
@@ -66,5 +72,14 @@ func (c *AmqpConsumer) handleTicketStatusChangedMessage(ctx context.Context, msg
 	log := slog.With(slog.String("queue_handler", TicketStatusChangedQueue))
 	log.Info("incoming message", slog.String("body", string(msg.Body)))
 
-	return err
+	event := &events.IncomingTicketStatusChanged{}
+	if err := json.Unmarshal(msg.Body, event); err != nil {
+		return err
+	}
+
+	if err := c.uc.HandleTicketStatusChangedEvent(ctx, event); err != nil {
+		return err
+	}
+
+	return nil
 }

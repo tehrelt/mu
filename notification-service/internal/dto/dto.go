@@ -10,3 +10,8 @@ type LinkTelegram struct {
 	Code           otp.OTP
 	TelegramChatId string
 }
+
+type UserSettings struct {
+	Email          string  `json:"email"`
+	TelegramChatId *string `json:"telegramChatId"`
+}

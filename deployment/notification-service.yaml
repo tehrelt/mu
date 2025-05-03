@@ -23,6 +23,12 @@ services:
       PG_USER: ${NOTIFICATION_PG_USER}
       PG_PASS: ${NOTIFICATION_PG_PASS}
 
+      TICKET_SERVICE_HOST: ticket-service
+      TICKET_SERVICE_PORT: 4000
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
+
       AMQP_HOST: rmq
       AMQP_PORT: 5672
 

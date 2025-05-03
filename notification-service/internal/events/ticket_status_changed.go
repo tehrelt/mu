@@ -1,5 +1,11 @@
 package events
 
+type IncomingTicketStatusChanged struct {
+	TicketId  string `json:"ticketId"`
+	Status    string `json:"status"`
+	Timestamp string `json:"timestamp"`
+}
+
 type TicketStatusChanged struct {
 	EventHeader
 	TicketId  string `json:"ticketId"`

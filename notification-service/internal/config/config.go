@@ -46,6 +46,10 @@ type ExternalServiceConfig struct {
 	Port int    `env:"PORT"`
 }
 
+func (e ExternalServiceConfig) Address() string {
+	return fmt.Sprintf("%s:%d", e.Host, e.Port)
+}
+
 type Config struct {
 	Env      Env `env:"ENV"`
 	App      App
@@ -58,6 +62,7 @@ type Config struct {
 	}
 
 	TicketService ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
+	UserService   ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
 
 	Amqp struct {
 		Host string `env:"AMQP_HOST"`

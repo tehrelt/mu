@@ -23,6 +23,7 @@ import (
 	tgrpc "github.com/tehrelt/mu/notification-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/notification-service/internal/usecase"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
+	"github.com/tehrelt/mu/notification-service/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -46,6 +47,8 @@ func New(ctx context.Context) (*App, func(), error) {
 		otpstorage.NewStorage,
 		integrationstorage.NewStorage,
 
+		_userpb,
+		_ticketpb,
 		_amqp,
 		_pg,
 		_redis,
@@ -177,4 +180,24 @@ func _ticketpb(cfg *config.Config) (
 	}
 
 	return ticketpb.NewTicketServiceClient(client), func() { client.Close() }, nil
+}
+
+func _userpb(cfg *config.Config) (
+	userpb.UserServiceClient,
+	func(),
+	error,
+) {
+	addr := cfg.UserService.Address()
+
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return userpb.NewUserServiceClient(client), func() { client.Close() }, nil
 }
