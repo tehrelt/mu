@@ -1,0 +1,32 @@
+services:
+  ticket-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    environment:
+      MONGO_HOST: mongo
+      WAIT_HOSTS: mongo:27017
+      APP_NAME: MU Ticket Service
+      GRPC_PORT: 5000
+    ports:
+      - "5000:5000"
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    # env_file:
+    #   - .env
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+    #   MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo-data:

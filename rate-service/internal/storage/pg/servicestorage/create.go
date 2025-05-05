@@ -17,8 +17,8 @@ func (s *ServiceStorage) Create(ctx context.Context, in *models.CreateService) (
 	log.Debug("creating service", slog.Any("in", in))
 
 	query, args, err := squirrel.Insert(pg.SERVICES_TABLE).
-		Columns("s_name", "measure_unit", "rate").
-		Values(in.Name, in.MeasureUnit, in.Rate).
+		Columns("s_name", "measure_unit", "rate", "s_type").
+		Values(in.Name, in.MeasureUnit, in.Rate, in.Type).
 		Suffix("RETURNING id").
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()

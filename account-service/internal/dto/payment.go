@@ -34,5 +34,17 @@ func (cp *CreateAccount) FromProto(pb *accountpb.CreateRequest) (err error) {
 
 type UpdateAccount struct {
 	Id         uuid.UUID
-	NewBalance int64
+	NewBalance *int64
+}
+
+func NewUpdateAccount(id uuid.UUID) *UpdateAccount {
+	return &UpdateAccount{
+		Id: id,
+	}
+}
+
+func (dto *UpdateAccount) WithNewBalance(balance int64) *UpdateAccount {
+	dto.NewBalance = new(int64)
+	*dto.NewBalance = balance
+	return dto
 }

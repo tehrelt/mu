@@ -1,8 +1,7 @@
-import RateViewer from "@/components/views/rate";
 import { userService } from "@/shared/services/users.service";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { UserNotFound } from "./not-found";
+import { UserNotFound } from "../tickets/not-found";
 import { UserViewer } from "@/components/views/user";
 
 type Props = {};

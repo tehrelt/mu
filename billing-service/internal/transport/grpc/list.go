@@ -37,6 +37,15 @@ func (s *Server) List(in *billingpb.ListRequest, stream grpc.ServerStreamingServ
 		}
 	}
 
+	if in.Pagination != nil {
+		if in.Pagination.Limit != 0 {
+			filters = filters.SetLimit(in.Pagination.Limit)
+		}
+		if in.Pagination.Offset != 0 {
+			filters = filters.SetOffset(in.Pagination.Offset)
+		}
+	}
+
 	if in.Status != billingpb.PaymentStatus_nil {
 		p := models.PaymentStatusNil
 		st, err := p.FromProto(in.Status)

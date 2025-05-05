@@ -49,6 +49,7 @@ type Payment struct {
 	AccountId string        `db:"account_id"`
 	Amount    int64         `db:"amount"`
 	Status    PaymentStatus `db:"status"`
+	Message   string        `db:"message"`
 	CreatedAt time.Time     `db:"created_at"`
 	UpdatedAt *time.Time    `db:"updated_at"`
 }
@@ -58,6 +59,7 @@ func (p *Payment) ToProto() *billingpb.Payment {
 		Id:        p.Id,
 		AccountId: p.AccountId,
 		Amount:    p.Amount,
+		Message:   p.Message,
 		Status:    p.Status.ToProto(),
 		CreatedAt: p.CreatedAt.Unix(),
 	}

@@ -37,46 +37,38 @@ const (
 	EnvProd  Env = "prod"
 )
 
+type HttpConfig struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
+type ExternalServiceConfig struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
+func (svc *ExternalServiceConfig) Address() string {
+	return fmt.Sprintf("%s:%d", svc.Host, svc.Port)
+}
+
 type Config struct {
 	Env Env `env:"ENV"`
 	App App
 
 	Cors Cors
 
-	Http struct {
-		Host string `env:"HTTP_HOST"`
-		Port int    `env:"HTTP_PORT"`
-	}
+	PublicHttpApi HttpConfig `env-prefix:"PUBLIC_HTTP_"`
+	AdminHttpApi  HttpConfig `env-prefix:"ADMIN_HTTP_"`
 
-	RegisterService struct {
-		Host string `env:"REGISTER_SERVICE_HOST"`
-		Port int    `env:"REGISTER_SERVICE_PORT"`
-	}
-
-	BillingService struct {
-		Host string `env:"BILLING_SERVICE_HOST"`
-		Port int    `env:"BILLING_SERVICE_PORT"`
-	}
-
-	RateService struct {
-		Host string `env:"RATE_SERVICE_HOST"`
-		Port int    `env:"RATE_SERVICE_PORT"`
-	}
-
-	AccountService struct {
-		Host string `env:"ACCOUNT_SERVICE_HOST"`
-		Port int    `env:"ACCOUNT_SERVICE_PORT"`
-	}
-
-	UserService struct {
-		Host string `env:"USER_SERVICE_HOST"`
-		Port int    `env:"USER_SERVICE_PORT"`
-	}
-
-	AuthService struct {
-		Host string `env:"AUTH_SERVICE_HOST"`
-		Port int    `env:"AUTH_SERVICE_PORT"`
-	}
+	RegisterService     ExternalServiceConfig `env-prefix:"REGISTER_SERVICE_"`
+	BillingService      ExternalServiceConfig `env-prefix:"BILLING_SERVICE_"`
+	RateService         ExternalServiceConfig `env-prefix:"RATE_SERVICE_"`
+	AccountService      ExternalServiceConfig `env-prefix:"ACCOUNT_SERVICE_"`
+	UserService         ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	AuthService         ExternalServiceConfig `env-prefix:"AUTH_SERVICE_"`
+	TicketService       ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
+	ConsumptionService  ExternalServiceConfig `env-prefix:"CONSUMPTION_SERVICE_"`
+	NotificationService ExternalServiceConfig `env-prefix:"NOTIFICATION_SERVICE_"`
 
 	Jaeger struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
@@ -97,6 +89,10 @@ func New() *Config {
 	}
 
 	setupLogger(config)
+
+	if config.Env == EnvLocal {
+		// interceptors.SetDebug(true)
+	}
 
 	slog.Debug("config", slog.Any("c", config))
 	return config

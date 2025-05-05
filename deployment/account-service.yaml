@@ -38,7 +38,12 @@ services:
       RATE_SERVICE_HOST: rate-service
       RATE_SERVICE_PORT: 4000
 
+      TICKET_SERVICE_HOST: ticket-service
+      TICKET_SERVICE_PORT: 4000
+
       JAEGER_ENDPOINT: http://jaeger:4317
+
+      RMQ_BALANCE_CHANGED_EXCHANGE: account_service.balance_changed
     ports:
       - "${ACCOUNT_GRPC_PORT}:4000"
 
@@ -51,6 +56,8 @@ services:
       POSTGRES_PASSWORD: ${ACCOUNT_PG_PASS}
     volumes:
       - account-service-pg-data:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
 
 volumes:
   account-service-pg-data:

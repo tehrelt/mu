@@ -3,6 +3,7 @@ import { useProfile } from "../shared/hooks/use-profile";
 import { Button } from "./ui/button";
 import { UserCard } from "./usercard";
 import { GalleryVerticalEnd } from "lucide-react";
+import { routes } from "@/shared/routes";
 
 export const Header = () => {
   const profileData = useProfile();
@@ -21,7 +22,7 @@ export const Header = () => {
             <UserCard user={profileData.data} />
           </div>
         ) : (
-          <Link to={"/sign-in"}>
+          <Link to={routes.signIn}>
             <Button>Авторизация</Button>
           </Link>
         )}

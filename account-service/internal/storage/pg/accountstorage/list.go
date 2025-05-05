@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu/account-service/internal/dto"
@@ -30,9 +31,9 @@ func (s *AccountStorage) List(ctx context.Context, filters *dto.AccountFilters) 
 		Select("id, user_id, house_id, balance, created_at, updated_at").
 		From(pg.ACCOUNTS_TABLE)
 
-	if filters.UserId != "" {
+	if filters.UserId != uuid.Nil {
 		builder = builder.Where(sq.Eq{"user_id": filters.UserId})
-		span.SetAttributes(attribute.String("user_id", filters.UserId))
+		span.SetAttributes(attribute.String("user_id", filters.UserId.String()))
 	}
 
 	query, args, err := builder.

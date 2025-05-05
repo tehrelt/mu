@@ -15,4 +15,16 @@ export const routes = {
     list: "/users",
     detail: (id?: string) => (id ? `/users/${id}` : "/users/:id"),
   },
+
+  accounts: {
+    index: "/",
+    list: "/accounts",
+    detail: (id?: string) => (id ? `/accounts/${id}` : "/accounts/:id"),
+  },
+
+  tickets: {
+    index: "/",
+    list: "/tickets",
+    detail: (id?: string) => (id ? `/tickets/${id}` : "/tickets/:id"),
+  },
 };

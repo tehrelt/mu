@@ -1,5 +1,5 @@
 import { api } from "@/app/api";
-import { userListSchema, userSchema, userSnippetSchema } from "../types/user";
+import { userAccountsSchema, userListSchema, userSchema } from "../types/user";
 
 type UserListRequest = {
   query?: string;
@@ -19,6 +19,12 @@ class UserService {
       params,
     });
     const parsed = userListSchema.parse(response.data);
+    return parsed;
+  }
+
+  async accountsOfUser(id: string) {
+    const response = await api.get(`/users/${id}/accounts`);
+    const parsed = userAccountsSchema.parse(response.data);
     return parsed;
   }
 }

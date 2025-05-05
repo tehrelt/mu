@@ -5,12 +5,24 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { routes } from "@/shared/routes";
 import { rateService } from "@/shared/services/rates.service";
-import { RateCreate, rateCreateSchema } from "@/shared/types/rate";
+import {
+  localizeServiceType,
+  RateCreate,
+  rateCreateSchema,
+  serviceTypeSchema,
+} from "@/shared/types/rate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export function RateCreateForm({
   className,
@@ -64,6 +76,30 @@ export function RateCreateForm({
                       <div className="grid gap-3">
                         <FormLabel htmlFor="name">Название</FormLabel>
                         <Input {...field} />
+                      </div>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="serviceType"
+                    render={({ field }) => (
+                      <div className="grid gap-3">
+                        <FormLabel htmlFor="measureUnit">Вид услуги</FormLabel>
+                        <Select onValueChange={(v) => field.onChange(v)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(serviceTypeSchema.Enum).map(
+                              ([s, t]) => (
+                                <SelectItem value={t} key={t}>
+                                  {localizeServiceType(t)}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                     )}
                   />

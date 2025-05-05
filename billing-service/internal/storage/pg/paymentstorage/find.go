@@ -27,7 +27,7 @@ func (s *PaymentStorage) Find(ctx context.Context, paymentId uuid.UUID) (*models
 	log.Debug("find payment", slog.Any("payment_id", paymentId))
 
 	query, args, err := sq.
-		Select("*").
+		Select("id", "account_id", "amount", "message", "status", "created_at", "updated_at").
 		From(pg.PAYMENTS_TABLE).
 		Where(sq.Eq{"id": paymentId.String()}).
 		PlaceholderFormat(sq.Dollar).
@@ -47,6 +47,7 @@ func (s *PaymentStorage) Find(ctx context.Context, paymentId uuid.UUID) (*models
 			&payment.Id,
 			&payment.AccountId,
 			&payment.Amount,
+			&payment.Message,
 			&payment.Status,
 			&payment.CreatedAt,
 			&payment.UpdatedAt,

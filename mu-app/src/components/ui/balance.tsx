@@ -5,6 +5,11 @@ type Props = {
 };
 
 export const Balance = ({ balance }: Props) => {
+  const fmt = Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+  });
+
   return (
     <p
       className={cn(
@@ -12,7 +17,7 @@ export const Balance = ({ balance }: Props) => {
         balance < 0 ? "text-red-500" : "text-green-500"
       )}
     >
-      {balance} ₽
+      {fmt.format(balance)}
     </p>
   );
 };

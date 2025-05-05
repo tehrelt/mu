@@ -11,6 +11,13 @@ import (
 	"github.com/tehrelt/mu/account-service/internal/storage/pg/accountstorage"
 	"github.com/tehrelt/mu/account-service/internal/storage/rmq"
 	"github.com/tehrelt/mu/account-service/pkg/pb/billingpb"
+	"github.com/tehrelt/mu/account-service/pkg/pb/housepb"
+	"github.com/tehrelt/mu/account-service/pkg/pb/ticketpb"
+)
+
+const (
+	ConnectServiceQueue = "account_service.connect_service"
+	NewAccountQueue     = "account_service.new_account"
 )
 
 type AmqpConsumer struct {
@@ -18,7 +25,9 @@ type AmqpConsumer struct {
 	manager    *rmqmanager.RabbitMqManager
 	storage    *accountstorage.AccountStorage
 	broker     *rmq.Broker
+	houseApi   housepb.HouseServiceClient
 	billingApi billingpb.BillingServiceClient
+	ticketApi  ticketpb.TicketServiceClient
 }
 
 func New(
@@ -26,44 +35,56 @@ func New(
 	ch *amqp091.Channel,
 	s *accountstorage.AccountStorage,
 	b *rmq.Broker,
+	houseApi housepb.HouseServiceClient,
 	billingApi billingpb.BillingServiceClient,
+	ticketApi ticketpb.TicketServiceClient,
 ) *AmqpConsumer {
 	return &AmqpConsumer{
 		cfg:        cfg,
 		manager:    rmqmanager.New(ch),
 		storage:    s,
 		broker:     b,
+		houseApi:   houseApi,
 		billingApi: billingApi,
+		ticketApi:  ticketApi,
 	}
 }
 
 func (c *AmqpConsumer) Run(ctx context.Context) error {
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if err := c.handleEvents(ctx); err != nil {
-					slog.Error("failed to consume connec service event", sl.Err(err))
-				}
-			}
-		}
-	}()
+	paymentStatusChangedQueue, err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing)
+	if err != nil {
+		slog.Error("failed to consume payment status changed event", sl.Err(err))
+		return err
+	}
 
-	<-ctx.Done()
-	return nil
-}
+	newAccountQueue, err := c.manager.Consume(ctx, NewAccountQueue)
+	if err != nil {
+		slog.Error("failed to consume ticket status changed event", sl.Err(err))
+		return err
+	}
 
-func (c *AmqpConsumer) handleEvents(ctx context.Context) error {
+	ConnectServiceQueue, err := c.manager.Consume(ctx, ConnectServiceQueue)
+	if err != nil {
+		slog.Error("failed to consume ticket status changed event", sl.Err(err))
+		return err
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		default:
-			if err := c.manager.Consume(ctx, c.cfg.PaymentStatusChanged.Routing, c.handlePaymentStatusChangedEvent); err != nil {
+		case msg := <-paymentStatusChangedQueue:
+			if err := c.handlePaymentStatusChangedEvent(msg.Context(), msg); err != nil {
 				slog.Error("failed to consume payment status changed event", sl.Err(err))
+			}
+		case msg := <-newAccountQueue:
+			if err := c.handleNewAccountEvent(msg.Context(), msg); err != nil {
+				slog.Error("failed to consume ticket status changed event", sl.Err(err))
+			}
+		case msg := <-ConnectServiceQueue:
+			if err := c.handleConnectServiceEvent(msg.Context(), msg); err != nil {
+				slog.Error("failed to consume ticket status changed event", sl.Err(err))
 			}
 		}
 	}

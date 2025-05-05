@@ -3,8 +3,12 @@ package authservice
 import (
 	"context"
 	"errors"
+	"log/slog"
+
+	"slices"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/auth-service/internal/dto"
 	"github.com/tehrelt/mu/auth-service/internal/lib/jwt"
 	"github.com/tehrelt/mu/auth-service/internal/models"
@@ -12,6 +16,7 @@ import (
 )
 
 func (s *AuthService) Authorize(ctx context.Context, token string, roles ...models.Role) (*dto.UserClaims, error) {
+	log := s.logger.With(sl.Method("Authorize"))
 	claims, err := s.jwtClient.Verify(token, jwt.AccessToken)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
@@ -34,11 +39,10 @@ func (s *AuthService) Authorize(ctx context.Context, token string, roles ...mode
 		return nil, err
 	}
 
+	log.Debug("checking role", slog.Any("user_roles", userRoles), slog.Any("allowed_roles", roles))
 	for _, userRole := range userRoles {
-		for _, targetRole := range roles {
-			if userRole == targetRole {
-				return claims, nil
-			}
+		if slices.Contains(roles, userRole) {
+			return claims, nil
 		}
 	}
 

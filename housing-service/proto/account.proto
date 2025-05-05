@@ -6,8 +6,8 @@ option go_package="github.com/tehrelt/moi-uslugi/proto/account;accountpb";
 
 service AccountService {
     rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Find(FindRequest) returns (FindResponse);
     rpc List(ListRequest) returns (stream Account);
-    rpc ListUsersAccounts(ListUsersAccountsRequest) returns (stream Account);
 }
 
 message Account {
@@ -22,6 +22,7 @@ message Account {
 message House {
     string id = 1;
     string address = 2;
+    repeated string connected_service_ids = 3;
 }
 
 message CreateRequest {
@@ -39,6 +40,8 @@ message Range {
 }
 
 message ListRequest {
+    Range range = 1;
+    string user_id = 2;
 }
 
 message ListResponse {
@@ -50,5 +53,13 @@ message ListUsersAccountsRequest {
 }
 
 message ListUsersAccountsResponse {
+    Account account = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindResponse {
     Account account = 1;
 }

@@ -19,7 +19,8 @@ func (s *ServiceStorage) Find(ctx context.Context, id uuid.UUID) (*models.Servic
 
 	log.Debug("searching for service", sl.UUID("service_id", id))
 
-	query, args, err := squirrel.Select("*").
+	query, args, err := squirrel.
+		Select("id, s_name, measure_unit, rate, created_at, updated_at, s_type").
 		From(pg.SERVICES_TABLE).
 		Where(squirrel.Eq{"id": id.String()}).
 		PlaceholderFormat(squirrel.Dollar).

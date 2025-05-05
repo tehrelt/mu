@@ -11,11 +11,16 @@ import (
 	"github.com/tehrelt/mu-lib/tracer"
 	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/gateway/internal/config"
-	"github.com/tehrelt/mu/gateway/internal/transport/http"
+	adminapi "github.com/tehrelt/mu/gateway/internal/transport/http/admin"
+	publicapi "github.com/tehrelt/mu/gateway/internal/transport/http/public"
 	"github.com/tehrelt/mu/gateway/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/authpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/billingpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/consumptionpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/notificationpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/ratepb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/registerpb"
+	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/gateway/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
@@ -28,8 +33,13 @@ func New(ctx context.Context) (*App, func(), error) {
 	panic(wire.Build(
 		newApp,
 		_servers,
-		http.New,
+		adminapi.New,
+		publicapi.New,
 
+		_notificationpb,
+		_consumptionpb,
+		_ticketpb,
+		_billingpb,
 		_userpb,
 		_ratepb,
 		_accountpb,
@@ -38,6 +48,47 @@ func New(ctx context.Context) (*App, func(), error) {
 		_tracer,
 		config.New,
 	))
+}
+
+func _notificationpb(cfg *config.Config) (notificationpb.NotificationServiceClient, error) {
+	host := cfg.NotificationService.Host
+	port := cfg.NotificationService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return notificationpb.NewNotificationServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(notificationpb.NotificationServiceClient), nil
+}
+
+func _consumptionpb(cfg *config.Config) (consumptionpb.ConsumptionServiceClient, error) {
+	host := cfg.ConsumptionService.Host
+	port := cfg.ConsumptionService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return consumptionpb.NewConsumptionServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(consumptionpb.ConsumptionServiceClient), nil
+}
+func _ticketpb(cfg *config.Config) (ticketpb.TicketServiceClient, error) {
+	host := cfg.TicketService.Host
+	port := cfg.TicketService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return ticketpb.NewTicketServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(ticketpb.TicketServiceClient), nil
 }
 
 func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
@@ -52,6 +103,20 @@ func _authpb(cfg *config.Config) (authpb.AuthServiceClient, error) {
 	}
 
 	return client.(authpb.AuthServiceClient), nil
+}
+
+func _billingpb(cfg *config.Config) (billingpb.BillingServiceClient, error) {
+	host := cfg.BillingService.Host
+	port := cfg.BillingService.Port
+
+	client, err := create_grpc_client(host, port, func(cc grpc.ClientConnInterface) any {
+		return billingpb.NewBillingServiceClient(cc)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client.(billingpb.BillingServiceClient), nil
 }
 
 func _userpb(cfg *config.Config) (userpb.UserServiceClient, error) {
@@ -129,7 +194,7 @@ func create_grpc_client(host string, port int, fn func(grpc.ClientConnInterface)
 	return fn(conn), nil
 }
 
-func _servers(h *http.Server) ([]Server, error) {
-	servers := []Server{h}
+func _servers(public *publicapi.Server, admin *adminapi.Server) ([]Server, error) {
+	servers := []Server{public, admin}
 	return servers, nil
 }

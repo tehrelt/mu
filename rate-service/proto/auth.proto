@@ -10,11 +10,30 @@ service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc Logout(LogoutRequest) returns (LogoutResponse);
     rpc Profile(ProfileRequest) returns (ProfileResponse);
+    rpc Refresh(RefreshRequest) returns (RefreshResponse);
+    rpc AddRole(AddRoleRequest) returns (AddRoleResponse);
+    rpc HasAdmin(HasAdminRequest) returns (HasAdminResponse);
 }
 
 enum Role {
-    ROLE_REGULAR = 0;
-    ROLE_ADMIN = 1;
+    ROLE_UNKNOWN = 0;
+    ROLE_REGULAR = 1;
+    ROLE_ADMIN = 2;
+}
+
+message HasAdminRequest {
+}
+
+message HasAdminResponse {
+    bool has_admin = 1;
+}
+
+message AddRoleRequest {
+    string user_id = 1;
+    Role role = 2;
+}
+
+message AddRoleResponse {
 }
 
 message AuthorizeRequest {
@@ -38,7 +57,9 @@ message User {
 }
 
 message RegisterRequest {
-    User user = 1;
+    string user_id = 1;
+    string password = 2;
+    repeated Role roles = 3;
 }
 
 message RegisterResponse {
@@ -80,3 +101,11 @@ message LogoutRequest {
     string access_token = 1;
 }
 message LogoutResponse {}
+
+message RefreshRequest {
+    string refresh_token = 1;
+}
+
+message RefreshResponse {
+    Tokens tokens = 1;
+}

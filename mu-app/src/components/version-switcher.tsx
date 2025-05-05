@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ChevronsUpDown, GalleryVerticalEnd } from "lucide-react";
 
 import {
@@ -14,22 +13,15 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAccounts } from "@/shared/hooks/use-accounts";
-import { HouseAccount } from "@/shared/types/account";
+import { accountStore } from "@/shared/store/account-store";
 import { Balance } from "./ui/balance";
 
 export function AccountSwitcher() {
   const accounts = useAccounts();
-  const [selectedAccount, setSelectedAccount] = React.useState<
-    HouseAccount | undefined
-  >();
 
-  const clearAccount = () => {
-    setSelectedAccount(undefined);
-  };
-
-  const selectAccount = (account: HouseAccount) => {
-    setSelectedAccount(account);
-  };
+  const selectedAccount = accountStore((s) => s.account);
+  const selectAccount = accountStore((s) => s.select);
+  const clearAccount = accountStore((s) => s.clear);
 
   return (
     <SidebarMenu>
@@ -49,7 +41,6 @@ export function AccountSwitcher() {
                     <p className="font-medium">
                       {selectedAccount.house.address}
                     </p>
-                    <Balance balance={selectedAccount.balance} />
                   </div>
                 ) : (
                   <span className="font-medium">Select Account</span>
@@ -68,7 +59,7 @@ export function AccountSwitcher() {
                 .filter(
                   (acc) =>
                     (selectedAccount && selectedAccount.id !== acc.id) ||
-                    !selectedAccount
+                    !selectedAccount,
                 )
                 .map((acc) => (
                   <DropdownMenuItem
@@ -96,6 +87,11 @@ export function AccountSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      {selectedAccount && (
+        <SidebarMenuItem className="flex justify-end items-center gap-2">
+          Баланс: <Balance balance={selectedAccount.balance} />
+        </SidebarMenuItem>
+      )}
     </SidebarMenu>
   );
 }

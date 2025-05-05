@@ -58,15 +58,11 @@ type Config struct {
 		Pass string `env:"AMQP_PASS"`
 	}
 
-	ConnectServiceQueue struct {
-		Exchange string `env:"CONNECT_SERVICE_QUEUE_EXCHANGE"`
-		Routing  string `env:"CONNECT_SERVICE_QUEUE_ROUTING"`
-	}
-
-	ServiceConnectedQueue struct {
-		Exchange string `env:"SERVICE_CONNECTED_QUEUE_EXCHANGE"`
-		Routing  string `env:"SERVICE_CONNECTED_QUEUE_ROUTING"`
-	}
+	ConnectServiceExchange struct {
+		Exchange string `env:"EXCHANGE"`
+		Queue    string `env-default:"housing_service.connect_service"`
+		Routing  string `env-default:"create_cabinet"`
+	} `env-prefix:"RMQ_CONNECT_SERVICE_"`
 }
 
 func New() *Config {

@@ -24,8 +24,8 @@ func (s *PaymentStorage) Create(ctx context.Context, in *dto.CreatePayment) (id 
 	log.Debug("creating payment", slog.Any("create house dto", in))
 
 	query, args, err := sq.Insert(pg.PAYMENTS_TABLE).
-		Columns("account_id", "amount").
-		Values(in.AccountId, in.Amount).
+		Columns("account_id", "amount", "message").
+		Values(in.AccountId, in.Amount, in.Message).
 		Suffix("RETURNING (id)").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()

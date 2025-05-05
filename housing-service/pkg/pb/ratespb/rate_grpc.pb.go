@@ -22,6 +22,7 @@ const (
 	RateService_Create_FullMethodName            = "/rate.RateService/Create"
 	RateService_Find_FullMethodName              = "/rate.RateService/Find"
 	RateService_List_FullMethodName              = "/rate.RateService/List"
+	RateService_ListIds_FullMethodName           = "/rate.RateService/ListIds"
 	RateService_UpdateServiceRate_FullMethodName = "/rate.RateService/UpdateServiceRate"
 )
 
@@ -32,6 +33,7 @@ type RateServiceClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*Service, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Service], error)
+	ListIds(ctx context.Context, in *ListIdsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Service], error)
 	UpdateServiceRate(ctx context.Context, in *UpdateServiceRateRequest, opts ...grpc.CallOption) (*UpdateServiceRateResponse, error)
 }
 
@@ -82,6 +84,25 @@ func (c *rateServiceClient) List(ctx context.Context, in *ListRequest, opts ...g
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type RateService_ListClient = grpc.ServerStreamingClient[Service]
 
+func (c *rateServiceClient) ListIds(ctx context.Context, in *ListIdsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Service], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &RateService_ServiceDesc.Streams[1], RateService_ListIds_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ListIdsRequest, Service]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RateService_ListIdsClient = grpc.ServerStreamingClient[Service]
+
 func (c *rateServiceClient) UpdateServiceRate(ctx context.Context, in *UpdateServiceRateRequest, opts ...grpc.CallOption) (*UpdateServiceRateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateServiceRateResponse)
@@ -99,6 +120,7 @@ type RateServiceServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	Find(context.Context, *FindRequest) (*Service, error)
 	List(*ListRequest, grpc.ServerStreamingServer[Service]) error
+	ListIds(*ListIdsRequest, grpc.ServerStreamingServer[Service]) error
 	UpdateServiceRate(context.Context, *UpdateServiceRateRequest) (*UpdateServiceRateResponse, error)
 	mustEmbedUnimplementedRateServiceServer()
 }
@@ -118,6 +140,9 @@ func (UnimplementedRateServiceServer) Find(context.Context, *FindRequest) (*Serv
 }
 func (UnimplementedRateServiceServer) List(*ListRequest, grpc.ServerStreamingServer[Service]) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedRateServiceServer) ListIds(*ListIdsRequest, grpc.ServerStreamingServer[Service]) error {
+	return status.Errorf(codes.Unimplemented, "method ListIds not implemented")
 }
 func (UnimplementedRateServiceServer) UpdateServiceRate(context.Context, *UpdateServiceRateRequest) (*UpdateServiceRateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateServiceRate not implemented")
@@ -190,6 +215,17 @@ func _RateService_List_Handler(srv interface{}, stream grpc.ServerStream) error 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type RateService_ListServer = grpc.ServerStreamingServer[Service]
 
+func _RateService_ListIds_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListIdsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RateServiceServer).ListIds(m, &grpc.GenericServerStream[ListIdsRequest, Service]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RateService_ListIdsServer = grpc.ServerStreamingServer[Service]
+
 func _RateService_UpdateServiceRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateServiceRateRequest)
 	if err := dec(in); err != nil {
@@ -232,6 +268,11 @@ var RateService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "List",
 			Handler:       _RateService_List_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListIds",
+			Handler:       _RateService_ListIds_Handler,
 			ServerStreams: true,
 		},
 	},

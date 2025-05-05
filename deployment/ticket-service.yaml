@@ -1,0 +1,37 @@
+services:
+  ticket-service:
+    container_name: ticket-service
+    restart: unless-stopped
+    build:
+      context: ../ticket-service
+    env_file:
+      - .env
+    environment:
+      ENV: dev
+      APP_NAME: MU Ticket Service
+      GRPC_PORT: 4000
+
+      MONGO_HOST: ticket-mongo
+      MONGO_PORT: 27017
+      MONGO_DATABASE: tickets-db
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+      WAIT_HOSTS: ticket-mongo:27017
+
+      RMQ_TICKET_STATUS_CHANGED_EXCHANGE: ticket.status_changed
+    ports:
+      - "4008:4000"
+
+  ticket-mongo:
+    image: mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo-data:

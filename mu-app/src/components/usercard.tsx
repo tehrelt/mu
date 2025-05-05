@@ -35,7 +35,7 @@ export const UserCard = ({ user }: UserCardProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <Link to={routes.dashboard}>
+            <Link to={routes.dashboard.index}>
               <DropdownMenuItem>
                 <House />
                 Личный кабинет

@@ -7,6 +7,10 @@ include:
   - billing-service.yaml
   - register-service.yaml
   - account-service.yaml
+  - ticket-service.yaml
+  - consumption-service.yaml
+  - notification-service.yaml
+  # - telegram-bot.yaml
 
 services:
   pgadmin:

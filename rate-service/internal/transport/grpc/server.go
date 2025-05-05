@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/rate-service/internal/config"
 	"github.com/tehrelt/mu/rate-service/internal/models"
 	"github.com/tehrelt/mu/rate-service/internal/storage"
@@ -21,6 +22,8 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 )
+
+var _ ratepb.RateServiceServer = (*Server)(nil)
 
 type Server struct {
 	cfg     *config.Config
@@ -51,6 +54,7 @@ func (s *Server) Find(ctx context.Context, in *ratepb.FindRequest) (*ratepb.Serv
 		Name:        service.Name,
 		MeasureUnit: service.MeasureUnit,
 		Rate:        service.Rate,
+		Type:        service.Type.ToProto(),
 	}, nil
 
 }
@@ -58,23 +62,28 @@ func (s *Server) Find(ctx context.Context, in *ratepb.FindRequest) (*ratepb.Serv
 // List implements ratepb.RateServiceServer.
 func (s *Server) List(in *ratepb.ListRequest, stream grpc.ServerStreamingServer[ratepb.Service]) error {
 
-	servicesChan := make(chan *models.Service, 4)
-	errChan := make(chan error, 1)
+	filters := models.NewRateFilters()
 
-	go func() {
-		if err := s.storage.List(stream.Context(), servicesChan); err != nil {
-			slog.Error("failed to list services", sl.Err(err))
-			errChan <- err
-			return
-		}
-	}()
+	if in.Type != ratepb.ServiceType_UNKNOWN {
+		filters = filters.WithType(models.ServiceTypeFromProto(in.Type))
+	}
 
-	for service := range servicesChan {
+	slog.Debug("listing services", slog.Any("filters", filters))
+
+	rates, err := s.storage.List(stream.Context(), filters)
+	if err != nil {
+		slog.Error("failed to list services", sl.Err(err))
+		return err
+	}
+
+	for service := range rates {
+		slog.Debug("sending service", slog.String("sid", service.Id))
 		stream.Send(&ratepb.Service{
 			Id:          service.Id,
 			Name:        service.Name,
 			MeasureUnit: service.MeasureUnit,
 			Rate:        service.Rate,
+			Type:        service.Type.ToProto(),
 		})
 	}
 
@@ -90,7 +99,12 @@ func New(cfg *config.Config, s *servicestorage.ServiceStorage, b *rmq.RabbitMq) 
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	server := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptors.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(interceptors.StreamServerInterceptor()),
+	)
+
 	host := s.cfg.Grpc.Host
 	port := s.cfg.Grpc.Port
 	addr := fmt.Sprintf("%s:%d", host, port)

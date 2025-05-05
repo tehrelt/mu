@@ -7,6 +7,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/tehrelt/mu-lib/sl"
+	"github.com/tehrelt/mu-lib/tracer/interceptors"
 	"github.com/tehrelt/mu/account-service/pkg/prettyslog"
 )
 
@@ -36,6 +37,16 @@ const (
 	EnvProd  Env = "prod"
 )
 
+type QueueConfig struct {
+	Exchange string `env:"EXCHANGE"`
+	Routing  string `env:"ROUTING_KEY"`
+}
+
+type ExternalServiceConfig struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
 type Config struct {
 	Env      Env `env:"ENV"`
 	App      App
@@ -46,25 +57,11 @@ type Config struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
 	}
 
-	RateService struct {
-		Host string `env:"RATE_SERVICE_HOST"`
-		Port int    `env:"RATE_SERVICE_PORT"`
-	}
-
-	UserService struct {
-		Host string `env:"USER_SERVICE_HOST"`
-		Port int    `env:"USER_SERVICE_PORT"`
-	}
-
-	HouseService struct {
-		Host string `env:"HOUSE_SERVICE_HOST"`
-		Port int    `env:"HOUSE_SERVICE_PORT"`
-	}
-
-	BillingService struct {
-		Host string `env:"BILLING_SERVICE_HOST"`
-		Port int    `env:"BILLING_SERVICE_PORT"`
-	}
+	RateService    ExternalServiceConfig `env-prefix:"RATE_SERVICE_"`
+	UserService    ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	HouseService   ExternalServiceConfig `env-prefix:"HOUSE_SERVICE_"`
+	BillingService ExternalServiceConfig `env-prefix:"BILLING_SERVICE_"`
+	TicketService  ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
 
 	Amqp struct {
 		Host string `env:"AMQP_HOST"`
@@ -78,10 +75,17 @@ type Config struct {
 		Routing  string `env:"PAYMENT_STATUS_CHANGED_ROUTING"`
 	}
 
-	BalanceChanged struct {
-		Exchange string `env:"BALANCE_CHANGED_EXCHANGE"`
-		Routing  string `env:"BALANCE_CHANGED_ROUTING"`
-	}
+	BalanceChangedExchange string `env:"RMQ_BALANCE_CHANGED_EXCHANGE"`
+
+	TicketStatusChangedExchange struct {
+		Exchange            string `env:"EXCHANGE"`
+		NewAccountRoute     string `env-default:"new_account"`
+		ConnectServiceRoute string `env-default:"connect_service"`
+	} `env-prefix:"RMQ_TICKET_STATUS_CHANGED_"`
+
+	ConnectServiceExchange struct {
+		Exchange string `env:"EXCHANGE"`
+	} `env-prefix:"RMQ_CONNECT_SERVICE_"`
 }
 
 func New() *Config {
@@ -98,6 +102,8 @@ func New() *Config {
 	}
 
 	setupLogger(config)
+
+	interceptors.SetDebug(false)
 
 	slog.Debug("config", slog.Any("c", config))
 	return config

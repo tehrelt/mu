@@ -1,0 +1,28 @@
+services:
+  pg:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_NAME}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "${PG_PORT}:5432"
+
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis-data:/data
+
+volumes:
+  pg_data:
+    name: mu-notification-service-pg
+  redis-data:
+    name: mu-notification-service-redis

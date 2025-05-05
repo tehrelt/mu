@@ -6,7 +6,16 @@ service RateService {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Find(FindRequest) returns (Service);
     rpc List(ListRequest) returns (stream Service);
+    rpc ListIds(ListIdsRequest) returns (stream Service);
     rpc UpdateServiceRate(UpdateServiceRateRequest) returns (UpdateServiceRateResponse);
+}
+
+enum ServiceType {
+    UNKNOWN = 0;
+    WATER_SUPPLY = 1;
+    HEATING = 2;
+    POWER_SUPPLY = 3;
+    GAS_SUPPLY = 4;
 }
 
 message Service {
@@ -14,12 +23,14 @@ message Service {
     string name = 2;
     string measure_unit = 3;
     int64 rate = 4;
+    ServiceType type = 5;
 }
 
 message CreateRequest {
     string name = 1;
     int64 initial_rate = 2;
     string measure_unit = 3;
+    ServiceType type = 4;
 }
 
 message CreateResponse {
@@ -43,6 +54,9 @@ message UpdateServiceRateResponse {
 }
 
 message ListRequest {
-
+    ServiceType type = 1;
 }
 
+message ListIdsRequest {
+    repeated string ids = 1;
+}

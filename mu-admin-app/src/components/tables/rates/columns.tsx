@@ -1,7 +1,8 @@
+import { Balance } from "@/components/ui/balance";
 import { Button } from "@/components/ui/button";
 import { UUID } from "@/components/ui/uuid";
 import { routes } from "@/shared/routes";
-import { Rate } from "@/shared/types/rate";
+import { localizeServiceType, Rate, ServiceType } from "@/shared/types/rate";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
@@ -25,14 +26,26 @@ export const rateColumns: ColumnDef<Rate>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Наименование организации",
+  },
+  {
+    accessorKey: "serviceType",
+    header: "Вид услуги",
+    cell: ({ getValue }) => {
+      const serviceType = getValue() as ServiceType;
+      return <span>{localizeServiceType(serviceType)}</span>;
+    },
   },
   {
     accessorKey: "measureUnit",
-    header: "Measure Unit",
+    header: "Ед. измерения",
   },
   {
     accessorKey: "rate",
-    header: "Rate",
+    header: "Цена",
+    cell: ({ getValue }) => {
+      const price = getValue() as number;
+      return <Balance balance={price} />;
+    },
   },
 ];

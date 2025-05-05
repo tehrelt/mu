@@ -1,12 +1,13 @@
 syntax="proto3";
 
-package users;
+package user;
 
-option go_package="github.com/proto/users;userspb";
+option go_package="github.com/tehrelt/mu/proto/user;userpb";
 
 service UserService {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Find(FindRequest) returns (FindResponse);
+    rpc List(ListRequest) returns (stream ListResponse);
 }
 
 message FIO {
@@ -54,4 +55,13 @@ message FindRequest {
 
 message FindResponse {
     User user = 1;
+}
+
+message ListRequest {
+    uint64 offset = 1;
+    uint64 limit = 2;
+}
+
+message ListResponse {
+    repeated User usersChunk = 1;
 }
