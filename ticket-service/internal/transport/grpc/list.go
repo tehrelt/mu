@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	"log/slog"
+
 	"github.com/tehrelt/mu/ticket-service/internal/models"
 	"github.com/tehrelt/mu/ticket-service/internal/transport/grpc/marshaler"
 	"github.com/tehrelt/mu/ticket-service/pkg/pb/ticketpb"
@@ -11,6 +13,8 @@ import (
 func (s *Server) List(req *ticketpb.ListRequest, stream grpc.ServerStreamingServer[ticketpb.Ticket]) error {
 
 	filters := models.NewFilters()
+
+	slog.Debug("list request", slog.Any("req", req))
 
 	if req.UserId != "" {
 		filters = filters.SetUserId(req.UserId)
@@ -27,6 +31,8 @@ func (s *Server) List(req *ticketpb.ListRequest, stream grpc.ServerStreamingServ
 	if req.Status != ticketpb.TicketStatus_TicketStatusUnknown {
 		filters = filters.SetStatus(models.TicketStatusFromProto(req.Status))
 	}
+
+	slog.Debug("filters to list tickets", slog.Any("filters", filters))
 
 	ticketsCh, err := s.storage.List(stream.Context(), filters)
 	if err != nil {

@@ -2,6 +2,7 @@ package ticketstorage
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/tehrelt/mu/ticket-service/internal/models"
 	"github.com/tehrelt/mu/ticket-service/internal/storage"
@@ -17,6 +18,8 @@ type Header struct {
 	Type      models.TicketType   `bson:"type"`
 	Status    models.TicketStatus `bson:"status"`
 	CreatedBy string              `bson:"created_by"`
+	CreatedAt time.Time           `bson:"created_at"`
+	UpdatedAt time.Time           `bson:"updated_at"`
 }
 
 func (th *Header) header() *Header {
@@ -62,6 +65,7 @@ func marshalHeader(src *models.TicketHeader) (dst Header, err error) {
 		Type:      src.TicketType,
 		Status:    src.Status,
 		CreatedBy: src.CreatedBy,
+		CreatedAt: time.Now(),
 	}
 
 	if src.Id != "" {

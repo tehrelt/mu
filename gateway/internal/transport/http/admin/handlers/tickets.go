@@ -3,6 +3,7 @@ package handlers
 import (
 	"io"
 	"log/slog"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tehrelt/mu/gateway/internal/dto"
@@ -30,7 +31,27 @@ func TicketListHandler(ticketer ticketpb.TicketServiceClient) fiber.Handler {
 
 		span := trace.SpanFromContext(ctx)
 
-		stream, err := ticketer.List(ctx, &ticketpb.ListRequest{})
+		req := &ticketpb.ListRequest{}
+
+		status := c.Query("status", "")
+		if status != "" {
+			for k, v := range ticketpb.TicketStatus_value {
+				if strings.Compare(k, status) == 0 {
+					req.Status = ticketpb.TicketStatus(v)
+				}
+			}
+		}
+
+		ttype := c.Query("type", "")
+		if ttype != "" {
+			for k, v := range ticketpb.TicketType_value {
+				if strings.Compare(k, ttype) == 0 {
+					req.Type = ticketpb.TicketType(v)
+				}
+			}
+		}
+
+		stream, err := ticketer.List(ctx, req)
 		if err != nil {
 			return err
 		}

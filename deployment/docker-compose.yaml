@@ -28,7 +28,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one
     restart: unless-stopped
-    container_name: mu-jaeger
+    container_name: jaeger
     ports:
       - "14268:14268"
       - "14269:14269"
@@ -38,6 +38,8 @@ services:
   nginx:
     image: nginx:1-alpine
     restart: always
+    depends_on:
+      - gateway
     ports:
       - 80:80
     volumes:

@@ -15,7 +15,7 @@ func (c *AmqpConsumer) handleServiceConnectedEvent(ctx context.Context, msg *rmq
 
 	defer func() {
 		if err != nil {
-			msg.Nack(false, true)
+			msg.Reject(false)
 			return
 		}
 

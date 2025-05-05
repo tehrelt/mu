@@ -15,6 +15,8 @@ import {
 import { useAccounts } from "@/shared/hooks/use-accounts";
 import { accountStore } from "@/shared/store/account-store";
 import { Balance } from "./ui/balance";
+import { useNavigate } from "react-router-dom";
+import { routes } from "@/shared/routes";
 
 export function AccountSwitcher() {
   const accounts = useAccounts();
@@ -22,6 +24,8 @@ export function AccountSwitcher() {
   const selectedAccount = accountStore((s) => s.account);
   const selectAccount = accountStore((s) => s.select);
   const clearAccount = accountStore((s) => s.clear);
+
+  const navigate = useNavigate();
 
   return (
     <SidebarMenu>
@@ -64,7 +68,10 @@ export function AccountSwitcher() {
                 .map((acc) => (
                   <DropdownMenuItem
                     key={acc.id}
-                    onSelect={() => selectAccount(acc)}
+                    onSelect={() => {
+                      selectAccount(acc);
+                      navigate(routes.dashboard.index);
+                    }}
                   >
                     {acc.house.address}
                   </DropdownMenuItem>
@@ -73,7 +80,12 @@ export function AccountSwitcher() {
             {selectedAccount && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => clearAccount()}>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    clearAccount();
+                    navigate(routes.dashboard.index);
+                  }}
+                >
                   Clear
                 </DropdownMenuItem>
               </>

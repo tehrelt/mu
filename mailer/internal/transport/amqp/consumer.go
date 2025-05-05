@@ -87,6 +87,7 @@ func (c *Consumer) handleMessage(ctx context.Context, msg *rmqmanager.TracedDeli
 
 	defer func() {
 		if err != nil {
+			msg.Reject(false)
 			return
 		}
 

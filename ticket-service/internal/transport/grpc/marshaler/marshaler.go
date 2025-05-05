@@ -33,6 +33,8 @@ func marshalHeader(header *models.TicketHeader) *ticketpb.TicketHeader {
 		Type:      header.TicketType.ToProto(),
 		Status:    header.Status.ToProto(),
 		CreatedBy: header.CreatedBy,
+		CreatedAt: header.CreatedAt.Unix(),
+		UpdatedAt: header.UpdatedAt.Unix(),
 	}
 }
 

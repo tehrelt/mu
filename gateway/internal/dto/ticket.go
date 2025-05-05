@@ -1,16 +1,22 @@
 package dto
 
-import "github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
+import (
+	"time"
+
+	"github.com/tehrelt/mu/gateway/pkg/pb/ticketpb"
+)
 
 type Ticket interface {
 	isTicket()
 }
 
 type TicketHeader struct {
-	Id           string `json:"id"`
-	TicketType   string `json:"ticketType"`
-	TicketStatus string `json:"ticketStatus"`
-	CreatedBy    string `json:"createdBy"`
+	Id           string    `json:"id"`
+	TicketType   string    `json:"ticketType"`
+	TicketStatus string    `json:"ticketStatus"`
+	CreatedBy    string    `json:"createdBy"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type ticketNewAccount struct {
@@ -34,6 +40,8 @@ func marshalHeader(src *ticketpb.TicketHeader) TicketHeader {
 		TicketType:   src.Type.String(),
 		TicketStatus: src.Status.String(),
 		CreatedBy:    src.CreatedBy,
+		CreatedAt:    time.Unix(src.CreatedAt, 0),
+		UpdatedAt:    time.Unix(src.UpdatedAt, 0),
 	}
 }
 

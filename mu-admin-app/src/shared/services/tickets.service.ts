@@ -10,8 +10,8 @@ import {
 } from "../types/ticket";
 
 type TicketListRequest = {
-  status?: TicketStatusEnum;
-  type?: TicketTypeEnum;
+  status: TicketStatusEnum;
+  type: TicketTypeEnum;
 };
 
 const listResponseSchema = z.object({
@@ -34,7 +34,7 @@ class TicketService {
     throw new Error("invalid ticket type");
   }
 
-  async list(params?: TicketListRequest) {
+  async list(params?: Partial<TicketListRequest>) {
     const response = await api.get("/tickets", {
       params,
     });

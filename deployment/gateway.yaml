@@ -22,6 +22,9 @@ services:
       BILLING_SERVICE_HOST: billing-service
       BILLING_SERVICE_PORT: 4000
 
+      CONSUMPTION_SERVICE_HOST: consumption-service
+      CONSUMPTION_SERVICE_PORT: 4000
+
       HOUSING_SERVICE_HOST: housing-service
       HOUSING_SERVICE_PORT: 4000
 
@@ -36,6 +39,9 @@ services:
 
       TICKET_SERVICE_HOST: ticket-service
       TICKET_SERVICE_PORT: 4000
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
 
       JAEGER_ENDPOINT: http://jaeger:4317
 

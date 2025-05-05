@@ -40,6 +40,14 @@ export const ticketHeaderSchema = z.object({
   ticketType: ticketTypeEnum,
   ticketStatus: ticketStatusEnum,
   createdBy: z.string(),
+  createdAt: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+  }, z.date()),
+  updatedAt: z
+    .preprocess((arg) => {
+      if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    }, z.date())
+    .optional(),
 });
 export type TicketHeader = z.infer<typeof ticketHeaderSchema>;
 

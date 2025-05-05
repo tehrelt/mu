@@ -27,17 +27,17 @@ export const Dashboard = () => {
 
   const limit = 10;
   const paymentsQuery = useQuery({
-    queryKey: ["account", "payments"],
+    queryKey: ["account", accountId, "payments"],
     queryFn: async () => await accountService.payments(accountId, { limit }),
   });
   const pendingPaymentsQuery = useQuery({
-    queryKey: ["account", "payments", { status: "pending" }],
+    queryKey: ["account", accountId, "payments", { status: "pending" }],
     queryFn: async () =>
       await accountService.payments(accountId, { limit, status: "pending" }),
   });
 
   const logsQuery = useQuery({
-    queryKey: ["account", "logs"],
+    queryKey: ["account", accountId, "logs"],
     queryFn: async () => await accountService.logs(accountId),
   });
 

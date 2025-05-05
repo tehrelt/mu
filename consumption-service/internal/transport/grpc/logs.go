@@ -30,6 +30,15 @@ func (s *Server) Logs(req *consumptionpb.LogsRequest, stream grpc.ServerStreamin
 		filters.CabinetId = uuid
 	}
 
+	if req.AccountId != "" {
+		uuid, err := uuid.Parse(req.AccountId)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "bad account_id=%s", req.AccountId)
+		}
+
+		filters.AccountId = uuid
+	}
+
 	if req.Pagination != nil {
 		p := req.Pagination
 		filters.Pagination.Limit = p.Limit
@@ -41,7 +50,7 @@ func (s *Server) Logs(req *consumptionpb.LogsRequest, stream grpc.ServerStreamin
 		return status.Errorf(codes.Internal, "failed to get logs: %v", err)
 	}
 
-	slog.Debug("receieved logs", slog.Any("log", logs), slog.Any("total", total))
+	// slog.Debug("receieved logs", slog.Any("log", logs), slog.Any("total", total))
 
 	batchsize := 20
 

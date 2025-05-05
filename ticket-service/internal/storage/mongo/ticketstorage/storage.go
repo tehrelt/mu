@@ -3,6 +3,7 @@ package ticketstorage
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu-lib/tracer"
@@ -11,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	m "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/otel"
 )
 
@@ -76,7 +78,13 @@ func (s *Storage) List(ctx context.Context, filters *models.TicketFilters) (<-ch
 	ctx, span := otel.Tracer(tracer.TracerKey).Start(ctx, fn)
 	tickets := make(chan models.Ticket)
 
-	cursor, err := c.Find(ctx, marshalFilters(filters))
+	cursor, err := c.Find(
+		ctx,
+		marshalFilters(filters),
+		&options.FindOptions{
+			Sort: bson.D{{Key: "created_at", Value: -1}},
+		},
+	)
 	if err != nil {
 		log.Error("failed to find tickets", sl.Err(err), slog.Any("filters", filters))
 		return nil, err
@@ -95,8 +103,6 @@ func (s *Storage) List(ctx context.Context, filters *models.TicketFilters) (<-ch
 				continue
 			}
 
-			log.Debug("decoded header", slog.Any("header", header))
-
 			marshaled, err := factoryTicket(header.Type)
 			if err != nil {
 				log.Error("failed to create ticket", sl.Err(err))
@@ -109,8 +115,6 @@ func (s *Storage) List(ctx context.Context, filters *models.TicketFilters) (<-ch
 				span.RecordError(err)
 				continue
 			}
-
-			log.Debug("created ticket", slog.Any("ticket", marshaled))
 
 			ticket, err := unmarshalTicket(marshaled)
 			if err != nil {
@@ -205,7 +209,8 @@ func (s *Storage) Update(ctx context.Context, id string, newStatus models.Ticket
 		},
 		bson.M{
 			"$set": bson.M{
-				"status": newStatus,
+				"status":     newStatus,
+				"updated_at": time.Now(),
 			},
 		},
 	); err != nil {

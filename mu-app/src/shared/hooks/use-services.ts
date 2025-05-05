@@ -6,7 +6,7 @@ export const useConnectedServices = () => {
   const accountId = accountStore((s) => s.account?.id);
 
   return useQuery({
-    queryKey: ["account", "services"],
-    queryFn: async () => await accountService.services(accountId),
+    queryKey: ["account", accountId, "services"],
+    queryFn: async () => await accountService.services(accountId!),
   });
 };

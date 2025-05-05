@@ -21,20 +21,31 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/shared/hooks/use-debounce";
 import { ticketService } from "@/shared/services/tickets.service";
+import {
+  localizeTicketStatus,
+  localizeTicketType,
+  ticketStatusEnum,
+  TicketStatusEnum,
+  ticketTypeEnum,
+  TicketTypeEnum,
+} from "@/shared/types/ticket";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export const TicketListPage = () => {
-  const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
   const debouncedLimit = useDebounce(limit, 500);
-  const debouncedSearch = useDebounce(search, 500);
   const [sp, setSp] = useSearchParams();
 
-  const [fieldName, setFieldName] = React.useState("email");
+  const [ticketType, setTicketType] = React.useState<
+    TicketTypeEnum | undefined
+  >();
+  const [ticketStatus, setTicketStatus] = React.useState<
+    TicketStatusEnum | undefined
+  >();
 
   useEffect(() => {
     const page = sp.get("page");
@@ -48,16 +59,17 @@ export const TicketListPage = () => {
     setSp({
       page: page.toString(),
       limit: debouncedLimit.toString(),
-      query: debouncedSearch,
     });
-  }, [debouncedLimit, page, setSp, debouncedSearch]);
+  }, [debouncedLimit, page, setSp]);
 
   const data = useQuery({
-    queryKey: ["tickets"],
-    queryFn: async () => await ticketService.list({}),
+    queryKey: ["tickets", { ticketType: ticketType, status: ticketStatus }],
+    queryFn: async () =>
+      await ticketService.list({
+        type: ticketType,
+        status: ticketStatus,
+      }),
   });
-
-  const onSearchChange = (val: string) => setSearch(val);
 
   return (
     <div className="space-y-4 relative">
@@ -78,21 +90,54 @@ export const TicketListPage = () => {
             placeholder="Записей на страницу"
           />
           <div className="flex">
-            <Input
-              className="w-[256px] rounded-r-none"
-              placeholder={`Поиск ${fieldName != "" && `по ${fieldName}`}`}
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
-            <Select value={fieldName} onValueChange={(v) => setFieldName(v)}>
-              <SelectTrigger className="w-[128px] rounded-l-none">
-                <SelectValue placeholder={"Поле..."} />
+            <Select
+              value={ticketType ?? ""}
+              onValueChange={(v) => setTicketType(v as TicketTypeEnum)}
+            >
+              <SelectTrigger className="w-[128px] rounded-r-none">
+                <SelectValue placeholder={"Тип тикета"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="email">Почта</SelectItem>
-                <SelectItem value="lastName">Фамилия</SelectItem>
+                {Object.entries(ticketTypeEnum.enum).map((e) => (
+                  <SelectItem value={e[0]}>
+                    {localizeTicketType(e[0] as TicketTypeEnum)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            <Button
+              variant={"outline"}
+              className="rounded-l-none"
+              disabled={!ticketType}
+              onClick={() => setTicketType(undefined)}
+            >
+              <X />
+            </Button>
+          </div>
+          <div className="flex">
+            <Select
+              value={ticketStatus ?? ""}
+              onValueChange={(v) => setTicketStatus(v as TicketStatusEnum)}
+            >
+              <SelectTrigger className="w-[128px] rounded-r-none">
+                <SelectValue placeholder={"Тип тикета"} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(ticketStatusEnum.enum).map((e) => (
+                  <SelectItem value={e[0]}>
+                    {localizeTicketStatus(e[0] as TicketStatusEnum)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant={"outline"}
+              className="rounded-l-none"
+              disabled={!ticketStatus}
+              onClick={() => setTicketStatus(undefined)}
+            >
+              <X />
+            </Button>
           </div>
           <div>
             <Pagination className="flex justify-end">
