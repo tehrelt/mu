@@ -9,13 +9,11 @@ COPY ./go.sum ./
 RUN go mod download && go mod verify
 
 COPY . /app
-RUN go build -mod=readonly -o migrator cmd/migrator/main.go &&\
-    go build -mod=readonly -o app cmd/app/main.go
+RUN go build -mod=readonly -o app cmd/app/main.go
 
 FROM alpine
 RUN apk update --no-cache
 WORKDIR /app
 COPY --from=builder /app /app
-COPY --from=builder /app/wait /app/wait
 
-CMD ./wait && ./migrator && ./app
+CMD ./wait && ./app
