@@ -10,7 +10,7 @@ include:
   - ticket-service.yaml
   - consumption-service.yaml
   - notification-service.yaml
-  - telegram-bot.yaml
+  # - telegram-bot.yaml
 
 services:
   pgadmin:

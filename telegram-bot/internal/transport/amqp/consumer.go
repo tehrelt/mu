@@ -76,7 +76,7 @@ func (c *Consumer) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case msg := <-messages:
-			if err := c.handleMessage(ctx, msg); err != nil {
+			if err := c.handleMessage(msg.Context(), msg); err != nil {
 				c.logger.Error("failed to handle message", sl.Err(err))
 			}
 		}
@@ -90,6 +90,7 @@ func (c *Consumer) handleMessage(ctx context.Context, msg *rmqmanager.TracedDeli
 			return
 		}
 
+		// err = msg.Ack(false)
 	}()
 
 	body := msg.Body
@@ -99,7 +100,10 @@ func (c *Consumer) handleMessage(ctx context.Context, msg *rmqmanager.TracedDeli
 		return err
 	}
 
-	c.uc.SendNotification(ctx, event)
+	if err := c.uc.SendNotification(ctx, event); err != nil {
+		slog.Error("failed to send notification", sl.Err(err))
+		return err
+	}
 
 	return nil
 }
@@ -116,7 +120,12 @@ func parseEventBody(body []byte) (events.Event, error) {
 		if err := json.Unmarshal(body, e); err != nil {
 			return nil, err
 		}
-
+		return e, nil
+	case events.EventBalanceChanged:
+		e := &events.BalanceChanged{}
+		if err := json.Unmarshal(body, e); err != nil {
+			return nil, err
+		}
 		return e, nil
 	default:
 		return nil, fmt.Errorf("unknown event type: %s", header.EventType)

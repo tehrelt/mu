@@ -9,6 +9,7 @@ import (
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/notification-service/internal/dto"
 	"github.com/tehrelt/mu/notification-service/internal/events"
+	"github.com/tehrelt/mu/notification-service/internal/usecase/sender"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/userpb"
 )
@@ -60,14 +61,10 @@ func (uc *UseCase) send(ctx context.Context, event events.Event) error {
 
 	event.SetSettings(settings)
 
-	if err := uc.broker.SendEmailNotification(ctx, event); err != nil {
-		log.Error("failed to send email notification", sl.Err(err))
-	}
+	sender := sender.New(uc.broker, settings)
 
-	if event.Header().Settings.TelegramChatId != nil {
-		if err := uc.broker.SendTelegramNotification(ctx, event); err != nil {
-			log.Error("failed to send telegram notification", sl.Err(err))
-		}
+	if err := sender.Send(ctx, event); err != nil {
+		return err
 	}
 
 	return nil

@@ -15,6 +15,7 @@ USER_PROTO=proto/user.proto
 HOUSE_PROTO=proto/house.proto
 BILLING_PROTO=proto/billing.proto
 TICKET_PROTO=proto/ticket.proto
+ACCOUNT_PROTO=proto/account.proto
 protobuf:
 	cp -r ../proto .
 
@@ -52,6 +53,13 @@ protobuf:
 		--go-grpc_out=. \
 		--go-grpc_opt=M$(TICKET_PROTO)=$(PB)/ticketpb \
 		$(TICKET_PROTO)
+
+	protoc  \
+		--go_out=. \
+		--go_opt=M$(ACCOUNT_PROTO)=$(PB)/accountpb \
+		--go-grpc_out=. \
+		--go-grpc_opt=M$(ACCOUNT_PROTO)=$(PB)/accountpb \
+		$(ACCOUNT_PROTO)
 
 gen: protobuf wire
 

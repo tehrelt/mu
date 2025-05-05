@@ -10,6 +10,7 @@ import (
 	"github.com/tehrelt/mu/notification-service/internal/storage/pg/integrationstorage"
 	"github.com/tehrelt/mu/notification-service/internal/storage/redis/otpstorage"
 	"github.com/tehrelt/mu/notification-service/internal/storage/rmq"
+	"github.com/tehrelt/mu/notification-service/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/userpb"
 )
@@ -19,9 +20,10 @@ type UseCase struct {
 	integrationstorage *integrationstorage.Storage
 	logger             *slog.Logger
 
-	broker    *rmq.Broker
-	ticketapi ticketpb.TicketServiceClient
-	userapi   userpb.UserServiceClient
+	broker     *rmq.Broker
+	ticketapi  ticketpb.TicketServiceClient
+	userapi    userpb.UserServiceClient
+	accountapi accountpb.AccountServiceClient
 }
 
 func New(
@@ -30,7 +32,7 @@ func New(
 	ticketapi ticketpb.TicketServiceClient,
 	broker *rmq.Broker,
 	userapi userpb.UserServiceClient,
-
+	accountapi accountpb.AccountServiceClient,
 ) *UseCase {
 	return &UseCase{
 		otpstorage:         otpstorage,
@@ -39,6 +41,7 @@ func New(
 		broker:             broker,
 		ticketapi:          ticketapi,
 		userapi:            userapi,
+		accountapi:         accountapi,
 	}
 }
 

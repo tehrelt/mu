@@ -29,6 +29,9 @@ services:
       USER_SERVICE_HOST: user-service
       USER_SERVICE_PORT: 4000
 
+      ACCOUNT_SERVICE_HOST: account-service
+      ACCOUNT_SERVICE_PORT: 4000
+
       AMQP_HOST: rmq
       AMQP_PORT: 5672
 

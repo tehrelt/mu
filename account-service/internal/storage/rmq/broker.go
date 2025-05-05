@@ -30,7 +30,7 @@ func (b *Broker) PublishBalanceChanged(ctx context.Context, event *dto.EventBala
 		return err
 	}
 
-	return b.manager.Publish(ctx, b.cfg.BalanceChanged.Exchange, b.cfg.BalanceChanged.Routing, j)
+	return b.manager.Publish(ctx, b.cfg.BalanceChangedExchange, "", j)
 }
 
 func (b *Broker) PublishConnectServiceRequest(ctx context.Context, event *dto.EventServiceConnect) error {

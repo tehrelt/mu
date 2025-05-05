@@ -61,8 +61,9 @@ type Config struct {
 		Endpoint string `env:"JAEGER_ENDPOINT"`
 	}
 
-	TicketService ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
-	UserService   ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	TicketService  ExternalServiceConfig `env-prefix:"TICKET_SERVICE_"`
+	UserService    ExternalServiceConfig `env-prefix:"USER_SERVICE_"`
+	AccountService ExternalServiceConfig `env-prefix:"ACCOUNT_SERVICE_"`
 
 	Amqp struct {
 		Host string `env:"AMQP_HOST"`
@@ -72,9 +73,10 @@ type Config struct {
 	}
 
 	TicketStatusChangedExchange struct {
-		Exchange      string `env:"EXCHANGE"`
-		WildcardRoute string `env-default:"#"`
+		Exchange string `env:"EXCHANGE"`
 	} `env-prefix:"RMQ_TICKET_STATUS_CHANGED_"`
+
+	BalanceChangedExchange string `env:"RMQ_BALANCE_CHANGED_EXCHANGE"`
 
 	NotificationSendExchange struct {
 		Exchange string `env:"EXCHANGE"`

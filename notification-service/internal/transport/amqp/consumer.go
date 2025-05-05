@@ -16,6 +16,7 @@ import (
 
 const (
 	TicketStatusChangedQueue = "notification_service.ticket.status_changed"
+	BalanceChangedQueue      = "notification_service.balance.changed"
 )
 
 type AmqpConsumer struct {
@@ -46,6 +47,11 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		return err
 	}
 
+	balanceChangedMessages, err := c.manager.Consume(ctx, BalanceChangedQueue)
+	if err != nil {
+		return err
+	}
+
 	log := slog.With(slog.String("amqp", "amqp"))
 
 	for {
@@ -53,31 +59,41 @@ func (c *AmqpConsumer) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case msg := <-ticketStatusChangedMessages:
-			if err := c.handleTicketStatusChangedMessage(ctx, msg); err != nil {
+			if err := c.handleTicketStatusChangedMessage(msg.Context(), msg); err != nil {
 				log.Error("failed to handle message", slog.String("queue", TicketStatusChangedQueue), sl.Err(err))
+			}
+		case msg := <-balanceChangedMessages:
+			if err := c.handleBalanceChangedEvent(msg.Context(), msg); err != nil {
+				log.Error("failed to handle message", slog.String("queue", BalanceChangedQueue), sl.Err(err))
 			}
 		}
 	}
 }
 
-func (c *AmqpConsumer) handleTicketStatusChangedMessage(ctx context.Context, msg *rmqmanager.TracedDelivery) (err error) {
+func (c *AmqpConsumer) handleBalanceChangedEvent(ctx context.Context, msg *rmqmanager.TracedDelivery) (err error) {
+
+	fn := "handleBalanceChangedEvent"
+	log := slog.With(sl.Method(fn))
+
 	defer func() {
 		if err != nil {
-			msg.Reject(false)
-		} else {
-			err = msg.Ack(false)
+			return
+		}
+
+		err = msg.Ack(false)
+		if err != nil {
+			log.Error("failed to ack message", slog.String("queue", BalanceChangedQueue), sl.Err(err))
 		}
 	}()
 
-	log := slog.With(slog.String("queue_handler", TicketStatusChangedQueue))
-	log.Info("incoming message", slog.String("body", string(msg.Body)))
-
-	event := &events.IncomingTicketStatusChanged{}
+	event := &events.IncomingBalanceChanged{}
 	if err := json.Unmarshal(msg.Body, event); err != nil {
+		log.Error("failed to unmarshal message", sl.Err(err))
 		return err
 	}
 
-	if err := c.uc.HandleTicketStatusChangedEvent(ctx, event); err != nil {
+	if err := c.uc.HandleBalanceChangedEvent(ctx, event); err != nil {
+		log.Error("failed to handle balance changed event", sl.Err(err))
 		return err
 	}
 

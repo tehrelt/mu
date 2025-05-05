@@ -75,10 +75,7 @@ type Config struct {
 		Routing  string `env:"PAYMENT_STATUS_CHANGED_ROUTING"`
 	}
 
-	BalanceChanged struct {
-		Exchange string `env:"BALANCE_CHANGED_EXCHANGE"`
-		Routing  string `env:"BALANCE_CHANGED_ROUTING"`
-	}
+	BalanceChangedExchange string `env:"RMQ_BALANCE_CHANGED_EXCHANGE"`
 
 	TicketStatusChangedExchange struct {
 		Exchange            string `env:"EXCHANGE"`

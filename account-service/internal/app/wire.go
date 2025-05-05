@@ -104,11 +104,6 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		return nil, closefn, err
 	}
 
-	if err := amqp_setup_exchange(channel, cfg.BalanceChanged.Exchange, cfg.BalanceChanged.Routing); err != nil {
-		slog.Error("failed to setup notifications exchange", sl.Err(err))
-		return nil, closefn, err
-	}
-
 	exchange := cfg.TicketStatusChangedExchange.Exchange
 	log.Info("declaring exchange", slog.String("exchange", exchange))
 	if err := channel.ExchangeDeclare(exchange, "topic", true, false, false, false, nil); err != nil {
@@ -137,6 +132,13 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 	}
 
 	exchange = cfg.ConnectServiceExchange.Exchange
+	log.Info("declaring exchange", slog.String("exchange", exchange))
+	if err := channel.ExchangeDeclare(exchange, "fanout", true, false, false, false, nil); err != nil {
+		slog.Error("failed to declare notifications queue", sl.Err(err))
+		return nil, closefn, err
+	}
+
+	exchange = cfg.BalanceChangedExchange
 	log.Info("declaring exchange", slog.String("exchange", exchange))
 	if err := channel.ExchangeDeclare(exchange, "fanout", true, false, false, false, nil); err != nil {
 		slog.Error("failed to declare notifications queue", sl.Err(err))

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/ticket-service/internal/dto"
 	"github.com/tehrelt/mu/ticket-service/internal/models"
 	"github.com/tehrelt/mu/ticket-service/internal/transport/grpc/marshaler"
@@ -30,17 +31,19 @@ func (s *Server) UpdateTicketStatus(ctx context.Context, req *ticketpb.UpdateTic
 
 	event := &dto.EventTicketStatusChanged{
 		TicketId:  req.Id,
+		Ticket:    t,
 		Status:    st,
 		Timestamp: time.Now(),
 	}
+
 	if t.Header().TicketType == models.TicketTypeAccount {
 		if err := s.broker.PublishStatusNewAccount(ctx, event); err != nil {
-			slog.Error("failed to publish status changed event", err)
+			slog.Error("failed to publish status changed event", sl.Err(err))
 			return nil, status.Errorf(codes.Internal, "failed to publish status changed event")
 		}
 	} else if t.Header().TicketType == models.TicketTypeConnectService {
 		if err := s.broker.PublishStatusConnectService(ctx, event); err != nil {
-			slog.Error("failed to publish status changed event", err)
+			slog.Error("failed to publish status changed event", sl.Err(err))
 			return nil, status.Errorf(codes.Internal, "failed to publish status changed event")
 		}
 	}

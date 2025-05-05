@@ -22,6 +22,7 @@ import (
 	"github.com/tehrelt/mu/notification-service/internal/transport/amqp"
 	tgrpc "github.com/tehrelt/mu/notification-service/internal/transport/grpc"
 	"github.com/tehrelt/mu/notification-service/internal/usecase"
+	"github.com/tehrelt/mu/notification-service/pkg/pb/accountpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/userpb"
 	"go.opentelemetry.io/otel/trace"
@@ -47,6 +48,7 @@ func New(ctx context.Context) (*App, func(), error) {
 		otpstorage.NewStorage,
 		integrationstorage.NewStorage,
 
+		_accountpb,
 		_userpb,
 		_ticketpb,
 		_amqp,
@@ -119,27 +121,63 @@ func _amqp(cfg *config.Config) (*amqp091.Channel, func(), error) {
 		defer channel.Close()
 	}
 
-	exchange := cfg.TicketStatusChangedExchange.Exchange
-	log.Info("declaring exchange", slog.String("exchange", exchange))
-	if err := channel.ExchangeDeclare(exchange, "topic", true, false, false, false, nil); err != nil {
-		slog.Error("failed to declare exchange", slog.String("exchange", exchange), sl.Err(err))
-		return nil, closefn, err
+	exchanges := []struct {
+		name string
+		t    string
+	}{
+		{
+			name: cfg.TicketStatusChangedExchange.Exchange,
+			t:    "topic",
+		},
+		{
+			name: cfg.BalanceChangedExchange,
+			t:    "fanout",
+		},
+		{
+			name: cfg.NotificationSendExchange.Exchange,
+			t:    "direct",
+		},
 	}
 
-	queue, err := channel.QueueDeclare(amqp.TicketStatusChangedQueue, true, false, false, false, nil)
-	if err != nil {
-		return nil, closefn, err
+	for _, exchange := range exchanges {
+		log.Info("declaring exchange", slog.String("exchange", exchange.name))
+		if err := channel.ExchangeDeclare(exchange.name, exchange.t, true, false, false, false, nil); err != nil {
+			slog.Error("failed to declare exchange", slog.String("exchange", exchange.name), sl.Err(err))
+			return nil, closefn, err
+		}
 	}
 
-	if err := channel.QueueBind(queue.Name, cfg.TicketStatusChangedExchange.WildcardRoute, exchange, false, nil); err != nil {
-		return nil, closefn, err
+	queues := []struct {
+		queueName string
+		rk        string
+		exchange  string
+	}{
+		{
+			queueName: amqp.TicketStatusChangedQueue,
+			rk:        "#",
+			exchange:  cfg.TicketStatusChangedExchange.Exchange,
+		},
+		{
+			queueName: amqp.BalanceChangedQueue,
+			rk:        "",
+			exchange:  cfg.BalanceChangedExchange,
+		},
 	}
+	for _, q := range queues {
+		queue, err := channel.QueueDeclare(q.queueName, true, false, false, false, nil)
+		if err != nil {
+			return nil, closefn, err
+		}
 
-	exchange = cfg.NotificationSendExchange.Exchange
-	log.Info("declaring exchange", slog.String("exchange", exchange))
-	if err := channel.ExchangeDeclare(exchange, "direct", true, false, false, false, nil); err != nil {
-		slog.Error("failed to declare exchange", slog.String("exchange", exchange), sl.Err(err))
-		return nil, closefn, err
+		log.Info(
+			"bindig queue to exchange",
+			slog.String("queue", q.queueName),
+			slog.String("exchange", q.exchange),
+			slog.String("key", q.rk),
+		)
+		if err := channel.QueueBind(queue.Name, q.rk, q.exchange, false, nil); err != nil {
+			return nil, closefn, err
+		}
 	}
 
 	slog.Info("connected to amqp", slog.String("conn", cs))
@@ -200,4 +238,24 @@ func _userpb(cfg *config.Config) (
 	}
 
 	return userpb.NewUserServiceClient(client), func() { client.Close() }, nil
+}
+
+func _accountpb(cfg *config.Config) (
+	accountpb.AccountServiceClient,
+	func(),
+	error,
+) {
+	addr := cfg.AccountService.Address()
+
+	client, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptors.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(interceptors.StreamClientInterceptor()),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return accountpb.NewAccountServiceClient(client), func() { client.Close() }, nil
 }
