@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package account;
+
+option go_package="github.com/tehrelt/moi-uslugi/proto/account;accountpb";
+
+service AccountService {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Find(FindRequest) returns (FindResponse);
+    rpc List(ListRequest) returns (stream Account);
+}
+
+message Account {
+    string id = 1;
+    int64 balance = 2;
+    string user_id = 3;
+    House house = 4;
+    int64 created_at = 5;
+    int64 updated_at = 6;
+}
+
+message House {
+    string id = 1;
+    string address = 2;
+    repeated string connected_service_ids = 3;
+}
+
+message CreateRequest {
+    string user_id = 1;
+    string house_id = 2;
+}
+
+message CreateResponse {
+    string id = 1;
+}
+
+message Range {
+    int64 min = 1;
+    int64 max = 2;
+}
+
+message ListRequest {
+    Range range = 1;
+    string user_id = 2;
+}
+
+message ListResponse {
+    Account account = 1;
+}
+
+message ListUsersAccountsRequest {
+    string user_id = 1;
+}
+
+message ListUsersAccountsResponse {
+    Account account = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindResponse {
+    Account account = 1;
+}
