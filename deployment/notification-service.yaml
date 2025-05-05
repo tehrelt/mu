@@ -36,6 +36,8 @@ services:
       AMQP_PORT: 5672
 
       JAEGER_ENDPOINT: http://jaeger:4317
+
+      RMQ_NOTIFICATION_SEND_EXCHANGE: notifications.send
     ports:
       - "${NOTIFICATION_GRPC_PORT}:4000"
 

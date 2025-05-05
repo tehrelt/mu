@@ -9,6 +9,7 @@ import (
 	"github.com/tehrelt/mu-lib/sl"
 	"github.com/tehrelt/mu/notification-service/internal/dto"
 	"github.com/tehrelt/mu/notification-service/internal/events"
+	"github.com/tehrelt/mu/notification-service/internal/models"
 	"github.com/tehrelt/mu/notification-service/internal/usecase/sender"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/ticketpb"
 	"github.com/tehrelt/mu/notification-service/pkg/pb/userpb"
@@ -86,7 +87,14 @@ func (uc *UseCase) userSettings(ctx context.Context, userId uuid.UUID) (*dto.Use
 		return nil, err
 	}
 	if settings == nil {
-		return nil, fmt.Errorf("user not found: %s", userId.String())
+		settings = &models.Integration{
+			UserId: userId,
+		}
+
+		if err := uc.integrationstorage.Create(ctx, settings); err != nil {
+			slog.Error("failed to create integration", slog.String("user_id", userId.String()), sl.Err(err))
+			return nil, err
+		}
 	}
 
 	return &dto.UserSettings{

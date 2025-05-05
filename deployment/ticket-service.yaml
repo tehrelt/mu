@@ -20,6 +20,8 @@ services:
 
       JAEGER_ENDPOINT: http://jaeger:4317
       WAIT_HOSTS: ticket-mongo:27017
+
+      RMQ_TICKET_STATUS_CHANGED_EXCHANGE: ticket.status_changed
     ports:
       - "4008:4000"
 

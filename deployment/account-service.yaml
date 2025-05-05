@@ -42,6 +42,8 @@ services:
       TICKET_SERVICE_PORT: 4000
 
       JAEGER_ENDPOINT: http://jaeger:4317
+
+      RMQ_BALANCE_CHANGED_EXCHANGE: account_service.balance_changed
     ports:
       - "${ACCOUNT_GRPC_PORT}:4000"
 
