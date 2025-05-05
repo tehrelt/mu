@@ -1,0 +1,22 @@
+services:
+  mailer:
+    container_name: mailer
+    restart: unless-stopped
+    build:
+      context: ../mailer
+    env_file:
+      - .env
+    environment:
+      ENV: local
+      APP_NAME: MU Mailer
+      GRPC_PORT: 4000
+
+      WAIT_HOSTS: notification-service:4000, rmq:5672
+
+      NOTIFICATION_SERVICE_HOST: notification-service
+      NOTIFICATION_SERVICE_PORT: 4000
+
+      AMQP_HOST: rmq
+      AMQP_PORT: 5672
+
+      JAEGER_ENDPOINT: http://jaeger:4317

@@ -10,14 +10,16 @@ include:
   - ticket-service.yaml
   - consumption-service.yaml
   - notification-service.yaml
-  # - telegram-bot.yaml
+  - telegram-bot.yaml
+  - mailer.yaml
+  - gateway.yaml
 
 services:
   pgadmin:
     image: dpage/pgadmin4
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "81:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=root@mu.ru
       - PGADMIN_DEFAULT_PASSWORD=rootroot
@@ -32,3 +34,13 @@ services:
       - "14269:14269"
       - "16686:16686"
       - "4317:4317"
+
+  nginx:
+    image: nginx:1-alpine
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

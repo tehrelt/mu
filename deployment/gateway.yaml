@@ -1,0 +1,43 @@
+services:
+  gateway:
+    container_name: gateway
+    restart: unless-stopped
+    build:
+      context: ../gateway
+    env_file:
+      - .env
+    environment:
+      ENV: dev
+      APP_NAME: MU Gateway
+      GRPC_PORT: 4000
+
+      WAIT_HOSTS: account-service:4000, notification-service:4000, rmq:5672, auth-service:4000, billing-service:4000, housing-service:4000, rate-service:4000, register-service:4000, ticket-service:4000
+
+      ACCOUNT_SERVICE_HOST: account-service
+      ACCOUNT_SERVICE_PORT: 4000
+
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 4000
+
+      BILLING_SERVICE_HOST: billing-service
+      BILLING_SERVICE_PORT: 4000
+
+      HOUSING_SERVICE_HOST: housing-service
+      HOUSING_SERVICE_PORT: 4000
+
+      NOTIFICATION_SERVICE_HOST: notification-service
+      NOTIFICATION_SERVICE_PORT: 4000
+
+      RATE_SERVICE_HOST: rate-service
+      RATE_SERVICE_PORT: 4000
+
+      REGISTER_SERVICE_HOST: register-service
+      REGISTER_SERVICE_PORT: 4000
+
+      TICKET_SERVICE_HOST: ticket-service
+      TICKET_SERVICE_PORT: 4000
+
+      JAEGER_ENDPOINT: http://jaeger:4317
+
+      PUBLIC_HTTP_PORT: 8080
+      ADMIN_HTTP_PORT: 8081
