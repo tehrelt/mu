@@ -7,6 +7,7 @@ CREATE TABLE
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     account_id UUID NOT NULL,
     amount BIGINT NOT NULL,
+    message VARCHAR(255),
     status PAYMENT_STATUS DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT now (),
     updated_at TIMESTAMP
