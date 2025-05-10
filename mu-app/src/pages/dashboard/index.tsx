@@ -123,7 +123,7 @@ const Operations = ({
           <DataTable columns={cols} data={payments} />
         </div>
       </CardContent>
-      <CardFooter>
+      {/* <CardFooter>
         <Link
           to={routes.dashboard.account.transactionHistory}
           className="w-full"
@@ -132,7 +132,7 @@ const Operations = ({
             Показать полную историю транзакции
           </Button>
         </Link>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 };

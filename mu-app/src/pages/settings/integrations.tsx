@@ -30,12 +30,11 @@ export const IntegrationsSettingsPage = (props: Props) => {
           <div className="grid gap-2">
             <Label>Telegram</Label>
             <div>
-              {settingsQuery.data &&
-                (settingsQuery.data.hasTelegram ? (
-                  <Button disabled>Телеграм подключен</Button>
-                ) : (
-                  <ConnectTelegramButton />
-                ))}
+              {settingsQuery.data?.hasTelegram ? (
+                <Button disabled>Телеграм подключен</Button>
+              ) : (
+                <ConnectTelegramButton />
+              )}
             </div>
           </div>
         </CardContent>

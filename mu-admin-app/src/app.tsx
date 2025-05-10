@@ -22,7 +22,7 @@ function App() {
           <RoutesConfig />
         </BrowserRouter>
         <Toaster />
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -1,6 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { z } from "zod";
 
-type Theme = "dark" | "light" | "system";
+export const themes = z.enum(["dark", "light", "system"]);
+type Theme = z.infer<typeof themes>;
+export const _theme = (t: Theme) => {
+  switch (t) {
+    case "dark":
+      return "Темная тема";
+    case "light":
+      return "Светлая тема";
+    case "system":
+      return "По системе";
+  }
+};
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -14,7 +26,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "light",
   setTheme: () => null,
 };
 
@@ -27,7 +39,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
   useEffect(() => {

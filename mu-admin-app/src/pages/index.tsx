@@ -1,7 +1,8 @@
-import React from "react";
-
-type Props = {};
-
-export const Index = (props: Props) => {
-  return <div>Index</div>;
+export const Index = () => {
+  return (
+    <div>
+      <h1 className="text-xl font-bold">Главная</h1>
+      <p>Выберите необходмый пункт слева</p>
+    </div>
+  );
 };

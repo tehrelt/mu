@@ -13,6 +13,7 @@ import { routes } from "@/shared/routes";
 
 import Logo from "@/assets/logo.png";
 import { title } from "process";
+import ThemeSwitcher from "./theme-switcher";
 
 const data = {
   navMain: [
@@ -38,10 +39,6 @@ const data = {
       icon: Bot,
       items: [
         {
-          title: "Запросы на доступ",
-          url: "#",
-        },
-        {
           title: "Список",
           url: routes.users.list,
         },
@@ -65,13 +62,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="text-xl text-center py-4 font-bold">
-        <img src={Logo} alt="logo" className="mx-auto" />
-        Admin MoiUslugi
+        <div>
+          <p>&quot;Мои услуги&quot;</p>
+          <p>Админ панель</p>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
+        <ThemeSwitcher />
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
