@@ -5,7 +5,11 @@ import { Navigate, Outlet } from "react-router-dom";
 export const ProtectedRoute = () => {
   const data = useProfile();
 
-  if (!data.isSuccess) {
+  if (data.isLoading) {
+    return <p>Loading</p>;
+  }
+
+  if (!data.isLoading && !data.isSuccess) {
     return <Navigate to={routes.signIn} replace />;
   }
 

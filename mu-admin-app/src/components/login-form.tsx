@@ -95,23 +95,13 @@ export function LoginForm({
                     Войти
                   </Button>
                 </div>
-                <div className="text-center text-sm text-muted-foreground">
-                  Нет аккаунта?{" "}
-                  <Link
-                    to={routes.requestAccess}
-                    className="underline underline-offset-4"
-                  >
-                    Запросить доступ
-                  </Link>
-                </div>
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        Разработано ст. гр. ПИ-21а Евтеев Д.С.
       </div>
     </div>
   );

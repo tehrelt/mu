@@ -37,14 +37,15 @@ func (b *Bot) startHandler() telebot.HandlerFunc {
 		token := parts[0]
 		userid := parts[1]
 
-		if err := b.uc.Link(context.Background(), &dto.LinkUser{
+		user, err := b.uc.Link(context.Background(), &dto.LinkUser{
 			ChatId: chat.ID,
 			UserId: userid,
 			Code:   token,
-		}); err != nil {
+		})
+		if err != nil {
 			return ctx.Send(fmt.Sprintf("Failed to link user: %v", err))
 		}
 
-		return ctx.Send(fmt.Sprintf("Welcome, %s!\nChat Id: %d\nToken: %s\nUser Id: %s", sender.FirstName, chat.ID, token, userid))
+		return ctx.Send(fmt.Sprintf("Добро пожаловать, %s %s %s. \n\nЭто бот системы Мои услуги сюда будут приходить уведомления обновлении статуса созданных Вами заявок и уведомления операций над балансом.", user.Fio.Lastname, user.Fio.Firstname, user.Fio.Middlename))
 	}
 }

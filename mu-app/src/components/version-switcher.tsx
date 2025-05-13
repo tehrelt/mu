@@ -47,7 +47,7 @@ export function AccountSwitcher() {
                     </p>
                   </div>
                 ) : (
-                  <span className="font-medium">Select Account</span>
+                  <span className="font-medium">Выберите счёт</span>
                 )}
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -63,7 +63,7 @@ export function AccountSwitcher() {
                 .filter(
                   (acc) =>
                     (selectedAccount && selectedAccount.id !== acc.id) ||
-                    !selectedAccount,
+                    !selectedAccount
                 )
                 .map((acc) => (
                   <DropdownMenuItem
@@ -86,7 +86,7 @@ export function AccountSwitcher() {
                     navigate(routes.dashboard.index);
                   }}
                 >
-                  Clear
+                  Очистить
                 </DropdownMenuItem>
               </>
             )}

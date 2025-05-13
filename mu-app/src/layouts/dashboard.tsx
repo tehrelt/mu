@@ -27,7 +27,7 @@ export const AccountCheck = () => {
 const NoAccount = () => {
   return (
     <div className="flex justify-center items-center h-screen">
-      <p className="text-xl font-black">Выберите аккаунт</p>
+      <p className="text-xl font-black">Выберите счёт</p>
     </div>
   );
 };

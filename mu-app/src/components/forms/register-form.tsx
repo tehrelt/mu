@@ -62,9 +62,6 @@ export function RegisterForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Добро пожаловать</CardTitle>
-          <CardDescription>
-            lorem ipsum ojgewopg -3 3i2p ehg e lk'ge
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -198,10 +195,6 @@ export function RegisterForm({
           </Form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }

@@ -68,15 +68,15 @@ export function AddFundsPage() {
   });
 
   return (
-    <MasonryLayout>
-      <Card className="">
+    <div className="flex flex-wrap gap-6">
+      <Card className="w-fit">
         <CardHeader>
           <CardTitle>Пополнить счёт</CardTitle>
           <CardDescription>
             Пополните на готовую сумму или введите вручную
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid">
+        <CardContent>
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-x-2">
               {presets.map((preset) => (
@@ -103,11 +103,12 @@ export function AddFundsPage() {
           </CardAction>
         </CardFooter>
       </Card>
-
       {paymentsQuery.data && (
-        <PendingPayments payments={paymentsQuery.data?.payments} />
+        <div>
+          <PendingPayments payments={paymentsQuery.data?.payments} />
+        </div>
       )}
-    </MasonryLayout>
+    </div>
   );
 }
 

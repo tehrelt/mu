@@ -11,6 +11,7 @@ run: build
 
 PB=pkg/pb
 NOTIFICATION_PROTO=proto/notification.proto
+USERS_PROTO=proto/user.proto
 protobuf:
 	cp -r ../proto .
 
@@ -20,6 +21,13 @@ protobuf:
 		--go-grpc_out=. \
 		--go-grpc_opt=M$(NOTIFICATION_PROTO)=$(PB)/notificationpb \
 		$(NOTIFICATION_PROTO)
+
+	protoc  \
+		--go_out=. \
+		--go_opt=M$(USERS_PROTO)=$(PB)/userpb \
+		--go-grpc_out=. \
+		--go-grpc_opt=M$(USERS_PROTO)=$(PB)/userpb \
+		$(USERS_PROTO)
 
 gen: protobuf wire
 

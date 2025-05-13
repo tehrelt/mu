@@ -34,6 +34,11 @@ func (a *AMQP) ConnectionString() string {
 	return fmt.Sprintf("amqp://%s:%s@%s:%d/%s", a.User, a.Pass, a.Host, a.Port, a.Vhost)
 }
 
+type ExternalService struct {
+	Host string `env:"HOST"`
+	Port int    `env:"PORT"`
+}
+
 type Config struct {
 	Env Env `env:"ENV"`
 	App App
@@ -42,10 +47,8 @@ type Config struct {
 
 	BotToken string `env:"BOT_TOKEN"`
 
-	NotificationService struct {
-		Host string `env:"NOTIFICATION_SERVICE_HOST"`
-		Port int    `env:"NOTIFICATION_SERVICE_PORT"`
-	}
+	NotificationService ExternalService `env-prefix:"NOTIFICATION_SERVICE_"`
+	UserService         ExternalService `env-prefix:"USER_SERVICE_"`
 
 	NotificationSendExchange string `env:"RMQ_NOTIFICATION_SEND_EXCHANGE"`
 

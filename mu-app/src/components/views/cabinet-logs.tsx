@@ -33,7 +33,7 @@ export const ConsumptionHistory = ({ logs, unit }: Props) => {
     <div>
       <Card>
         <CardHeader>
-          <CardTitle>Consumption History</CardTitle>
+          <CardTitle>История потрбления</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable columns={cols(unit)} data={logs} />

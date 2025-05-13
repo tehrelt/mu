@@ -18,6 +18,7 @@ import { useConnectedServices } from "@/shared/hooks/use-services";
 import { routes } from "@/shared/routes";
 import { NavUser } from "./nav-user";
 import { NewTicketButton } from "./new-ticket-button";
+import ThemeSwitcher from "./theme-switcher";
 
 // This is sample data.
 const data = {
@@ -88,6 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
+        <ThemeSwitcher />
         <NavUser />
       </SidebarFooter>
       <SidebarRail />

@@ -13,6 +13,7 @@ import { ProcessPaymentPage } from "@/pages/billing/process";
 import { IsServiceConnectedLayout } from "@/layouts/service-connected";
 import NotFoundPage from "@/pages/not-found-page";
 import ServiceDashboard from "@/pages/dashboard/services/dashboard";
+import { ProtectedRoute } from "@/layouts/protected-route";
 
 export const RoutesConfig = () => {
   return (
@@ -23,20 +24,28 @@ export const RoutesConfig = () => {
       </Route>
 
       <Route path={routes.dashboard.index} element={<DashboardLayout />}>
-        <Route path={routes.dashboard.newTicket} element={<NewTicketPage />} />
-        <Route element={<AccountCheck />}>
-          <Route index element={<Dashboard />} />
-          <Route path={routes.dashboard.addFunds} element={<AddFundsPage />} />
-
+        <Route element={<ProtectedRoute />}>
           <Route
-            path={routes.dashboard.cabinet.dashboard()}
-            element={<ServiceDashboard />}
+            path={routes.dashboard.newTicket}
+            element={<NewTicketPage />}
+          />
+          <Route element={<AccountCheck />}>
+            <Route index element={<Dashboard />} />
+            <Route
+              path={routes.dashboard.addFunds}
+              element={<AddFundsPage />}
+            />
+
+            <Route
+              path={routes.dashboard.cabinet.dashboard()}
+              element={<ServiceDashboard />}
+            />
+          </Route>
+          <Route
+            path={routes.dashboard.settings.integrations}
+            element={<IntegrationsSettingsPage />}
           />
         </Route>
-        <Route
-          path={routes.dashboard.settings.integrations}
-          element={<IntegrationsSettingsPage />}
-        />
       </Route>
 
       <Route path={routes.billing.process()} element={<ProcessPaymentPage />} />

@@ -49,7 +49,12 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginUser) (*dto.Token
 	}
 
 	if err := s.sessions.Save(ctx, candidate.Id, tokens.RefreshToken); err != nil {
-		log.Error("failed to save session", slog.String("user_id", candidate.Id.String()), slog.String("refresh_token", tokens.RefreshToken), sl.Err(err))
+		log.Error(
+			"failed to save session",
+			slog.String("user_id", candidate.Id.String()),
+			slog.String("refresh_token", tokens.RefreshToken),
+			sl.Err(err),
+		)
 		return nil, fmt.Errorf("failed to save session: %w", err)
 	}
 

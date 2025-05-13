@@ -16,6 +16,9 @@ services:
       NOTIFICATION_SERVICE_HOST: notification-service
       NOTIFICATION_SERVICE_PORT: 4000
 
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4000
+
       AMQP_HOST: rmq
       AMQP_PORT: 5672
 
