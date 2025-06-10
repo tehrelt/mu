@@ -21,6 +21,17 @@ enum Role {
     ROLE_ADMIN = 2;
 }
 
+
+message RegisterRequest {
+    string user_id = 1;
+    string password = 2;
+    repeated Role roles = 3;
+}
+
+message RegisterResponse {
+    Tokens tokens = 1;
+}
+
 message HasAdminRequest {
 }
 
@@ -56,15 +67,6 @@ message User {
     string password = 9;
 }
 
-message RegisterRequest {
-    string user_id = 1;
-    string password = 2;
-    repeated Role roles = 3;
-}
-
-message RegisterResponse {
-    Tokens tokens = 1;
-}
 
 message LoginRequest {
     oneof login {
