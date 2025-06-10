@@ -7,9 +7,7 @@ import { integrationService } from "@/shared/services/integrations.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 
-type Props = {};
-
-export const IntegrationsSettingsPage = (props: Props) => {
+export const IntegrationsSettingsPage = () => {
   const profileQuery = useProfile();
 
   const settingsQuery = useQuery({

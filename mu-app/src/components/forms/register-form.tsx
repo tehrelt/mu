@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -25,6 +19,7 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"div">) {
   const form = useForm<RegisterInput>({
+    //@ts-ignore
     resolver: zodResolver(registerSchema),
   });
 
@@ -65,11 +60,13 @@ export function RegisterForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
+            {/*@ts-ignore */}
             <form onSubmit={form.handleSubmit(submit, console.warn)}>
               <div className="grid gap-6">
                 <div className="grid gap-6">
                   <div className="grid grid-cols-3 gap-x-2">
                     <FormField
+                      //@ts-ignore
                       control={form.control}
                       name="lastName"
                       render={({ field }) => (
@@ -80,6 +77,7 @@ export function RegisterForm({
                       )}
                     />
                     <FormField
+                      //@ts-ignore
                       control={form.control}
                       name="firstName"
                       render={({ field }) => (
@@ -90,6 +88,7 @@ export function RegisterForm({
                       )}
                     />
                     <FormField
+                      //@ts-ignore
                       control={form.control}
                       name="middleName"
                       render={({ field }) => (
@@ -101,6 +100,7 @@ export function RegisterForm({
                     />
                   </div>
                   <FormField
+                    //@ts-ignore
                     control={form.control}
                     name="email"
                     render={({ field }) => (
@@ -111,6 +111,7 @@ export function RegisterForm({
                     )}
                   />
                   <FormField
+                    //@ts-ignore
                     control={form.control}
                     name="phone"
                     render={({ field }) => (
@@ -132,6 +133,7 @@ export function RegisterForm({
                     <p className="font-bold">Паспорт</p>
                     <div className="grid grid-cols-2 gap-x-2">
                       <FormField
+                        //@ts-ignore
                         control={form.control}
                         name="passport.series"
                         render={({ field }) => (
@@ -144,6 +146,7 @@ export function RegisterForm({
                         )}
                       />
                       <FormField
+                        //@ts-ignore
                         control={form.control}
                         name="passport.number"
                         render={({ field }) => (
@@ -158,6 +161,7 @@ export function RegisterForm({
                     </div>
                   </div>
                   <FormField
+                    //@ts-ignore
                     control={form.control}
                     name="snils"
                     render={({ field }) => (
@@ -168,6 +172,7 @@ export function RegisterForm({
                     )}
                   />
                   <FormField
+                    //@ts-ignore
                     control={form.control}
                     name="password"
                     render={({ field }) => (

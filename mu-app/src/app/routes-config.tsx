@@ -10,7 +10,6 @@ import { NewTicketPage } from "@/pages/dashboard/new-ticket";
 import { IntegrationsSettingsPage } from "@/pages/settings/integrations";
 import { AddFundsPage } from "@/pages/dashboard/add-funds";
 import { ProcessPaymentPage } from "@/pages/billing/process";
-import { IsServiceConnectedLayout } from "@/layouts/service-connected";
 import NotFoundPage from "@/pages/not-found-page";
 import ServiceDashboard from "@/pages/dashboard/services/dashboard";
 import { ProtectedRoute } from "@/layouts/protected-route";

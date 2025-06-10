@@ -1,6 +1,5 @@
 import {
   NewTicketInput,
-  NewTicketPayload,
   TicketConnectServiceInput,
   ticketConnectServiceInputSchema,
   TicketNewAccountInput,
@@ -32,9 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "@/shared/routes";
 import { toast } from "sonner";
 
-type Props = {};
-
-export const NewTicketForm = (props: Props) => {
+export const NewTicketForm = () => {
   const [ticketType, setTicketType] = React.useState<TicketType | undefined>();
   const navigate = useNavigate();
 

@@ -13,13 +13,10 @@ import { routes } from "@/shared/routes";
 import { billingService } from "@/shared/services/billing.service";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import React from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-type Props = {};
-
-export const ProcessPaymentPage = (props: Props) => {
+export const ProcessPaymentPage = () => {
   const params = useParams();
 
   const id = params["id"];

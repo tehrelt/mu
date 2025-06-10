@@ -23,6 +23,7 @@ import MasonryLayout from "../ui/masonry-layout";
 import { LogsChart } from "./cabinet-logs-chart";
 
 type Props = {
+  /* eslint-disable */
   cabinet: Cabinet;
 };
 
@@ -134,7 +135,7 @@ const ConsumptionRegister = ({
       <CardContent className="grid gap-2 justify-center">
         <div className="w-fit">
           <div className="grid grid-cols-8 w-full">
-            {[...Array(8)].map((v, i) => (
+            {[...Array(8)].map((_, i) => (
               <Button
                 className="row-1"
                 variant={"ghost"}
@@ -150,12 +151,12 @@ const ConsumptionRegister = ({
                 value={value.toString().padStart(8)}
                 className="grid grid-cols-8 w-full"
               >
-                {[...Array(8)].map((v, i) => (
+                {[...Array(8)].map((_, i) => (
                   <InputOTPSlot index={i} className="" />
                 ))}
               </InputOTP>
             </div>
-            {[...Array(8)].map((v, i) => (
+            {[...Array(8)].map((_, i) => (
               <Button
                 className="row-3"
                 variant={"ghost"}

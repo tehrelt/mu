@@ -1,13 +1,7 @@
 import { DataTable } from "@/components/data-table";
 import { Balance } from "@/components/ui/balance";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MasonryLayout from "@/components/ui/masonry-layout";
 import { PaymentStatusBadge } from "@/components/ui/payment-status-badge";
 import { LogsChart } from "@/components/views/cabinet-logs-chart";

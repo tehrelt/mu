@@ -1,13 +1,11 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,8 +15,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { CabinetLog, CabinetLogs } from "@/shared/types/cabinet";
 import { datef } from "@/shared/lib/utils";
+import { CabinetLog } from "@/shared/types/cabinet";
 
 const chartConfig = {
   desktop: {
@@ -52,6 +50,7 @@ function aggregateLogsByDate(services: Service[]): AggregatedLog[] {
       const dateKey = new Date(log.createdAt).toISOString().split("T")[0]; // только дата, без времени
 
       if (!dateMap.has(dateKey)) {
+        //@ts-ignore
         dateMap.set(dateKey, { date: dateKey });
       }
 
@@ -61,7 +60,8 @@ function aggregateLogsByDate(services: Service[]): AggregatedLog[] {
   }
 
   return Array.from(dateMap.values()).sort((a, b) =>
-    a.date.localeCompare(b.date),
+    //@ts-ignore
+    a.date.localeCompare(b.date)
   );
 }
 

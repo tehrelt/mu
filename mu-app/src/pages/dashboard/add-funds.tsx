@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import MasonryLayout from "@/components/ui/masonry-layout";
 import { PaymentStatusBadge } from "@/components/ui/payment-status-badge";
 import { datef } from "@/shared/lib/utils";
 import { routes } from "@/shared/routes";
@@ -28,8 +27,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-type Props = {};
 
 const presets = [100, 250, 500, 1000];
 

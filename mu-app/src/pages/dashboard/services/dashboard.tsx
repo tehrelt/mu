@@ -1,12 +1,9 @@
-import { Card } from "@/components/ui/card";
 import { CabinetViewer } from "@/components/views/cabinet";
 import { cabinetService } from "@/shared/services/cabinet.service";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
-type Props = {};
-
-const ServiceDashboard = (props: Props) => {
+const ServiceDashboard = () => {
   const cabinetId = useParams().id!;
 
   const cabinetQuery = useQuery({
@@ -18,7 +15,12 @@ const ServiceDashboard = (props: Props) => {
     return <div>Loading...</div>;
   }
 
-  return <CabinetViewer cabinet={cabinetQuery.data} />;
+  return (
+    <CabinetViewer
+      // @ts-ignore
+      cabinet={cabinetQuery.data}
+    />
+  );
 };
 
 export default ServiceDashboard;

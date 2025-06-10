@@ -1,5 +1,4 @@
 import { api } from "@/app/api";
-import { TicketType } from "../types/ticket";
 import { rateListSchema, rateSchema } from "../types/rate";
 
 export type RateFilters = {
