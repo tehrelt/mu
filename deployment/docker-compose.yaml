@@ -13,6 +13,7 @@ include:
   - telegram-bot.yaml
   - mailer.yaml
   - gateway.yaml
+  - frontend.yaml
 
 services:
   pgadmin:
