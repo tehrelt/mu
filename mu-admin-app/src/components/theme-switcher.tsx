@@ -1,7 +1,7 @@
-import { _theme, themes, useTheme } from "@/app/providers/theme-provider";
+import { themes, useTheme } from "@/app/providers/theme-provider";
 import { cn } from "@/lib/utils";
 
-const ThemeSwitcher = (props: Props) => {
+const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   return (

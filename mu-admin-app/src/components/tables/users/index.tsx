@@ -1,5 +1,4 @@
 import { DataTable } from "@/components/data-table";
-import { Rate } from "@/shared/types/rate";
 import { usersColumns } from "./columns";
 import { UserSnippet } from "@/shared/types/user";
 

@@ -21,8 +21,6 @@ import { accountService } from "@/shared/services/account.service";
 import { Payment, PaymentStatus } from "@/shared/types/account";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
-import { Link } from "react-router-dom";
 
 type Props = {
   accId: string;

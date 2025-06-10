@@ -10,7 +10,6 @@ import { useDebounce } from "@/shared/hooks/use-debounce";
 import { routes } from "@/shared/routes";
 import { rateService } from "@/shared/services/rates.service";
 import { useQuery } from "@tanstack/react-query";
-import debounce from "lodash.debounce";
 import React from "react";
 import { Link } from "react-router-dom";
 

@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 import { routes } from "@/shared/routes";
 
-import Logo from "@/assets/logo.png";
-import { title } from "process";
 import ThemeSwitcher from "./theme-switcher";
 
 const data = {

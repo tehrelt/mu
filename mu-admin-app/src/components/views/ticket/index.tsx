@@ -3,7 +3,6 @@ import {
   localizeTicketType,
   Ticket,
   TicketConnectService,
-  TicketHeader,
   TicketNewAccount,
   TicketStatusEnum,
 } from "@/shared/types/ticket";
@@ -23,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { UUID } from "@/components/ui/uuid";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/shared/services/users.service";

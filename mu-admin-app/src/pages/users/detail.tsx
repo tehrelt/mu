@@ -4,9 +4,7 @@ import { useParams } from "react-router-dom";
 import { UserNotFound } from "../tickets/not-found";
 import { UserViewer } from "@/components/views/user";
 
-type Props = {};
-
-export const UserDetailsPage = (props: Props) => {
+export const UserDetailsPage = () => {
   const { id } = useParams();
 
   const query = useQuery({

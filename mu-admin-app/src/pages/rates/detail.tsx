@@ -1,13 +1,10 @@
 import { rateService } from "@/shared/services/rates.service";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import { useParams } from "react-router-dom";
 import { RateNotFoundPage } from "./not-found";
 import RateViewer from "@/components/views/rate";
 
-type Props = {};
-
-const RateDetailsPage = (props: Props) => {
+const RateDetailsPage = () => {
   const { id } = useParams();
 
   const query = useQuery({

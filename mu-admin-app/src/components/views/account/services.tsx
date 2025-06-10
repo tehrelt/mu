@@ -5,7 +5,6 @@ import { accountService } from "@/shared/services/account.service";
 import { localizeServiceType, Rate, ServiceType } from "@/shared/types/rate";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
 
 type Props = {
   accountId: string;

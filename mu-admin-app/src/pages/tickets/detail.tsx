@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { UserNotFound } from "../tickets/not-found";
 import { TicketViewer } from "@/components/views/ticket";
 import { ticketService } from "@/shared/services/tickets.service";
 
-type Props = {};
-
-export const TicketDetailsPage = (props: Props) => {
+export const TicketDetailsPage = () => {
   const { id } = useParams();
 
   const query = useQuery({

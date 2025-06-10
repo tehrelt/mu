@@ -4,7 +4,6 @@ import { ThemeProvider } from "./app/providers/theme-provider";
 import { BrowserRouter } from "react-router-dom";
 import { RoutesConfig } from "./app/routes-config";
 import { Toaster } from "./components/ui/sonner";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   const [queryClient] = React.useState(

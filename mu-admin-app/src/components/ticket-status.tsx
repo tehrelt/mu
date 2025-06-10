@@ -1,5 +1,4 @@
 import { localizeTicketStatus, TicketStatusEnum } from "@/shared/types/ticket";
-import React from "react";
 import { Badge } from "./ui/badge";
 
 type Props = {

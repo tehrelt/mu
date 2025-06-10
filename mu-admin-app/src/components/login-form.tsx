@@ -1,12 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +9,7 @@ import { LoginInput, loginSchema } from "@/shared/types/auth";
 import { Form, FormField, FormLabel } from "./ui/form";
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "@/shared/services/auth.service";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { routes } from "@/shared/routes";
 import { toast } from "sonner";
 import { GalleryVerticalEnd } from "lucide-react";

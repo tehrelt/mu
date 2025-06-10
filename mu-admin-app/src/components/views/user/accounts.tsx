@@ -9,7 +9,6 @@ import { userService } from "@/shared/services/users.service";
 import { AccountInfo } from "@/shared/types/user";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
 import { Link } from "react-router-dom";
 
 type Props = {

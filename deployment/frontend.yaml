@@ -4,4 +4,11 @@ services:
     build:
       context: ../mu-app
     environment:
-      VITE_API_ADDRESS: http://gateway:80
+      VITE_API_ADDRESS: http://gateway:8080/api
+
+  admin-frontend:
+    restart: unless-stopped
+    build:
+      context: ../mu-admin-app
+    environment:
+      VITE_API_ADDRESS: http://gateway:8081/api
