@@ -3,13 +3,15 @@ import { Header } from "../components/header";
 
 export const MainLayout = () => {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Header />
-      <main>
+      <main className="flex-2">
         <Outlet />
       </main>
-      <footer>
-        <p>&copy; 2023 My App</p>
+      <footer className="flex justify-center py-4">
+        <p className="italic text-muted-foreground">
+          &copy; 2025 ПИ-21а Евтеев Дмитрий
+        </p>
       </footer>
     </div>
   );

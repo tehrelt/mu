@@ -32,7 +32,7 @@ export function LoginForm({
     mutationKey: ["login"],
     mutationFn: async (data: LoginInput) => await authService.login(data),
     onSuccess: () => {
-      navigate(routes.home);
+      navigate(routes.dashboard.index);
     },
     onError: (e) => {
       console.log(e);

@@ -11,4 +11,4 @@ services:
     build:
       context: ../mu-admin-app
     environment:
-      VITE_API_ADDRESS: http://gateway:8081/api
+      VITE_API_ADDRESS: http://nginx:82/admin/api

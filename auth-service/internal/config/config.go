@@ -53,7 +53,7 @@ type Bcrypt struct {
 
 type DefaultUser struct {
 	Email    string `env:"DEFAULT_USER_EMAIL" env-default:"admin@admin.ru"`
-	Password string `env:"DEFAULT_USER_PASSWORD" env-default:"admin"`
+	Password string `env:"DEFAULT_USER_PASSWORD" env-default:"adminadmin"`
 }
 
 type UserService struct {

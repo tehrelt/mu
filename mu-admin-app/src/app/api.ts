@@ -10,6 +10,9 @@ export const api = axios.create({
   },
 });
 
+console.log("baseURL:", import.meta.env.VITE_API_ADDRESS);
+console.log("env", import.meta.env);
+
 api.interceptors.request.use((config) => {
   const token = sessionService.get();
   if (token) {
@@ -48,5 +51,5 @@ api.interceptors.response.use(
       }
     }
     throw e;
-  },
+  }
 );

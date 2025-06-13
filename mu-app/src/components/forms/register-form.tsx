@@ -12,7 +12,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Form, FormField, FormLabel } from "../ui/form";
+import { Form, FormField, FormLabel, FormMessage } from "../ui/form";
 
 export function RegisterForm({
   className,
@@ -29,7 +29,7 @@ export function RegisterForm({
     mutationKey: ["register"],
     mutationFn: async (data: RegisterInput) => await authService.register(data),
     onSuccess: () => {
-      navigate(routes.home);
+      navigate(routes.dashboard.index);
     },
     onError: (e) => {
       console.log(e);
@@ -72,7 +72,8 @@ export function RegisterForm({
                       render={({ field }) => (
                         <div className="grid gap-3">
                           <FormLabel htmlFor="lastName">Фамилия</FormLabel>
-                          <Input {...field} />
+                          <Input {...field} placeholder="Иванов" />
+                          <FormMessage />
                         </div>
                       )}
                     />
@@ -83,7 +84,8 @@ export function RegisterForm({
                       render={({ field }) => (
                         <div className="grid gap-3">
                           <FormLabel htmlFor="firstName">Имя</FormLabel>
-                          <Input {...field} />
+                          <Input {...field} placeholder="Иван" />
+                          <FormMessage />
                         </div>
                       )}
                     />
@@ -94,7 +96,8 @@ export function RegisterForm({
                       render={({ field }) => (
                         <div className="grid gap-3">
                           <FormLabel htmlFor="middleName">Отчество</FormLabel>
-                          <Input {...field} />
+                          <Input {...field} placeholder="Иванович" />
+                          <FormMessage />
                         </div>
                       )}
                     />
@@ -106,7 +109,8 @@ export function RegisterForm({
                     render={({ field }) => (
                       <div className="grid gap-3">
                         <FormLabel htmlFor="email">Email</FormLabel>
-                        <Input {...field} />
+                        <Input {...field} placeholder="example@mail.ru" />
+                        <FormMessage />
                       </div>
                     )}
                   />
@@ -116,7 +120,7 @@ export function RegisterForm({
                     name="phone"
                     render={({ field }) => (
                       <div className="grid gap-3">
-                        <FormLabel htmlFor="phone">Phone</FormLabel>
+                        <FormLabel htmlFor="phone">Телефон (без +7)</FormLabel>
                         <div className="flex items-center">
                           <div className="flex h-full items-center px-2 rounded-l-md border bg-accent">
                             +7
@@ -124,8 +128,10 @@ export function RegisterForm({
                           <Input
                             {...field}
                             className="rounded-l-none border-l-0"
+                            placeholder="94912341212"
                           />
                         </div>
+                        <FormMessage />
                       </div>
                     )}
                   />
@@ -139,9 +145,10 @@ export function RegisterForm({
                         render={({ field }) => (
                           <div className="grid gap-3">
                             <FormLabel htmlFor="passport.series">
-                              Серия
+                              Серия (4 цифры)
                             </FormLabel>
                             <Input type="number" {...field} />
+                            <FormMessage />
                           </div>
                         )}
                       />
@@ -152,9 +159,10 @@ export function RegisterForm({
                         render={({ field }) => (
                           <div className="grid gap-3">
                             <FormLabel htmlFor="passport.number">
-                              Номер
+                              Номер (6 цифр)
                             </FormLabel>
                             <Input type="number" {...field} />
+                            <FormMessage />
                           </div>
                         )}
                       />
@@ -166,8 +174,11 @@ export function RegisterForm({
                     name="snils"
                     render={({ field }) => (
                       <div className="grid gap-3">
-                        <FormLabel htmlFor="snils">Снилс</FormLabel>
+                        <FormLabel htmlFor="snils">
+                          Снилс (формат 217-2117-217)
+                        </FormLabel>
                         <Input {...field} />
+                        <FormMessage />
                       </div>
                     )}
                   />
@@ -179,6 +190,7 @@ export function RegisterForm({
                       <div className="grid gap-3">
                         <Label htmlFor="password">Пароль</Label>
                         <Input {...field} type="password" />
+                        <FormMessage />
                       </div>
                     )}
                   />

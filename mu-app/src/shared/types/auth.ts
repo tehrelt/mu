@@ -28,7 +28,7 @@ export const registerSchema = z.object({
   email: z.string().email().trim(),
   phone: z
     .string()
-    .length(10)
+    .length(10, { message: "Неверный формат номера телефона" })
     .trim()
     .transform((v) => `7${v}`),
   passport: z.object({
